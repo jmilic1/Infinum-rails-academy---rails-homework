@@ -4,6 +4,7 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 ruby '3.0.0'
 
 gem 'pg'
+gem 'http'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails', branch: 'main'
 gem 'rails', '~> 6.1.3', '>= 6.1.3.2'
@@ -35,6 +36,8 @@ group :development, :test do
   gem 'rubocop-rspec', require: false
   gem 'overcommit', require: false
   gem 'rspec-rails'
+  gem 'pry-rails'
+  gem 'pry-doc'
 end
 
 group :development do
