@@ -32,6 +32,7 @@ group :development, :test do
   gem 'rubocop-rails', require: false
   gem 'rubocop-rspec', require: false
   gem 'overcommit', require: false
+  gem 'rspec-rails'
 end
 
 group :development do
