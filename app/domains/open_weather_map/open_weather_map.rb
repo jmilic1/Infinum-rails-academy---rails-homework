@@ -10,6 +10,7 @@ module OpenWeatherMap
 
       # rubocop:disable Layout/LineLength
       data = JSON.parse(HTTP.get(format(URL, id, Rails.application.credentials[:open_weather_map_api_key])))
+      # rubocop:enable Layout/LineLength
 
       City.parse(data)
     end
