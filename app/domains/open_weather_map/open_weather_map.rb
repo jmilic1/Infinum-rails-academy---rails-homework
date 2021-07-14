@@ -2,7 +2,7 @@ require "http"
 
 URL = "https://samples.openweathermap.org/data/2.5/weather?id=%s&appid=%s"
 
-module OpenWeatherMap
+module OpenWeatherMap::OpenWeatherMap
   def self.city(name)
     id = Resolver.city_id(name)
     return if id.nil?
