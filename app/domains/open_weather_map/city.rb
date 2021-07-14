@@ -1,5 +1,7 @@
 NEARBY_DISTANCE = 5
 
+URL = 'https://api.openweathermap.org/geo/1.0/direct?q=%s&limit=%d&appid=%s'
+
 module OpenWeatherMap
   class City
     ZERO_CELSIUS_TO_KELVIN = 273.15
@@ -35,15 +37,12 @@ module OpenWeatherMap
       new(id: id, lat: lat, lon: lon, name: name, temp_k: temp_k)
     end
 
-    def nearby(count: 5) # rubocop:disable Metrics/AbcSize
-      data = JSON.parse(File.read(File.expand_path('city.list.json', __dir__)))
+    def nearby(count: 5)
+      # rubocop:disable Layout/LineLength
+      data = JSON.parse(HTTP.get(format(URL, name, count, Rails.application.credentials[:open_weather_map_api_key])))
+      # rubocop:enable Layout/LineLength
 
-      data.select do |element|
-        other_lat = element['coord']['lat']
-        other_lon = element['coord']['lon']
-
-        Math.sqrt((lat - other_lat)**2 + (lon - other_lon)**2) < NEARBY_DISTANCE
-      end[0, count]
+      data.map { |entry| OpenWeatherMap.city(entry['name']) }
     end
 
     def coldest_nearby
