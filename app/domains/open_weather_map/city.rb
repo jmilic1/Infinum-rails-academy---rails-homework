@@ -1,3 +1,5 @@
+NEARBY_DISTANCE = 5
+
 class OpenWeatherMap::City
   ZERO_CELSIUS_TO_KELVIN = 273.15
 
@@ -30,6 +32,21 @@ class OpenWeatherMap::City
     name = data["name"]
 
     new(id: id, lat: lat, lon: lon, name: name, temp_k: temp_k)
+  end
+
+  def nearby(count: 5)
+    data = JSON.parse(File.read(File.expand_path("city.list.json", __dir__)))
+
+    data.select do |element|
+      other_lat, other_lon = element["coord"]["lat"], element["coord"]["lon"]
+
+      Math.sqrt((lat - other_lat)**2 + (lon - other_lon)**2) < NEARBY_DISTANCE
+    end[0, count]
+  end
+
+  def coldest_nearby
+    arguments = [6]
+    nearby(*arguments).min
   end
 
 end
