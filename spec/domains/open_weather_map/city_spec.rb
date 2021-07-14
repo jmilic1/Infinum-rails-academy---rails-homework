@@ -4,6 +4,48 @@ LON = 365
 NAME = "Atlantis"
 TEMP_K = 300
 ZERO_CELSIUS_TO_KELVIN = 273.15
+DATA = {
+  "coord" => {
+    "lon" => 145.77,
+    "lat" => -16.92
+  },
+  "weather" => [
+    {
+      "id" => 802,
+      "main" => "Clouds",
+      "description" => "scattered clouds",
+      "icon" => "03n"
+    }
+  ],
+  "base" => "stations",
+  "main" => {
+    "temp" => 300.15,
+    "pressure" => 1007,
+    "humidity" => 74,
+    "temp_min" => 300.15,
+    "temp_max" => 300.15
+  },
+  "visibility" => 10000,
+  "wind" => {
+    "speed" => 3.6,
+    "deg" => 160
+  },
+  "clouds" => {
+    "all" => 40
+  },
+  "dt" => 1485790200,
+  "sys" => {
+    "type" => 1,
+    "id" => 8166,
+    "message" => 0.2064,
+    "country" => "AU",
+    "sunrise" => 1485720272,
+    "sunset" => 1485766550
+  },
+  "id" => 2172797,
+  "name" => "Cairns",
+  "cod" => 200
+}
 
 RSpec.describe OpenWeatherMap::City do
 
@@ -63,4 +105,27 @@ RSpec.describe OpenWeatherMap::City do
 
     expect(receiver <=> other).to be > 0
   end
+
+  let(:parsed) { OpenWeatherMap::City.parse(DATA) }
+
+  it "returns id of parsed city" do
+    expect(parsed.id).to eq(DATA["id"])
+  end
+
+  it "returns lat of parsed city" do
+    expect(parsed.lat).to eq(DATA["coord"]["lat"])
+  end
+
+  it "returns lon of parsed city" do
+    expect(parsed.lon).to eq(DATA["coord"]["lon"])
+  end
+
+  it "returns name of parsed city" do
+    expect(parsed.name).to eq(DATA["name"])
+  end
+
+  it "returns temp of parsed city" do
+    expect(parsed.temp).to eq(DATA["main"]["temp"] - ZERO_CELSIUS_TO_KELVIN)
+  end
+
 end
