@@ -101,6 +101,7 @@ GEM
     iniparse (1.5.0)
     jbuilder (2.11.2)
       activesupport (>= 5.0.0)
+    json (2.5.1)
     listen (3.5.1)
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
@@ -280,6 +281,7 @@ DEPENDENCIES
   capybara (>= 3.26)
   http
   jbuilder (~> 2.7)
+  json
   listen (~> 3.3)
   overcommit
   pg
