@@ -7,10 +7,6 @@ ZERO_CELSIUS_TO_KELVIN = 273.15
 
 RSpec.describe OpenWeatherMap::City do
 
-  # before do
-  #   @city = City.new()
-  # end
-
   let(:city) { OpenWeatherMap::City.new(id: CITY_ID, lat: LAT, lon: LON, name: NAME, temp_k: TEMP_K) }
 
   it "returns id of city" do
