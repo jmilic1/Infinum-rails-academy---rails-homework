@@ -39,7 +39,7 @@ module OpenWeatherMap
 
     def nearby(count = 5)
       # rubocop:disable Layout/LineLength
-      data = JSON.parse(HTTP.get(format(URL, name, count, Rails.application.credentials[:open_weather_map_api_key])))
+      data = JSON.parse(HTTP.get(format(URL, @name, count, Rails.application.credentials[:open_weather_map_api_key])))
       # rubocop:enable Layout/LineLength
 
       data.map { |entry| OpenWeatherMap.city(entry['name']) }
