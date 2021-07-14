@@ -4,6 +4,6 @@ module OpenWeatherMap::Resolver
     entry = data.find { |element| element["name"] == name }
 
     return if entry.nil?
-    entry["name"]
+    entry["id"]
   end
 end
