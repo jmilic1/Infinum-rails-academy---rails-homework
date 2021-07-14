@@ -3,7 +3,7 @@ require:
   - rubocop-rspec
 
 Layout/LineLength:
-  Max: 103
+  Max: 100
 
 Style/Documentation:
   Enabled: false

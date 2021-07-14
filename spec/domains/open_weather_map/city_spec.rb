@@ -79,12 +79,14 @@ RSpec.describe OpenWeatherMap::City do
     expect(receiver <=> other).to be < 0
   end
 
+  # rubocop:disable Layout/LineLength
   it 'compares city with alphabetically lesser name to city with same temperature and alphabetically greater name' do
     receiver = described_class.new(id: 0, lat: 0, lon: 0, name: 'A', temp_k: 0)
     other = described_class.new(id: 1, lat: 1, lon: 1, name: 'B', temp_k: 0)
 
     expect(receiver <=> other).to be < 0
   end
+  # rubocop:enable Layout/LineLength
 
   it 'compares cities with same name and temperature' do
     receiver = described_class.new(id: 0, lat: 0, lon: 0, name: 'A', temp_k: 0)
@@ -100,13 +102,14 @@ RSpec.describe OpenWeatherMap::City do
     expect(receiver <=> other).to be > 0
   end
 
+  # rubocop:disable Layout/LineLength
   it 'compares city with alphabetically greater name to city with same temperature and alphabetically lesser name' do
     receiver = described_class.new(id: 0, lat: 0, lon: 0, name: 'B', temp_k: 0)
     other = described_class.new(id: 1, lat: 1, lon: 1, name: 'A', temp_k: 0)
 
     expect(receiver <=> other).to be > 0
   end
-
+  # rubocop:enable Layout/LineLength
 
   it 'returns id of parsed city' do
     expect(parsed.id).to eq(DATA['id'])
