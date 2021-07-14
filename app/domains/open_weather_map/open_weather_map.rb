@@ -1,6 +1,6 @@
 require 'http'
 
-URL = 'https://samples.openweathermap.org/data/2.5/weather?id=%s&appid=%s'
+URL = 'https://api.openweathermap.org/data/2.5/weather?id=%s&appid=%s'
 
 module OpenWeatherMap
   module OpenWeatherMap
