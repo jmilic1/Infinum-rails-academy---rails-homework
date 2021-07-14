@@ -8,8 +8,8 @@ module OpenWeatherMap
       id = Resolver.city_id(name)
       return if id.nil?
 
-      data = JSON.parse(HTTP.get(format(URL, id,
-                                        Rails.application.credentials[:open_weather_map_api_key])))
+      # rubocop:disable Layout/LineLength
+      data = JSON.parse(HTTP.get(format(URL, id, Rails.application.credentials[:open_weather_map_api_key])))
 
       City.parse(data)
     end
