@@ -11,4 +11,8 @@ module OpenWeatherMap
 
     City.parse(data)
   end
+
+  def self.cities(names)
+    names.map { |name| city(name) }
+  end
 end
