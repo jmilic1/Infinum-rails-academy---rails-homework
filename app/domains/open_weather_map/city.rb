@@ -40,7 +40,7 @@ module OpenWeatherMap
       data = JSON.parse(HTTP.get("#{URL}find", params: { lat: lat, lon: lon, cnt: count, appid: API_KEY }))
       # rubocop:enable Layout/LineLength
 
-      data['list'].map { |entry| parse(entry) }
+      data['list'].map { |entry| OpenWeatherMap::City.parse(entry) }
     end
 
     def coldest_nearby
