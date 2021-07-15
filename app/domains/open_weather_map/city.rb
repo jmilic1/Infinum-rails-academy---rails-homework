@@ -1,7 +1,5 @@
 NEARBY_DISTANCE = 5
 
-URL = 'https://api.openweathermap.org/geo/1.0/direct?q=%s&limit=%d&appid=%s'
-
 module OpenWeatherMap
   class City
     ZERO_CELSIUS_TO_KELVIN = 273.15
@@ -39,7 +37,7 @@ module OpenWeatherMap
 
     def nearby(count = 5)
       # rubocop:disable Layout/LineLength
-      data = JSON.parse(HTTP.get(format(URL, name, count, Rails.application.credentials[:open_weather_map_api_key])))
+      data = JSON.parse(HTTP.get("#{URL}find", params: { lat: lat, lon: lon, cnt: count, appid: Rails.application.credentials[:open_weather_map_api_key] }))
       # rubocop:enable Layout/LineLength
 
       data.map { |entry| OpenWeatherMap.city(entry['name']) }
