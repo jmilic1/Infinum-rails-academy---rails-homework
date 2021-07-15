@@ -44,7 +44,8 @@ module OpenWeatherMap
     end
 
     def coldest_nearby(count = 5)
-      nearby(count).min
+      arguments = [count]
+      nearby(*arguments).min
     end
   end
 end
