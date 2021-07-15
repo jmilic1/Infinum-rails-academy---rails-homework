@@ -43,8 +43,8 @@ module OpenWeatherMap
       data['list'].map { |entry| OpenWeatherMap::City.parse(entry) }
     end
 
-    def coldest_nearby
-      nearby.min
+    def coldest_nearby(count = 5)
+      nearby(count).min
     end
   end
 end
