@@ -45,9 +45,8 @@ module OpenWeatherMap
       data.map { |entry| OpenWeatherMap.city(entry['name']) }
     end
 
-    def coldest_nearby
-      arguments = [6]
-      nearby(*arguments).min
+    def coldest_nearby(count)
+      nearby(count).min
     end
   end
 end
