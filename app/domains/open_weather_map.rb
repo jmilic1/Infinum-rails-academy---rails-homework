@@ -13,6 +13,14 @@ module OpenWeatherMap
   end
 
   def self.cities(names)
-    names.filter_map { |name| city(name) }
+    ids = names.filter_map { |name| Resolver.city_id(name) }.join(',')
+
+    City.parse(
+      JSON.parse(
+        HTTP.get(
+          "#{URL}group", params: { id: ids, appid: Rails.application.credentials[:open_weather_map_api_key] }
+        )
+      )
+    )
   end
 end
