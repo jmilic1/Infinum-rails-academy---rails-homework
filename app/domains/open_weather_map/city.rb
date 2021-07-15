@@ -37,7 +37,7 @@ module OpenWeatherMap
 
     def nearby(count = 5)
       # rubocop:disable Layout/LineLength
-      data = JSON.parse(HTTP.get("#{URL}find", params: { lat: lat, lon: lon, cnt: count, appid: API_KEY }))
+      data = JSON.parse(HTTP.get("#{URL}finds", params: { lat: lat, lon: lon, cnt: count, appid: API_KEY }))
       # rubocop:enable Layout/LineLength
 
       names = data['list'].map { |entry| entry['name'] }
