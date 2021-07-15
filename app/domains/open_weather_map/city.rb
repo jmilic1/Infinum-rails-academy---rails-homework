@@ -37,10 +37,11 @@ module OpenWeatherMap
 
     def nearby(count = 5)
       # rubocop:disable Layout/LineLength
-      data = JSON.parse(HTTP.get("#{URL}find", params: { lat: lat, lon: lon, cnt: count, appid: Rails.application.credentials[:open_weather_map_api_key] }))
+      data = JSON.parse(HTTP.get("#{URL}find", params: { lat: lat, lon: lon, cnt: count, appid: API_KEY }))
       # rubocop:enable Layout/LineLength
 
-      data['list'].map { |entry| OpenWeatherMap.city(entry['name']) }
+      names = data['list'].map { |entry| entry['name'] }
+      OpenWeatherMap.cities(names)
     end
 
     def coldest_nearby(count)
