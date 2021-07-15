@@ -1,5 +1,3 @@
-NEARBY_DISTANCE = 5
-
 module OpenWeatherMap
   class City
     ZERO_CELSIUS_TO_KELVIN = 273.15
@@ -36,9 +34,11 @@ module OpenWeatherMap
     end
 
     def nearby(count = 5)
-      # rubocop:disable Layout/LineLength
-      data = JSON.parse(HTTP.get("#{URL}find", params: { lat: lat, lon: lon, cnt: count, appid: API_KEY }))
-      # rubocop:enable Layout/LineLength
+      data = JSON.parse(
+        HTTP.get(
+          "#{URL}find", params: { lat: lat, lon: lon, cnt: count, appid: API_KEY }
+        )
+      )
 
       data['list'].map { |entry| OpenWeatherMap::City.parse(entry) }
     end
