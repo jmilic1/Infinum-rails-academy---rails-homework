@@ -1,6 +1,7 @@
 require 'http'
 
 URL = 'https://api.openweathermap.org/data/2.5/weather?id=%s&appid=%s'
+URL_TEST = 'https://api.openweathermap.org/data/2.5/weather?id=%s&appid='
 
 module OpenWeatherMap
   def self.city(name)
@@ -8,7 +9,8 @@ module OpenWeatherMap
     return if id.nil?
 
     # rubocop:disable Layout/LineLength
-    data = JSON.parse(HTTP.get(format(URL, id, Rails.application.credentials[:open_weather_map_api_key])))
+    # data = JSON.parse(HTTP.get(format(URL, id, Rails.application.credentials[:open_weather_map_api_key])))
+    data = JSON.parse(HTTP.get(format(URL_TEST, id) + Rails.application.credentials[:open_weather_map_api_key]))
     # rubocop:enable Layout/LineLength
 
     City.parse(data)
