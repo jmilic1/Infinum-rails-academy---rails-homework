@@ -12,7 +12,7 @@ module OpenWeatherMap
   end
 
   def self.cities(names)
-    ids = names.map { |name| Resolver.city_id(name) }.join(',')
+    ids = names.filter_map { |name| Resolver.city_id(name) }.join(',')
 
     City.parse(JSON.parse(HTTP.get("#{URL}group", params: { id: ids, appid: API_KEY })))
   end
