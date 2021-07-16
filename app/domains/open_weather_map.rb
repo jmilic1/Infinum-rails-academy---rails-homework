@@ -29,6 +29,6 @@ module OpenWeatherMap
   def self.cities(names)
     ids = names.filter_map { |name| OpenWeatherMap::Resolver.city_id(name) }.join(',')
 
-    get_group_data(ids)['list'].map { |entry| City.parse(entry) }
+    get_group_data(ids)['list'].map { |entry| OpenWeatherMap::City.parse(entry) }
   end
 end
