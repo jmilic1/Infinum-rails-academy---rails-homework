@@ -8,6 +8,9 @@ Layout/LineLength:
 Style/Documentation:
   Enabled: false
 
+Style/SingleArgumentDig:
+  Enabled: false
+
 Style/FrozenStringLiteralComment:
   Enabled: false
 
