@@ -2,7 +2,7 @@ module OpenWeatherMap
   class City
     ZERO_CELSIUS_TO_KELVIN = 273.15
 
-    attr_reader :id, :lat, :lon, :name
+    attr_reader :id, :lat, :lon, :name, :temp_k
 
     def initialize(id:, lat:, lon:, name:, temp_k:)
       @id = id
@@ -13,7 +13,7 @@ module OpenWeatherMap
     end
 
     def temp
-      @temp_k - ZERO_CELSIUS_TO_KELVIN
+      temp_k - ZERO_CELSIUS_TO_KELVIN
     end
 
     def <=>(other)
