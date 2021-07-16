@@ -13,7 +13,7 @@ module OpenWeatherMap
     end
 
     def self.city_id(name)
-      parsed_data(file).find { |element| element['name'] == name }['id']
+      parsed_data(file).find { |element| element['name'] == name }&.dig('id')
     end
   end
 end
