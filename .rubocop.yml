@@ -23,6 +23,9 @@ RSpec/ExampleLength:
 RSpec/MultipleExpectations:
   Max: 10
 
+RSpec/MultipleMemoizedHelpers:
+  Enabled: false
+
 Style/MutableConstant:
   Enabled: false
 
