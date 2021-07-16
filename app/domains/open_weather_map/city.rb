@@ -24,9 +24,9 @@ module OpenWeatherMap
     end
 
     def self.parse(data)
-      lat = data['coord']['lat']
-      lon = data['coord']['lon']
-      temp_k = data['main']['temp']
+      lat = data.dig('coord', 'lat')
+      lon = data.dig('coord', 'lon')
+      temp_k = data.dig('main', 'temp')
       id = data['id']
       name = data['name']
 
