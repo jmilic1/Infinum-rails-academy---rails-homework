@@ -1,5 +1,3 @@
-require 'http'
-
 URL = 'https://api.openweathermap.org/data/2.5/'
 API_KEY = Rails.application.credentials[:open_weather_map_api_key]
 
