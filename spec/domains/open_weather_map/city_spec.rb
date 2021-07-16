@@ -68,7 +68,11 @@ RSpec.describe OpenWeatherMap::City do
     expect(city.name).to eq(NAME)
   end
 
-  it 'returns temp of city' do
+  it 'returns temp of city in kelvin' do
+    expect(city.temp).to eq(TEMP_K)
+  end
+
+  it 'returns temp of city in celsius' do
     expect(city.temp).to eq(TEMP_K - ZERO_CELSIUS_TO_KELVIN)
   end
 
