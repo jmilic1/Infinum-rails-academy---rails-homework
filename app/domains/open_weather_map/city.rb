@@ -33,14 +33,14 @@ module OpenWeatherMap
       new(id: id, lat: lat, lon: lon, name: name, temp_k: temp_k)
     end
 
-    def nearby(count = 5)
-      data = JSON.parse(
-        HTTP.get(
-          "#{URL}find", params: { lat: lat, lon: lon, cnt: count, appid: API_KEY }
-        )
+    def get_find_data(lat, lon, count)
+      JSON.parse(
+        OpenWeatherMap.get_json('find', { lat: lat, lon: lon, cnt: count, appid: API_KEY })
       )
+    end
 
-      data['list'].map { |entry| OpenWeatherMap::City.parse(entry) }
+    def nearby(count = 5)
+      get_find_data(lat, lon, count)['list'].map { |entry| OpenWeatherMap::City.parse(entry) }
     end
 
     def coldest_nearby(count = 5)
