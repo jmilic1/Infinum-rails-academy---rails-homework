@@ -1,7 +1,8 @@
 URL = 'https://api.openweathermap.org/data/2.5/'
-API_KEY = Rails.application.credentials[:open_weather_map_api_key]
 
 module OpenWeatherMap
+  API_KEY = Rails.application.credentials[:open_weather_map_api_key]
+
   def self.city(name)
     id = Resolver.city_id(name)
     return if id.nil?
