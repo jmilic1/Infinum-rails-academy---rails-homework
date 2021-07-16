@@ -1,3 +1,4 @@
+# rubocop:disable RSpec/MultipleMemoizedHelpers
 RSpec.describe OpenWeatherMap::City do
   let(:city_id) { 42 }
   let(:lat) { 250 }
@@ -49,6 +50,8 @@ RSpec.describe OpenWeatherMap::City do
   let(:city) { described_class.new(id: city_id, lat: lat, lon: lon, name: name, temp_k: temp_k) }
 
   let(:parsed) { described_class.parse(complete_city_data) }
+
+  # rubocop:enable RSpec/MultipleMemoizedHelpers
 
   it 'returns id of city' do
     expect(city.id).to eq(city_id)
