@@ -3,16 +3,16 @@ URL = 'https://api.openweathermap.org/data/2.5/'
 module OpenWeatherMap
   API_KEY = Rails.application.credentials[:open_weather_map_api_key]
 
-  def self.get_json(id, extension)
-    HTTP.get(URL + extension, params: { id: id, appid: API_KEY })
+  def self.send_get_request(extension, params)
+    HTTP.get(URL + extension, params: params)
   end
 
   def self.get_weather_data(id)
-    JSON.parse(get_json(id, 'weather'))
+    JSON.parse(send_get_request('weather', { id: id, appid: API_KEY }))
   end
 
   def self.get_group_data(ids)
-    JSON.parse(get_json(ids, 'group'))
+    JSON.parse(send_get_request('group', { id: ids, appid: API_KEY }))
   end
 
   def self.get_city(id)

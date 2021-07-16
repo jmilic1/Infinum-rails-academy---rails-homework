@@ -35,7 +35,7 @@ module OpenWeatherMap
 
     def get_find_data(lat, lon, count)
       JSON.parse(
-        OpenWeatherMap.get_json('find', { lat: lat, lon: lon, cnt: count, appid: API_KEY })
+        OpenWeatherMap.send_get_request('find', { lat: lat, lon: lon, cnt: count, appid: API_KEY })
       )
     end
 
