@@ -1,0 +1,19 @@
+PreCommit:
+  ALL:
+    exclude:
+      - '_spec/**/**'
+      - '**/db/structure.sql'
+
+  AuthorName:
+    enabled: false
+
+  AuthorEmail:
+    enabled: false
+
+  HardTabs:
+    enabled: true
+
+  TrailingWhitespace:
+    enabled: true
+    exclude:
+      - '**/db/structure.sql'
