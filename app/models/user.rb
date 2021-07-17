@@ -1,8 +1,8 @@
 class User < ApplicationRecord
-  validates :email, length: { presence: true }
-  validates :email, uniqueness: { case_sensitive: false }
-  validates :email, format: URI::MailTo::EMAIL_REGEXP
+  validates :email, presence: true,
+                    uniqueness: { case_sensitive: false },
+                    format: URI::MailTo::EMAIL_REGEXP
 
-  validates :first_name, length: { presence: true }
-  validates :first_name, length: { minimum: 2 }
+  validates :first_name, presence: true,
+                         length: { minimum: 2 }
 end
