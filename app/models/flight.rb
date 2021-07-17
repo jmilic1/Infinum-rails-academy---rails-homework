@@ -1,12 +1,11 @@
 class Flight < ApplicationRecord
   belongs_to :company
 
-  validates :name, uniqueness: { case_sensitive: false }
-  validates :name, uniqueness: { scope: :company_id }
-  validates :name, presence: true
+  validates :name, uniqueness: { case_sensitive: false, scope: company_id },
+                   presence: true
 
-  validates :base_price, presence: true
-  validates :base_price, numericality: { greater_than: 0 }
+  validates :base_price, presence: true,
+                         numericality: { greater_than: 0 }
 
   validates :departs_at, presence: true
   validates :arrives_at, presence: true

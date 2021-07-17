@@ -1,8 +1,8 @@
-RSpec.describe Company, type: model do
+RSpec.describe Company do
   it { is_expected.to validate_presence_of(:name) }
 
   describe 'uniqueness' do
-    subject { described_class.new(name: 'infinum') }
+    subject { FactoryBot.create(:company) }
 
     it { is_expected.to validate_uniqueness_of(:name).case_insensitive }
   end

@@ -1,7 +1,7 @@
 class CreateFlights < ActiveRecord::Migration[6.1]
   def change
     create_table :flights do |t|
-      t.string :name
+      t.string :name, null: false, uniqueness: { unique: true, scope: :company_id }
       t.integer :no_of_seats
       t.integer :base_price, null: false, unique: true
       t.timestamp :departs_at
