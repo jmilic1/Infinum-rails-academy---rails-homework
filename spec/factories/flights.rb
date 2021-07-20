@@ -15,8 +15,8 @@
 FactoryBot.define do
   factory :flight do
     sequence(:name) { |n| "Zagreb-Split#{n}" }
-    departs_at { 1.day.ago }
-    arrives_at { Time.zone.now.getutc }
+    departs_at { 1.day.after }
+    arrives_at { 2.days.after }
     base_price { 10 }
     company { create(:company) }
   end
