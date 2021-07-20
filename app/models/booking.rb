@@ -23,8 +23,8 @@ class Booking < ApplicationRecord
   validate :departs_at_after_now
 
   def departs_at_after_now
-    return if flight.departs_at < DateTime.current
+    return if flight.departs_at > DateTime.current
 
-    errors.add(:departs_at, 'must be before current time')
+    errors.add(:flight, 'departure time must be after current time')
   end
 end

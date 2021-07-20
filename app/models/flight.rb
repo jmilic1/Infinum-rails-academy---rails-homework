@@ -28,7 +28,7 @@ class Flight < ApplicationRecord
   validate :departs_at_before_arrives_at
 
   def departs_at_before_arrives_at
-    return if departs_at < arrives_at
+    return if departs_at.nil? || arrives_at.nil? || departs_at < arrives_at
 
     errors.add(:departs_at, 'must be before arrives_at')
   end

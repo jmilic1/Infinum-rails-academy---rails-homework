@@ -11,11 +11,25 @@
 #  updated_at  :datetime         not null
 #
 RSpec.describe Booking do
-  it { is_expected.to validate_presence_of(:seat_price) }
-  it { is_expected.to validate_numericality_of(:seat_price).is_greater_than(0) }
+  describe 'uniqueness' do
+    subject { FactoryBot.create(:booking) }
 
-  it { is_expected.to validate_presence_of(:no_of_seats) }
-  it { is_expected.to validate_numericality_of(:no_of_seats).is_greater_than(0) }
+    it { is_expected.to validate_presence_of(:seat_price) }
+    it { is_expected.to validate_numericality_of(:seat_price).is_greater_than(0) }
+    it { is_expected.to validate_presence_of(:no_of_seats) }
+    it { is_expected.to validate_numericality_of(:no_of_seats).is_greater_than(0) }
+  end
 
-  it { is_expected.to validate_numericality_of(:departs_at).is_less_than(DateTime.current) }
+  describe '#departs_at_after_now' do
+    it 'raises error if departs_at is before now' do
+      booking = described_class.new
+      flight = Flight.new
+      flight.departs_at = 1.day.ago
+      booking.flight = flight
+
+      booking.departs_at_after_now
+
+      expect(booking.errors[:flight]).to include('departure time must be after current time')
+    end
+  end
 end
