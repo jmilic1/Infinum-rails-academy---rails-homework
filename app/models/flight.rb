@@ -22,6 +22,9 @@ class Flight < ApplicationRecord
   validates :base_price, presence: true,
                          numericality: { greater_than: 0 }
 
+  validates :no_of_seats, presence: true,
+                          numericality: { greater_than: 0 }
+
   validates :departs_at, presence: true
   validates :arrives_at, presence: true
 
