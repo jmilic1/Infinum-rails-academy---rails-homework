@@ -17,6 +17,7 @@ FactoryBot.define do
     sequence(:name) { |n| "Zagreb-Split#{n}" }
     departs_at { 1.day.after }
     arrives_at { 2.days.after }
+    no_of_seats { 10 }
     base_price { 10 }
     company { create(:company) }
   end
