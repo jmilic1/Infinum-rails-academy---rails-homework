@@ -16,10 +16,8 @@ class Flight < ApplicationRecord
   belongs_to :company
   has_many :bookings, dependent: :destroy
 
-  # rubocop:disable Rails/UniqueValidationWithoutIndex
-  validates :name, uniqueness: { case_sensitive: false, scope: company_id },
+  validates :name, uniqueness: { case_sensitive: false, scope: :company_id },
                    presence: true
-  # rubocop:enable Rails/UniqueValidationWithoutIndex
 
   validates :base_price, presence: true,
                          numericality: { greater_than: 0 }
