@@ -24,6 +24,9 @@ RSpec.describe Flight do
     it { is_expected.to validate_presence_of(:base_price) }
     it { is_expected.to validate_numericality_of(:base_price).is_greater_than(0) }
 
+    it { is_expected.to validate_presence_of(:no_of_seats) }
+    it { is_expected.to validate_numericality_of(:no_of_seats).is_greater_than(0) }
+
     it { is_expected.to validate_presence_of(:departs_at) }
     it { is_expected.to validate_presence_of(:arrives_at) }
   end
@@ -39,4 +42,6 @@ RSpec.describe Flight do
       expect(flight.errors[:departs_at]).to include('must be before arrives_at')
     end
   end
+
+  it { is_expected.to have_many(:bookings) }
 end
