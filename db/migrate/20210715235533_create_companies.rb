@@ -3,7 +3,7 @@ class CreateCompanies < ActiveRecord::Migration[6.1]
     create_table :companies do |t|
       t.string :name, null: false, index: { unique: true }
 
-      t.timestamps
+      t.timestamps null: false
     end
   end
 end
