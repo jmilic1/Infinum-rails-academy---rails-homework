@@ -1,12 +1,19 @@
 module OpenWeatherMap
   module Resolver
     def self.city_id(name)
-      data = JSON.parse(File.read(File.expand_path('city_list.json', __dir__)))
-      entry = data.find { |element| element['name'] == name }
+      parsed_data(file).find { |element| element['name'] == name }&.dig('id')
+    end
 
-      return if entry.nil?
+    def self.parsed_data(json)
+      JSON.parse(json)
+    end
 
-      entry['id']
+    def self.file
+      File.read(file_path)
+    end
+
+    def self.file_path
+      File.expand_path('city_list.json', __dir__)
     end
   end
 end

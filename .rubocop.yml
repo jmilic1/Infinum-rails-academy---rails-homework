@@ -23,6 +23,7 @@ RSpec/ExampleLength:
 RSpec/MultipleExpectations:
   Max: 10
 
+
 Style/MutableConstant:
   Enabled: false
 
