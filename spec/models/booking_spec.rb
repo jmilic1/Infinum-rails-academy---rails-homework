@@ -22,8 +22,8 @@ RSpec.describe Booking do
 
   describe '#departs_at_after_now' do
     it 'raises error if departs_at is before now' do
-      booking = described_class.new
-      flight = Flight.new
+      booking = FactoryBot.create(:booking)
+      flight = FactoryBot.create(:flight)
       flight.departs_at = 1.day.ago
       booking.flight = flight
 
