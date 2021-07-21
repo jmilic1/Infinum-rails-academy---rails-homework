@@ -1,21 +1,21 @@
 module Api
   class BookingsController < ApplicationController
     def index
-      render json: { bookings: Booking.all }, status: :ok
+      render json: { bookings: UserSerializer.render(Booking.all) }, status: :ok
     end
 
     def create
       booking = Booking.new(booking_params)
 
       if booking.save
-        render json: { booking: booking }, status: :created
+        render json: { booking: UserSerializer.render(booking) }, status: :created
       else
         render json: { errors: booking.errors }, status: :bad_request
       end
     end
 
     def new
-      render json: { booking: Booking.new }, status: :ok
+      render json: { booking: UserSerializer.render(Booking.new) }, status: :ok
     end
 
     def show
@@ -62,7 +62,7 @@ module Api
       if booking.nil?
         render json: { errors: 'Booking with such id does not exist' }, status: :bad_request
       else
-        render json: { booking: booking }, status: :ok
+        render json: { booking: UserSerializer.render(booking) }, status: :ok
       end
     end
 

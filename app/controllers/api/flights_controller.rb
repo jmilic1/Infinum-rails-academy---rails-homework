@@ -1,21 +1,21 @@
 module Api
   class FlightsController < ApplicationController
     def index
-      render json: { flight: Flight.all }, status: :ok
+      render json: { flight: UserSerializer.render(Flight.all) }, status: :ok
     end
 
     def create
       flight = Flight.new(flight_params)
 
       if flight.save
-        render json: { flight: flight }, status: :created
+        render json: { flight: UserSerializer.render(flight) }, status: :created
       else
         render json: { errors: flight.errors }, status: :bad_request
       end
     end
 
     def new
-      render json: { flight: Flight.new }, status: :ok
+      render json: { flight: UserSerializer.render(Flight.new) }, status: :ok
     end
 
     def show
@@ -62,7 +62,7 @@ module Api
       if flight.nil?
         render json: { errors: 'Flight with such id does not exist' }, status: :bad_request
       else
-        render json: { flight: flight }, status: :ok
+        render json: { flight: UserSerializer.render(flight) }, status: :ok
       end
     end
 

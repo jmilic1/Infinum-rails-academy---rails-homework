@@ -1,29 +1,29 @@
 module Api
   class UsersController < ApplicationController
     def index
-      render json: { user: User.all }, status: :ok
+      render json: { user: UserSerializer.render(User.all) }, status: :ok
     end
 
     def create
       user = User.new(user_params)
 
       if user.save
-        render json: { user: user }, status: :created
+        render json: { user: UserSerializer.render(user) }, status: :created
       else
         render json: { errors: user.errors }, status: :bad_request
       end
     end
 
     def new
-      render json: { user: User.new }, status: :ok
+      render json: { user: UserSerializer.render(User.new) }, status: :ok
     end
 
     def show
-      get_user(params[:id])
+      get_user(params[:id], request.headers['x_api_serializer'])
     end
 
     def edit
-      get_user(params[:id])
+      get_user(params[:id], 'blueprinter')
     end
 
     def update
@@ -56,13 +56,17 @@ module Api
 
     private
 
-    def get_user(id)
+    def get_user(id, serializer)
       user = User.find(id)
 
       if user.nil?
-        render json: { errors: 'User with such id does not exist' }, status: :bad_request
+        return render json: { errors: 'User with such id does not exist' }, status: :bad_request
+      end
+
+      if serializer == 'json_api'
+        render json: { user: JSONAPI::UserSerializer.new(user).serializable_hash.to_json }, status: :ok
       else
-        render json: { user: user }, status: :ok
+        render json: { user: Blueprinter::UserSerializer.render(user) }, status: :ok
       end
     end
 

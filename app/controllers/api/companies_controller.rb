@@ -1,21 +1,21 @@
 module Api
   class CompaniesController < ApplicationController
     def index
-      render json: { companies: Company.all }, status: :ok
+      render json: { companies: UserSerializer.render(Company.all) }, status: :ok
     end
 
     def create
       company = Company.new(company_params)
 
       if company.save
-        render json: { company: company }, status: :created
+        render json: { company: UserSerializer.render(company) }, status: :created
       else
         render json: { errors: company.errors }, status: :bad_request
       end
     end
 
     def new
-      render json: { company: Company.new }, status: :ok
+      render json: { company: UserSerializer.render(Company.new) }, status: :ok
     end
 
     def show
@@ -62,7 +62,7 @@ module Api
       if company.nil?
         render json: { errors: 'Company with such id does not exist' }, status: :bad_request
       else
-        render json: { company: company }, status: :ok
+        render json: { company: UserSerializer.render(company) }, status: :ok
       end
     end
 

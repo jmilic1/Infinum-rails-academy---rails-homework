@@ -16,6 +16,13 @@ RSpec.describe 'users API', type: :request do
       json_body = JSON.parse(response.body)
       expect(json_body['user']).to include('first_name')
     end
+
+    it 'returns a single user serialized by json_api' do
+      get "/api/users/#{users.first.id}",
+          headers: jsonapi_headers
+      json_body = JSON.parse(response.body)
+      expect(json_body['user']).to include('first_name')
+    end
   end
 
   describe 'GET /users/:id/edit' do
