@@ -15,7 +15,7 @@ FactoryBot.define do
     seat_price { 10 }
     no_of_seats { 10 }
 
-    user { create(:user) }
-    flight { create(:flight) }
+    user
+    flight
   end
 end

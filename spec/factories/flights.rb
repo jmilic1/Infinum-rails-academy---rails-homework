@@ -19,6 +19,6 @@ FactoryBot.define do
     arrives_at { 2.days.after }
     no_of_seats { 10 }
     base_price { 10 }
-    company { create(:company) }
+    company
   end
 end
