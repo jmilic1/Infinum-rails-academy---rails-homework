@@ -1,4 +1,4 @@
-class UserSerializer < Blueprinter::Base
+class CompanySerializer < Blueprinter::Base
   identifier :id
   field :name
   association :flights

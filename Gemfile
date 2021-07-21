@@ -5,6 +5,7 @@ ruby '3.0.0'
 
 gem 'blueprinter'
 gem 'http'
+gem 'jsonapi-serializer'
 gem 'pg'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails', branch: 'main'
