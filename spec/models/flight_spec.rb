@@ -29,7 +29,6 @@ RSpec.describe Flight do
   it { is_expected.to validate_presence_of(:departs_at) }
   it { is_expected.to validate_presence_of(:arrives_at) }
 
-
   describe '#departs_at_before_arrives_at' do
     it 'raises error if departs_at is after arrives_at' do
       flight.departs_at = Time.zone.now.getutc
