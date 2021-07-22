@@ -42,7 +42,7 @@ module Api
       end
 
       if flight.update(flight_params)
-        render json: {}, status: :no_content
+        render json: { flight: FlightSerializer.render_as_hash(flight, view: :extended) }, status: :ok
       else
         render json: { errors: flight.errors }, status: :bad_request
       end

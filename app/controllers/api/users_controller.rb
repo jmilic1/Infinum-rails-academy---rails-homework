@@ -40,7 +40,7 @@ module Api
       end
 
       if user.update(user_params)
-        render json: {}, status: :no_content
+        render json: { user: UserSerializer.render_as_hash(user, view: :extended) }, status: :ok
       else
         render json: { errors: user.errors }, status: :bad_request
       end

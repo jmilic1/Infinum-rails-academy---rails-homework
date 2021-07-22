@@ -42,7 +42,9 @@ module Api
       end
 
       if booking.update(booking_params)
-        render json: {}, status: :no_content
+        # rubocop:disable Layout/LineLength
+        render json: { booking: BookingSerializer.render_as_hash(booking, view: :extended) }, status: :ok
+        # rubocop:enable Layout/LineLength
       else
         render json: { errors: booking.errors }, status: :bad_request
       end

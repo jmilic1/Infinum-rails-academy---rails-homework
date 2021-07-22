@@ -42,7 +42,9 @@ module Api
       end
 
       if company.update(company_params)
-        render json: {}, status: :no_content
+        # rubocop:disable Layout/LineLength
+        render json: { company: CompanySerializer.render_as_hash(company, view: :extended) }, status: :ok
+        # rubocop:enable Layout/LineLength
       else
         render json: { errors: company.errors }, status: :bad_request
       end
