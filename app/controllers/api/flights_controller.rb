@@ -1,14 +1,16 @@
 module Api
   class FlightsController < ApplicationController
     def index
-      render json: { flight: FlightSerializer.render_as_hash(Flight.all) }, status: :ok
+      # rubocop:disable Layout/LineLength
+      render json: { flight: FlightSerializer.render_as_hash(Flight.all, view: :extended) }, status: :ok
+      # rubocop:enable Layout/LineLength
     end
 
     def create
       flight = Flight.new(flight_params)
 
       if flight.save
-        render json: { flight: FlightSerializer.render(flight) }, status: :created
+        render json: { flight: FlightSerializer.render(flight, view: :extended) }, status: :created
       else
         render json: { errors: flight.errors }, status: :bad_request
       end
@@ -25,7 +27,7 @@ module Api
       if request.headers['x_api_serializer'] == 'json_api'
         render json: { flight: JsonApi::FlightSerializer.new(flight).serializable_hash.to_json }, status: :ok
       else
-        render json: { flight: FlightSerializer.render(flight) }, status: :ok
+        render json: { flight: FlightSerializer.render(flight, view: :extended) }, status: :ok
       end
       # rubocop:enable Layout/LineLength
     end

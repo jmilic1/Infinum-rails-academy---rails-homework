@@ -3,5 +3,7 @@ class CompanySerializer < Blueprinter::Base
 
   fields :name, :created_at, :updated_at
 
-  association :flights, blueprint: FlightSerializer
+  view :extended do
+    association :flights, blueprint: FlightSerializer
+  end
 end

@@ -3,5 +3,7 @@ class UserSerializer < Blueprinter::Base
 
   fields :first_name, :last_name, :email, :created_at, :updated_at
 
-  association :bookings, blueprint: BookingSerializer
+  view :extended do
+    association :bookings, blueprint: BookingSerializer
+  end
 end
