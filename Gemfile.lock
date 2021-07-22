@@ -66,6 +66,7 @@ GEM
       activerecord (>= 3.2, < 7.0)
       rake (>= 10.4, < 14.0)
     ast (2.4.2)
+    bcrypt (3.1.16)
     bindex (0.8.1)
     blueprinter (0.25.3)
     builder (3.2.4)
@@ -290,6 +291,7 @@ PLATFORMS
 
 DEPENDENCIES
   annotate
+  bcrypt (~> 3.1.7)
   blueprinter
   byebug
   capybara (>= 3.26)
