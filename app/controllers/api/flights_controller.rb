@@ -10,7 +10,7 @@ module Api
       flight = Flight.new(flight_params)
 
       if flight.save
-        render json: { flight: FlightSerializer.render(flight, view: :extended) }, status: :created
+        render json: { flight: FlightSerializer.render_as_hash(flight, view: :extended) }, status: :created
       else
         render json: { errors: flight.errors }, status: :bad_request
       end
@@ -27,7 +27,7 @@ module Api
       if request.headers['x_api_serializer'] == 'json_api'
         render json: { flight: JsonApi::FlightSerializer.new(flight).serializable_hash.to_json }, status: :ok
       else
-        render json: { flight: FlightSerializer.render(flight, view: :extended) }, status: :ok
+        render json: { flight: FlightSerializer.render_as_hash(flight, view: :extended) }, status: :ok
       end
       # rubocop:enable Layout/LineLength
     end

@@ -44,7 +44,7 @@ RSpec.describe 'Flights API', type: :request do
                                   company_id: company.id } }.to_json,
               headers: api_headers
 
-        expect(json_body['flight']).to include('"no_of_seats":10')
+        expect(json_body['flight']).to include('no_of_seats' => 10)
       end
     end
 
@@ -106,6 +106,6 @@ RSpec.describe 'Flights API', type: :request do
                               company_id: company.id } }.to_json,
           headers: api_headers
 
-    JSON.parse(json_body['flight'])['id']
+    json_body['flight']['id']
   end
 end

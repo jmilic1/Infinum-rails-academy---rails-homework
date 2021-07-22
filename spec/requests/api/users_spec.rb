@@ -35,7 +35,7 @@ RSpec.describe 'users API', type: :request do
               params: { user: { first_name: 'Ime', email: 'ime.prezime@backend.com' } }.to_json,
               headers: api_headers
 
-        expect(json_body['user']).to include('"first_name":"Ime"')
+        expect(json_body['user']).to include('first_name' => 'Ime')
       end
     end
 
@@ -90,6 +90,6 @@ RSpec.describe 'users API', type: :request do
           params: { user: { first_name: 'Ime', email: 'ime.prezime@backend.com' } }.to_json,
           headers: api_headers
 
-    JSON.parse(json_body['user'])['id']
+    json_body['user']['id']
   end
 end

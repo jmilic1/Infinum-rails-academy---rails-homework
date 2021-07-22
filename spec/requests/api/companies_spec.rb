@@ -35,7 +35,7 @@ RSpec.describe 'Companies API', type: :request do
               params: { company: { name: 'Croatia Airlines' } }.to_json,
               headers: api_headers
 
-        expect(json_body['company']).to include('"name":"Croatia Airlines"')
+        expect(json_body['company']).to include('name' => 'Croatia Airlines')
       end
     end
 
@@ -90,6 +90,6 @@ RSpec.describe 'Companies API', type: :request do
           params: { company: { name: 'Croatia Airlines' } }.to_json,
           headers: api_headers
 
-    JSON.parse(json_body['company'])['id']
+    json_body['company']['id']
   end
 end

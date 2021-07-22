@@ -8,7 +8,7 @@ module Api
       user = User.new(user_params)
 
       if user.save
-        render json: { user: UserSerializer.render(user, view: :extended) }, status: :created
+        render json: { user: UserSerializer.render_as_hash(user, view: :extended) }, status: :created
       else
         render json: { errors: user.errors }, status: :bad_request
       end
@@ -25,7 +25,7 @@ module Api
       if request.headers['x_api_serializer'] == 'json_api'
         render json: { user:  JsonApi::UserSerializer.new(user).serializable_hash.to_json }, status: :ok
       else
-        render json: { user: UserSerializer.render(user, view: :extended) }, status: :ok
+        render json: { user: UserSerializer.render_as_hash(user, view: :extended) }, status: :ok
       end
       # rubocop:enable Layout/LineLength
     end

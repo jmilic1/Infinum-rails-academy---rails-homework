@@ -11,7 +11,7 @@ module Api
 
       if company.save
         # rubocop:disable Layout/LineLength
-        render json: { company: CompanySerializer.render(company, view: :extended) }, status: :created
+        render json: { company: CompanySerializer.render_as_hash(company, view: :extended) }, status: :created
         # rubocop:enable Layout/LineLength
       else
         render json: { errors: company.errors }, status: :bad_request
@@ -29,7 +29,7 @@ module Api
       if request.headers['x_api_serializer'] == 'json_api'
         render json: { company: JsonApi::CompanySerializer.new(company).serializable_hash.to_json }, status: :ok
       else
-        render json: { company: CompanySerializer.render(company, view: :extended) }, status: :ok
+        render json: { company: CompanySerializer.render_as_hash(company, view: :extended) }, status: :ok
       end
       # rubocop:enable Layout/LineLength
     end

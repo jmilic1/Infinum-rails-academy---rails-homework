@@ -11,7 +11,7 @@ module Api
 
       if booking.save
         # rubocop:disable Layout/LineLength
-        render json: { booking: BookingSerializer.render(booking, view: :extended) }, status: :created
+        render json: { booking: BookingSerializer.render_as_hash(booking, view: :extended) }, status: :created
         # rubocop:enable Layout/LineLength
       else
         render json: { errors: booking.errors }, status: :bad_request
@@ -29,7 +29,7 @@ module Api
       if request.headers['x_api_serializer'] == 'json_api'
         render json: { booking: JsonApi::BookingSerializer.new(booking).serializable_hash.to_json }, status: :ok
       else
-        render json: { booking: BookingSerializer.render(booking, view: :extended) }, status: :ok
+        render json: { booking: BookingSerializer.render_as_hash(booking, view: :extended) }, status: :ok
       end
       # rubocop:enable Layout/LineLength
     end
@@ -70,7 +70,9 @@ module Api
       if booking.nil?
         render json: { errors: 'Booking with such id does not exist' }, status: :bad_request
       else
-        render json: { booking: UserSerializer.render(booking, view: :extended) }, status: :ok
+        # rubocop:disable Layout/LineLength
+        render json: { booking: UserSerializer.render(booking, view: :extended).serializable_hash }, status: :ok
+        # rubocop:enable Layout/LineLength
       end
     end
 

@@ -46,7 +46,8 @@ RSpec.describe 'Bookings API', type: :request do
                                    user_id: user.id } }.to_json,
               headers: api_headers
 
-        expect(json_body['booking']).to include('"no_of_seats":10')
+        puts json_body
+        expect(json_body['booking']).to include('no_of_seats' => 10)
       end
     end
 
@@ -106,6 +107,6 @@ RSpec.describe 'Bookings API', type: :request do
                                user_id: user.id } }.to_json,
           headers: api_headers
 
-    JSON.parse(json_body['booking'])['id']
+    json_body['booking']['id']
   end
 end
