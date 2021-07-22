@@ -1,6 +1,5 @@
 module Api
   class UsersController < ApplicationController
-
     # rubocop:disable Layout/LineLength
     def index
       if request.headers['x_api_serializer_root'] == '0'
