@@ -1,20 +1,26 @@
 module Api
   class UsersController < ApplicationController
+    include IndexConcern
+
+    # rubocop:disable Layout/LineLength
     def index
-      render json: { users: UserSerializer.render_as_hash(User.all, view: :extended) }, status: :ok
+      if request.headers['x_api_serializer_root'] == '0'
+        render json: UserSerializer.render_as_hash(User.all, view: :extended), status: :ok
+      else
+        render json: { users: UserSerializer.render_as_hash(User.all, view: :extended) }, status: :ok
+      end
     end
 
     def create
       user = User.new(user_params)
 
       if user.save
-        # rubocop:disable Layout/LineLength
         render json: { user: UserSerializer.render_as_hash(user, view: :extended) }, status: :created
-        # rubocop:enable Layout/LineLength
       else
         render json: { errors: user.errors }, status: :bad_request
       end
     end
+    # rubocop:enable Layout/LineLength
 
     def show
       user = User.find(params[:id])
