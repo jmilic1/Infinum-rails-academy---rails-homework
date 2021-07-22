@@ -1,6 +1,5 @@
 module Api
   class UsersController < ApplicationController
-    include IndexConcern
 
     # rubocop:disable Layout/LineLength
     def index
