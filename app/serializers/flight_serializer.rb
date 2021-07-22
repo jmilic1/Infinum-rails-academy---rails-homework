@@ -8,4 +8,3 @@ class FlightSerializer < Blueprinter::Base
     association :company, blueprint: CompanySerializer
   end
 end
-
