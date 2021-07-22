@@ -21,11 +21,13 @@ module Api
         return render json: { errors: 'User with such id does not exist' }, status: :bad_request
       end
 
+      # rubocop:disable Layout/LineLength
       if request.headers['x_api_serializer'] == 'json_api'
         render json: { user:  JsonApi::UserSerializer.new(user).serializable_hash.to_json }, status: :ok
       else
         render json: { user: UserSerializer.render(user) }, status: :ok
       end
+      # rubocop:enable Layout/LineLength
     end
 
     def update
