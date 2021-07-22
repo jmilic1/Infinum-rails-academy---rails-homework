@@ -44,7 +44,9 @@ module Api
       end
 
       if flight.update(flight_params)
+        # rubocop:disable Layout/LineLength
         render json: { flight: FlightSerializer.render_as_hash(flight, view: :extended) }, status: :ok
+        # rubocop:enable Layout/LineLength
       else
         render json: { errors: flight.errors }, status: :bad_request
       end
