@@ -1,7 +1,7 @@
 module Api
   class UsersController < ApplicationController
     def index
-      render json: { user: UserSerializer.render(User.all) }, status: :ok
+      render json: { users: UserSerializer.render_as_hash(User.all) }, status: :ok
     end
 
     def create
