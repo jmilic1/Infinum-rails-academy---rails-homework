@@ -1,7 +1,7 @@
 module Api
   class FlightsController < ApplicationController
     def index
-      render json: { flight: FlightSerializer.render(Flight.all) }, status: :ok
+      render json: { flight: FlightSerializer.render_as_hash(Flight.all) }, status: :ok
     end
 
     def create

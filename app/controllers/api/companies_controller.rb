@@ -1,7 +1,7 @@
 module Api
   class CompaniesController < ApplicationController
     def index
-      render json: { companies: CompanySerializer.render(Company.all) }, status: :ok
+      render json: { companies: CompanySerializer.render_as_hash(Company.all) }, status: :ok
     end
 
     def create

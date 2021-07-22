@@ -1,7 +1,7 @@
 module Api
   class BookingsController < ApplicationController
     def index
-      render json: { bookings: BookingSerializer.render(Booking.all) }, status: :ok
+      render json: { bookings: BookingSerializer.render_as_hash(Booking.all) }, status: :ok
     end
 
     def create
