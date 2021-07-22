@@ -6,6 +6,7 @@ RSpec.describe 'Companies API', type: :request do
   describe 'GET /companies' do
     it 'successfully returns a list of companies' do
       get '/api/companies'
+
       expect(response).to have_http_status(:ok)
     end
   end
@@ -14,14 +15,15 @@ RSpec.describe 'Companies API', type: :request do
     it 'returns a single company' do
       get "/api/companies/#{companies.first.id}"
       json_body = JSON.parse(response.body)
+
       expect(json_body['company']).to include('name')
     end
-  end
 
-  describe 'GET /companies/:id/edit' do
-    it 'returns a single company' do
-      get "/api/companies/#{companies.first.id}/edit"
+    it 'returns a single company serialized by json_api' do
+      get "/api/companies/#{companies.first.id}",
+          headers: jsonapi_headers
       json_body = JSON.parse(response.body)
+
       expect(json_body['company']).to include('name')
     end
   end
@@ -33,7 +35,7 @@ RSpec.describe 'Companies API', type: :request do
               params: { company: { name: 'Croatia Airlines' } }.to_json,
               headers: api_headers
 
-        expect(json_body['company']).to include('name' => 'Croatia Airlines')
+        expect(json_body['company']).to include('"name":"Croatia Airlines"')
       end
     end
 
@@ -46,13 +48,6 @@ RSpec.describe 'Companies API', type: :request do
         expect(response).to have_http_status(:bad_request)
         expect(json_body['errors']).to include('name')
       end
-    end
-  end
-
-  describe 'GET /companies/new' do
-    it 'returns an empty company that does not exist in database' do
-      get '/api/companies/new'
-      expect(response).to have_http_status(:ok)
     end
   end
 
@@ -95,6 +90,6 @@ RSpec.describe 'Companies API', type: :request do
           params: { company: { name: 'Croatia Airlines' } }.to_json,
           headers: api_headers
 
-    json_body['company']['id']
+    JSON.parse(json_body['company'])['id']
   end
 end

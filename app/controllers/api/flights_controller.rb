@@ -1,29 +1,33 @@
 module Api
   class FlightsController < ApplicationController
     def index
-      render json: { flight: UserSerializer.render(Flight.all) }, status: :ok
+      render json: { flight: FlightSerializer.render(Flight.all) }, status: :ok
     end
 
     def create
       flight = Flight.new(flight_params)
 
       if flight.save
-        render json: { flight: UserSerializer.render(flight) }, status: :created
+        render json: { flight: FlightSerializer.render(flight) }, status: :created
       else
         render json: { errors: flight.errors }, status: :bad_request
       end
     end
 
-    def new
-      render json: { flight: UserSerializer.render(Flight.new) }, status: :ok
-    end
-
     def show
-      get_flight(params[:id])
-    end
+      flight = Flight.find(params[:id])
 
-    def edit
-      get_flight(params[:id])
+      if flight.nil?
+        return render json: { errors: 'Flight with such id does not exist' }, status: :bad_request
+      end
+
+      # rubocop:disable Layout/LineLength
+      if request.headers['x_api_serializer'] == 'json_api'
+        render json: { flight: JsonApi::FlightSerializer.new(flight).serializable_hash.to_json }, status: :ok
+      else
+        render json: { flight: FlightSerializer.render(flight) }, status: :ok
+      end
+      # rubocop:enable Layout/LineLength
     end
 
     def update
@@ -55,16 +59,6 @@ module Api
     end
 
     private
-
-    def get_flight(id)
-      flight = Flight.find(id)
-
-      if flight.nil?
-        render json: { errors: 'Flight with such id does not exist' }, status: :bad_request
-      else
-        render json: { flight: UserSerializer.render(flight) }, status: :ok
-      end
-    end
 
     def flight_params
       params.require(:flight).permit(:no_of_seats,

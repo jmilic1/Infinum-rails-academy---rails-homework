@@ -10,6 +10,7 @@ RSpec.describe 'Flights API', type: :request do
   describe 'GET /flights' do
     it 'successfully returns a list of flights' do
       get '/api/flights'
+
       expect(response).to have_http_status(:ok)
     end
   end
@@ -18,14 +19,15 @@ RSpec.describe 'Flights API', type: :request do
     it 'returns a single flights' do
       get "/api/flights/#{flights.first.id}"
       json_body = JSON.parse(response.body)
+
       expect(json_body['flight']).to include('no_of_seats')
     end
-  end
 
-  describe 'GET /flights/:id/edit' do
-    it 'returns a single flight' do
-      get "/api/flights/#{flights.first.id}/edit"
+    it 'returns a single flight serialized by json_api' do
+      get "/api/flights/#{flights.first.id}",
+          headers: jsonapi_headers
       json_body = JSON.parse(response.body)
+
       expect(json_body['flight']).to include('no_of_seats')
     end
   end
@@ -42,7 +44,7 @@ RSpec.describe 'Flights API', type: :request do
                                   company_id: company.id } }.to_json,
               headers: api_headers
 
-        expect(json_body['flight']).to include('no_of_seats' => 10)
+        expect(json_body['flight']).to include('"no_of_seats":10')
       end
     end
 
@@ -55,13 +57,6 @@ RSpec.describe 'Flights API', type: :request do
         expect(response).to have_http_status(:bad_request)
         expect(json_body['errors']).to include('no_of_seats')
       end
-    end
-  end
-
-  describe 'GET /flights/new' do
-    it 'returns an empty flight that does not exist in database' do
-      get '/api/flights/new'
-      expect(response).to have_http_status(:ok)
     end
   end
 
@@ -111,6 +106,6 @@ RSpec.describe 'Flights API', type: :request do
                               company_id: company.id } }.to_json,
           headers: api_headers
 
-    json_body['flight']['id']
+    JSON.parse(json_body['flight'])['id']
   end
 end

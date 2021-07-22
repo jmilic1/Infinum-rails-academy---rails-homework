@@ -1,29 +1,33 @@
 module Api
   class BookingsController < ApplicationController
     def index
-      render json: { bookings: UserSerializer.render(Booking.all) }, status: :ok
+      render json: { bookings: BookingSerializer.render(Booking.all) }, status: :ok
     end
 
     def create
       booking = Booking.new(booking_params)
 
       if booking.save
-        render json: { booking: UserSerializer.render(booking) }, status: :created
+        render json: { booking: BookingSerializer.render(booking) }, status: :created
       else
         render json: { errors: booking.errors }, status: :bad_request
       end
     end
 
-    def new
-      render json: { booking: UserSerializer.render(Booking.new) }, status: :ok
-    end
-
     def show
-      get_booking(params[:id])
-    end
+      booking = Booking.find(params[:id])
 
-    def edit
-      get_booking(params[:id])
+      if booking.nil?
+        return render json: { errors: 'Booking with such id does not exist' }, status: :bad_request
+      end
+
+      # rubocop:disable Layout/LineLength
+      if request.headers['x_api_serializer'] == 'json_api'
+        render json: { booking: JsonApi::BookingSerializer.new(booking).serializable_hash.to_json }, status: :ok
+      else
+        render json: { booking: BookingSerializer.render(booking) }, status: :ok
+      end
+      # rubocop:enable Layout/LineLength
     end
 
     def update

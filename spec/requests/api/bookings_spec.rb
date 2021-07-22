@@ -14,6 +14,7 @@ RSpec.describe 'Bookings API', type: :request do
   describe 'GET /bookings' do
     it 'successfully returns a list of bookings' do
       get '/api/bookings'
+
       expect(response).to have_http_status(:ok)
     end
   end
@@ -22,14 +23,15 @@ RSpec.describe 'Bookings API', type: :request do
     it 'returns a single booking' do
       get "/api/bookings/#{bookings.first.id}"
       json_body = JSON.parse(response.body)
+
       expect(json_body['booking']).to include('no_of_seats')
     end
-  end
 
-  describe 'GET /bookings/:id/edit' do
-    it 'returns a single booking' do
-      get "/api/bookings/#{bookings.first.id}/edit"
+    it 'returns a single booking serialized by json_api' do
+      get "/api/bookings/#{bookings.first.id}",
+          headers: jsonapi_headers
       json_body = JSON.parse(response.body)
+
       expect(json_body['booking']).to include('no_of_seats')
     end
   end
@@ -44,7 +46,7 @@ RSpec.describe 'Bookings API', type: :request do
                                    user_id: user.id } }.to_json,
               headers: api_headers
 
-        expect(json_body['booking']).to include('no_of_seats' => 10)
+        expect(json_body['booking']).to include('"no_of_seats":10')
       end
     end
 
@@ -57,13 +59,6 @@ RSpec.describe 'Bookings API', type: :request do
         expect(response).to have_http_status(:bad_request)
         expect(json_body['errors']).to include('no_of_seats')
       end
-    end
-  end
-
-  describe 'GET /bookings/new' do
-    it 'returns an empty booking that does not exist in database' do
-      get '/api/bookings/new'
-      expect(response).to have_http_status(:ok)
     end
   end
 
@@ -111,6 +106,6 @@ RSpec.describe 'Bookings API', type: :request do
                                user_id: user.id } }.to_json,
           headers: api_headers
 
-    json_body['booking']['id']
+    JSON.parse(json_body['booking'])['id']
   end
 end

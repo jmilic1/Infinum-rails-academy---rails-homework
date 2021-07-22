@@ -6,6 +6,7 @@ RSpec.describe 'users API', type: :request do
   describe 'GET /users' do
     it 'successfully returns a list of users' do
       get '/api/users'
+
       expect(response).to have_http_status(:ok)
     end
   end
@@ -14,6 +15,7 @@ RSpec.describe 'users API', type: :request do
     it 'returns a single user' do
       get "/api/users/#{users.first.id}"
       json_body = JSON.parse(response.body)
+
       expect(json_body['user']).to include('first_name')
     end
 
@@ -21,14 +23,7 @@ RSpec.describe 'users API', type: :request do
       get "/api/users/#{users.first.id}",
           headers: jsonapi_headers
       json_body = JSON.parse(response.body)
-      expect(json_body['user']).to include('first_name')
-    end
-  end
 
-  describe 'GET /users/:id/edit' do
-    it 'returns a single user' do
-      get "/api/users/#{users.first.id}/edit"
-      json_body = JSON.parse(response.body)
       expect(json_body['user']).to include('first_name')
     end
   end
@@ -40,7 +35,7 @@ RSpec.describe 'users API', type: :request do
               params: { user: { first_name: 'Ime', email: 'ime.prezime@backend.com' } }.to_json,
               headers: api_headers
 
-        expect(json_body['user']).to include('first_name' => 'Ime')
+        expect(json_body['user']).to include('"first_name":"Ime"')
       end
     end
 
@@ -53,13 +48,6 @@ RSpec.describe 'users API', type: :request do
         expect(response).to have_http_status(:bad_request)
         expect(json_body['errors']).to include('first_name')
       end
-    end
-  end
-
-  describe 'GET /users/new' do
-    it 'returns an empty user that does not exist in database' do
-      get '/api/users/new'
-      expect(response).to have_http_status(:ok)
     end
   end
 
@@ -102,6 +90,6 @@ RSpec.describe 'users API', type: :request do
           params: { user: { first_name: 'Ime', email: 'ime.prezime@backend.com' } }.to_json,
           headers: api_headers
 
-    json_body['user']['id']
+    JSON.parse(json_body['user'])['id']
   end
 end

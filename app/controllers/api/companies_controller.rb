@@ -1,29 +1,33 @@
 module Api
   class CompaniesController < ApplicationController
     def index
-      render json: { companies: UserSerializer.render(Company.all) }, status: :ok
+      render json: { companies: CompanySerializer.render(Company.all) }, status: :ok
     end
 
     def create
       company = Company.new(company_params)
 
       if company.save
-        render json: { company: UserSerializer.render(company) }, status: :created
+        render json: { company: CompanySerializer.render(company) }, status: :created
       else
         render json: { errors: company.errors }, status: :bad_request
       end
     end
 
-    def new
-      render json: { company: UserSerializer.render(Company.new) }, status: :ok
-    end
-
     def show
-      get_company(params[:id])
-    end
+      company = Company.find(params[:id])
 
-    def edit
-      get_company(params[:id])
+      if company.nil?
+        return render json: { errors: 'Company with such id does not exist' }, status: :bad_request
+      end
+
+      # rubocop:disable Layout/LineLength
+      if request.headers['x_api_serializer'] == 'json_api'
+        render json: { company: JsonApi::CompanySerializer.new(company).serializable_hash.to_json }, status: :ok
+      else
+        render json: { company: CompanySerializer.render(company) }, status: :ok
+      end
+      # rubocop:enable Layout/LineLength
     end
 
     def update
@@ -55,16 +59,6 @@ module Api
     end
 
     private
-
-    def get_company(id)
-      company = Company.find(id)
-
-      if company.nil?
-        render json: { errors: 'Company with such id does not exist' }, status: :bad_request
-      else
-        render json: { company: UserSerializer.render(company) }, status: :ok
-      end
-    end
 
     def company_params
       params.require(:company).permit(:name)

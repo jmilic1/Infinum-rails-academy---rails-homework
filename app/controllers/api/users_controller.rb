@@ -14,16 +14,18 @@ module Api
       end
     end
 
-    def new
-      render json: { user: UserSerializer.render(User.new) }, status: :ok
-    end
-
     def show
-      get_user(params[:id], request.headers['x_api_serializer'])
-    end
+      user = User.find(params[:id])
 
-    def edit
-      get_user(params[:id], 'blueprinter')
+      if user.nil?
+        return render json: { errors: 'User with such id does not exist' }, status: :bad_request
+      end
+
+      if request.headers['x_api_serializer'] == 'json_api'
+        render json: { user:  JsonApi::UserSerializer.new(user).serializable_hash.to_json }, status: :ok
+      else
+        render json: { user: UserSerializer.render(user) }, status: :ok
+      end
     end
 
     def update
@@ -55,20 +57,6 @@ module Api
     end
 
     private
-
-    def get_user(id, serializer)
-      user = User.find(id)
-
-      if user.nil?
-        return render json: { errors: 'User with such id does not exist' }, status: :bad_request
-      end
-
-      if serializer == 'json_api'
-        render json: { user: JSONAPI::UserSerializer.new(user).serializable_hash.to_json }, status: :ok
-      else
-        render json: { user: Blueprinter::UserSerializer.render(user) }, status: :ok
-      end
-    end
 
     def user_params
       params.require(:user).permit(:first_name, :last_name, :email)

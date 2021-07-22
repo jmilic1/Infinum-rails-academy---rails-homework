@@ -1,10 +1,7 @@
 class FlightSerializer < Blueprinter::Base
   identifier :id
-  field :name
-  field :no_of_seats
-  field :base_price
-  field :departs_at
-  field :arrives_at
-  association :company
-  association :bookings
+
+  fields :name, :no_of_seats, :base_price, :departs_at, :arrives_at
+
+  association :bookings, blueprint: BookingSerializer
 end
