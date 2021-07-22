@@ -69,7 +69,7 @@ RSpec.describe 'Flights API', type: :request do
                               base_price: 44 } }.to_json,
           headers: api_headers
 
-      expect(response).to have_http_status(:no_content)
+      expect(response).to have_http_status(:ok)
     end
   end
 
@@ -82,7 +82,7 @@ RSpec.describe 'Flights API', type: :request do
                                 base_price: 10 } }.to_json,
             headers: api_headers
 
-      expect(response).to have_http_status(:no_content)
+      expect(response).to have_http_status(:ok)
     end
   end
 

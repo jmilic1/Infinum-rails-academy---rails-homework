@@ -59,7 +59,7 @@ RSpec.describe 'Companies API', type: :request do
           params: { company: { name: 'Eagle Airways' } }.to_json,
           headers: api_headers
 
-      expect(response).to have_http_status(:no_content)
+      expect(response).to have_http_status(:ok)
     end
   end
 
@@ -71,7 +71,7 @@ RSpec.describe 'Companies API', type: :request do
             params: { company: { name: 'Eagle Airways' } }.to_json,
             headers: api_headers
 
-      expect(response).to have_http_status(:no_content)
+      expect(response).to have_http_status(:ok)
     end
   end
 

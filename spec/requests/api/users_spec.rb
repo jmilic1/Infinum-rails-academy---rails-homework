@@ -9,12 +9,18 @@ RSpec.describe 'users API', type: :request do
 
       expect(response).to have_http_status(:ok)
     end
+
+    it 'returns a list of users without root' do
+      get '/api/users',
+          headers: root_headers_zero
+
+      puts
+    end
   end
 
   describe 'GET /users/:id' do
     it 'returns a single user' do
       get "/api/users/#{users.first.id}"
-      json_body = JSON.parse(response.body)
 
       expect(json_body['user']).to include('first_name')
     end
@@ -22,7 +28,6 @@ RSpec.describe 'users API', type: :request do
     it 'returns a single user serialized by json_api' do
       get "/api/users/#{users.first.id}",
           headers: jsonapi_headers
-      json_body = JSON.parse(response.body)
 
       expect(json_body['user']).to include('first_name')
     end
@@ -59,7 +64,7 @@ RSpec.describe 'users API', type: :request do
           params: { user: { first_name: 'Ime' } }.to_json,
           headers: api_headers
 
-      expect(response).to have_http_status(:no_content)
+      expect(response).to have_http_status(:ok)
     end
   end
 
@@ -71,7 +76,7 @@ RSpec.describe 'users API', type: :request do
             params: { user: { first_name: 'Ime' } }.to_json,
             headers: api_headers
 
-      expect(response).to have_http_status(:no_content)
+      expect(response).to have_http_status(:ok)
     end
   end
 
