@@ -2,14 +2,14 @@ RSpec.describe 'Bookings API', type: :request do
   include TestHelpers::JsonResponse
 
   let(:flight) do
-    FactoryBot.create(:flight)
+    create(:flight)
   end
 
   let(:user) do
-    FactoryBot.create(:user)
+    create(:user)
   end
 
-  let!(:bookings) { FactoryBot.create_list(:booking, 3) }
+  let!(:bookings) { create_list(:booking, 3) }
 
   describe 'GET /bookings' do
     it 'successfully returns a list of bookings' do

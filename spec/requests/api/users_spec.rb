@@ -1,7 +1,7 @@
 RSpec.describe 'users API', type: :request do
   include TestHelpers::JsonResponse
 
-  let!(:users) { FactoryBot.create_list(:user, 3) }
+  let!(:users) { create_list(:user, 3) }
 
   describe 'GET /users' do
     it 'successfully returns a list of users' do

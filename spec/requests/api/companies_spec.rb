@@ -1,7 +1,7 @@
 RSpec.describe 'Companies API', type: :request do
   include TestHelpers::JsonResponse
 
-  let!(:companies) { FactoryBot.create_list(:company, 3) }
+  let!(:companies) { create_list(:company, 3) }
 
   describe 'GET /companies' do
     it 'successfully returns a list of companies' do

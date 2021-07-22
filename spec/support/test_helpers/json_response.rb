@@ -18,5 +18,21 @@ module TestHelpers
         'x_api_serializer': 'json_api'
       }
     end
+
+    def root_headers_one
+      {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'x_api_serializer_root': '1'
+      }
+    end
+
+    def root_headers_zero
+      {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'x_api_serializer_root': '0'
+      }
+    end
   end
 end

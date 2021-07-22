@@ -2,10 +2,10 @@ RSpec.describe 'Flights API', type: :request do
   include TestHelpers::JsonResponse
 
   let(:company) do
-    FactoryBot.create(:company)
+    create(:company)
   end
 
-  let!(:flights) { FactoryBot.create_list(:flight, 3) }
+  let!(:flights) { create_list(:flight, 3) }
 
   describe 'GET /flights' do
     it 'successfully returns a list of flights' do
