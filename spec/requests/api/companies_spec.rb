@@ -9,6 +9,14 @@ RSpec.describe 'Companies API', type: :request do
 
       expect(response).to have_http_status(:ok)
     end
+
+    it 'returns a list of companies without root' do
+      get '/api/companies',
+          headers: root_headers_zero
+
+      expect(response).to have_http_status(:ok)
+      expect(json_body.length).to equal(3)
+    end
   end
 
   describe 'GET /companies/:id' do

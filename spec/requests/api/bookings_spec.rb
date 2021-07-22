@@ -17,6 +17,14 @@ RSpec.describe 'Bookings API', type: :request do
 
       expect(response).to have_http_status(:ok)
     end
+
+    it 'returns a list of bookings without root' do
+      get '/api/bookings',
+          headers: root_headers_zero
+
+      expect(response).to have_http_status(:ok)
+      expect(json_body.length).to equal(3)
+    end
   end
 
   describe 'GET /bookings/:id' do

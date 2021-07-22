@@ -19,7 +19,6 @@ RSpec.describe 'Flights API', type: :request do
       get '/api/flights',
           headers: root_headers_zero
 
-      puts json_body
       expect(response).to have_http_status(:ok)
       expect(json_body.length).to equal(3)
     end
