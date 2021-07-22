@@ -10,7 +10,9 @@ module Api
       flight = Flight.new(flight_params)
 
       if flight.save
+        # rubocop:disable Layout/LineLength
         render json: { flight: FlightSerializer.render_as_hash(flight, view: :extended) }, status: :created
+        # rubocop:enable Layout/LineLength
       else
         render json: { errors: flight.errors }, status: :bad_request
       end

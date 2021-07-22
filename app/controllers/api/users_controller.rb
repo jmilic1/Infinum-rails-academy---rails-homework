@@ -8,7 +8,9 @@ module Api
       user = User.new(user_params)
 
       if user.save
+        # rubocop:disable Layout/LineLength
         render json: { user: UserSerializer.render_as_hash(user, view: :extended) }, status: :created
+        # rubocop:enable Layout/LineLength
       else
         render json: { errors: user.errors }, status: :bad_request
       end
