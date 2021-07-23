@@ -11,13 +11,14 @@ module Api
     end
 
     def create
-      company = Company.new(company_params)
+      @company = Company.new(company_params)
+      authorize @company
 
-      if company.save
-        render json: CompanySerializer.render(company, view: :extended, root: :company),
+      if @company.save
+        render json: CompanySerializer.render(@company, view: :extended, root: :company),
                status: :created
       else
-        render json: { errors: company.errors }, status: :bad_request
+        render json: { errors: @company.errors }, status: :bad_request
       end
     end
 

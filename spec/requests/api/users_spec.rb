@@ -1,22 +1,30 @@
 RSpec.describe 'users API', type: :request do
   include TestHelpers::JsonResponse
+  let(:admin_token) { 'admin-token' }
+  let(:public_token) { 'public-token' }
+
+  before do
+    create(:user, token: admin_token, role: 'admin')
+    create(:user, token: public_token, role: 'public')
+  end
 
   describe 'GET /users' do
     before { create_list(:user, 3) }
 
     it 'successfully returns a list of users' do
-      get '/api/users'
+      get '/api/users',
+          headers: auth_headers(admin_token)
 
       expect(response).to have_http_status(:ok)
-      expect(json_body['users'].length).to equal(3)
+      expect(json_body['users'].length).to equal(5)
     end
 
     it 'returns a list of users without root' do
       get '/api/users',
-          headers: root_headers('0')
+          headers: root_headers('0').merge(auth_headers(admin_token))
 
       expect(response).to have_http_status(:ok)
-      expect(json_body.length).to equal(3)
+      expect(json_body.length).to equal(5)
     end
   end
 

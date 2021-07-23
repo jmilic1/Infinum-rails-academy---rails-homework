@@ -1,5 +1,12 @@
 RSpec.describe 'Companies API', type: :request do
   include TestHelpers::JsonResponse
+  let(:admin_token) { 'admin-token' }
+  let(:public_token) { 'public-token' }
+
+  before do
+    create(:user, token: admin_token, role: 'admin')
+    create(:user, token: public_token, role: 'public')
+  end
 
   describe 'GET /companies' do
     before { create_list(:company, 3) }
@@ -53,7 +60,7 @@ RSpec.describe 'Companies API', type: :request do
       it 'returns 400 Bad Request' do
         post '/api/companies',
              params: { company: { name: '' } }.to_json,
-             headers: api_headers
+             headers: auth_headers(admin_token)
 
         expect(response).to have_http_status(:bad_request)
         expect(json_body['errors']).to include('name')
@@ -105,7 +112,7 @@ RSpec.describe 'Companies API', type: :request do
   def post_new_id(name)
     post  '/api/companies',
           params: { company: { name: name } }.to_json,
-          headers: api_headers
+          headers: auth_headers(admin_token)
 
     json_body['company']['id']
   end
