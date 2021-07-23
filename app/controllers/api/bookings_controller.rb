@@ -3,7 +3,7 @@ module Api
     # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
     def index
       user = find_user_by_token
-      return render json: { errors: { token: ['is invalid'] } }, status: :bad_request if user.nil?
+      return render json: { errors: { token: ['is invalid'] } }, status: :unauthorized if user.nil?
 
       if request.headers['X_API_SERIALIZER_ROOT'] == '0'
         render json: BookingSerializer.render(Booking.where(user_id: user.id), view: :extended),
@@ -17,7 +17,7 @@ module Api
 
     def create
       user = find_user_by_token
-      return render json: { errors: { token: ['is invalid'] } }, status: :bad_request if user.nil?
+      return render json: { errors: { token: ['is invalid'] } }, status: :unauthorized if user.nil?
 
       booking = Booking.new(booking_params)
       booking.user_id = user.id
@@ -33,7 +33,7 @@ module Api
 
     def show
       user = find_user_by_token
-      return render json: { errors: { token: ['is invalid'] } }, status: :bad_request if user.nil?
+      return render json: { errors: { token: ['is invalid'] } }, status: :unauthorized if user.nil?
 
       booking = Booking.find_by(id: params[:id], user_id: user.id)
       if booking.nil?
@@ -50,7 +50,7 @@ module Api
 
     def update
       user = find_user_by_token
-      return render json: { errors: { token: ['is invalid'] } }, status: :bad_request if user.nil?
+      return render json: { errors: { token: ['is invalid'] } }, status: :unauthorized if user.nil?
 
       booking = Booking.find_by(id: params[:id], user_id: user.id)
       if booking.nil?
@@ -66,7 +66,7 @@ module Api
 
     def destroy
       user = find_user_by_token
-      return render json: { errors: { token: ['is invalid'] } }, status: :bad_request if user.nil?
+      return render json: { errors: { token: ['is invalid'] } }, status: :unauthorized if user.nil?
 
       booking = Booking.find_by(id: params[:id], user_id: user.id)
       if booking.nil?
