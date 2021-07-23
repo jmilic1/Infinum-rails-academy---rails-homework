@@ -10,6 +10,7 @@
 #  updated_at      :datetime         not null
 #  password_digest :string
 #  token           :string
+#  role            :string
 #
 RSpec.describe User do
   it { is_expected.to validate_presence_of(:first_name) }

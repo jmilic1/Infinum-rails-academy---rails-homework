@@ -10,6 +10,7 @@
 #  updated_at      :datetime         not null
 #  password_digest :string
 #  token           :string
+#  role            :string
 #
 FactoryBot.define do
   factory :user do
