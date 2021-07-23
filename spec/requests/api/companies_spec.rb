@@ -97,6 +97,10 @@ RSpec.describe 'Companies API', type: :request do
       delete "/api/companies/#{id}"
 
       expect(response).to have_http_status(:no_content)
+
+      get "/api/companies/#{id}"
+
+      expect(response).to have_http_status(:not_found)
     end
   end
 

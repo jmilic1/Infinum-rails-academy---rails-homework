@@ -100,6 +100,10 @@ RSpec.describe 'users API', type: :request do
       delete "/api/users/#{id}"
 
       expect(response).to have_http_status(:no_content)
+
+      get "/api/users/#{id}"
+
+      expect(response).to have_http_status(:not_found)
     end
   end
 
