@@ -1,12 +1,10 @@
 module Api
   class UsersController < ApplicationController
-
-    # rubocop:disable Layout/LineLength
     def index
-      if request.headers['x_api_serializer_root'] == '0'
-        render json: UserSerializer.render_as_hash(User.all, view: :extended), status: :ok
+      if request.headers['X_API_SERIALIZER_ROOT'] == '0'
+        render json: UserSerializer.render(User.all, view: :extended), status: :ok
       else
-        render json: { users: UserSerializer.render_as_hash(User.all, view: :extended) }, status: :ok
+        render json: UserSerializer.render(User.all, view: :extended, root: :users), status: :ok
       end
     end
 
@@ -18,56 +16,46 @@ module Api
       user = User.new(user_params)
 
       if user.save
-        render json: { user: UserSerializer.render_as_hash(user, view: :extended) }, status: :created
+        render json: UserSerializer.render(user, view: :extended, root: :user), status: :created
       else
         render json: { errors: user.errors }, status: :bad_request
       end
     end
-    # rubocop:enable Layout/LineLength
 
     def show
-      user = User.find(params[:id])
-
+      user = User.find_by(id: params[:id])
       if user.nil?
-        return render json: { errors: 'User with such id does not exist' }, status: :bad_request
+        return render json: { errors: 'User with such id does not exist' }, status: :not_found
       end
 
-      # rubocop:disable Layout/LineLength
-      if request.headers['x_api_serializer'] == 'json_api'
-        render json: { user:  JsonApi::UserSerializer.new(user).serializable_hash.to_json }, status: :ok
+      if request.headers['X_API_SERIALIZER'] == 'json_api'
+        render json: { user:  JsonApi::UserSerializer.new(user).serializable_hash.to_json },
+               status: :ok
       else
-        render json: { user: UserSerializer.render_as_hash(user, view: :extended) }, status: :ok
+        render json: UserSerializer.render(user, view: :extended, root: :user), status: :ok
       end
-      # rubocop:enable Layout/LineLength
     end
 
-    # rubocop:disable Metrics/MethodLength
     def update
-      user = User.find(params[:id])
-
+      user = User.find_by(id: params[:id])
       if user.nil?
-        return render json: { errors: 'User with such id does not exist' }, status: :bad_request
+        return render json: { errors: 'User with such id does not exist' }, status: :not_found
       end
 
-      # rubocop:disable Layout/LineLength
       user_values = user_params
-      return render json: { errors: 'New password cannot be nil/empty string' }, status: :bad_request if !user_values['password'].nil? &&
-                                                                                                         user_values['password'].length.zero?
-      # rubocop:enable Layout/LineLength
+      return render json: { errors: 'New password cannot be nil/empty string' }, status: :bad_request if !user_values['password'].nil? && user_values['password'].length.zero?
 
-      if user.update(user_values)
-        render json: { user: UserSerializer.render_as_hash(user, view: :extended) }, status: :ok
+        if user.update(user_values)
+        render json: UserSerializer.render(user, view: :extended, root: :user), status: :ok
       else
         render json: { errors: user.errors }, status: :bad_request
       end
     end
-    # rubocop:enable Metrics/MethodLength
 
     def destroy
-      user = User.find(params[:id])
-
+      user = User.find_by(id: params[:id])
       if user.nil?
-        return render json: { errors: 'User with such id does not exist' }, status: :bad_request
+        return render json: { errors: 'User with such id does not exist' }, status: :not_found
       end
 
       if user.destroy

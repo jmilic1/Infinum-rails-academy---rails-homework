@@ -1,18 +1,19 @@
 RSpec.describe 'Companies API', type: :request do
   include TestHelpers::JsonResponse
 
-  let!(:companies) { create_list(:company, 3) }
-
   describe 'GET /companies' do
+    before { create_list(:company, 3) }
+
     it 'successfully returns a list of companies' do
       get '/api/companies'
 
       expect(response).to have_http_status(:ok)
+      expect(json_body['companies'].length).to equal(3)
     end
 
     it 'returns a list of companies without root' do
       get '/api/companies',
-          headers: root_headers_zero
+          headers: root_headers('0')
 
       expect(response).to have_http_status(:ok)
       expect(json_body.length).to equal(3)
@@ -20,15 +21,17 @@ RSpec.describe 'Companies API', type: :request do
   end
 
   describe 'GET /companies/:id' do
+    let(:company) { create(:company) }
+
     it 'returns a single company' do
-      get "/api/companies/#{companies.first.id}"
+      get "/api/companies/#{company.id}"
       json_body = JSON.parse(response.body)
 
       expect(json_body['company']).to include('name')
     end
 
     it 'returns a single company serialized by json_api' do
-      get "/api/companies/#{companies.first.id}",
+      get "/api/companies/#{company.id}",
           headers: jsonapi_headers
       json_body = JSON.parse(response.body)
 
@@ -39,11 +42,12 @@ RSpec.describe 'Companies API', type: :request do
   describe 'POST /companies' do
     context 'when params are valid' do
       it 'creates a company' do
-        post  '/api/companies',
-              params: { company: { name: 'Croatia Airlines' } }.to_json,
-              headers: api_headers
+        name = 'Eagle Express'
+        id = post_new_id(name)
 
-        expect(json_body['company']).to include('name' => 'Croatia Airlines')
+        get "/api/companies/#{id}"
+
+        expect(json_body['company']).to include('id' => id, 'name' => name)
       end
     end
 
@@ -59,43 +63,50 @@ RSpec.describe 'Companies API', type: :request do
     end
   end
 
-  describe 'PUT /companies/:id' do
-    it 'updates a company' do
-      id = post_new_id
+  describe 'updating companies' do
+    let(:old_name) { 'Dunedain' }
+    let(:new_name) { 'Elves' }
+
+    it 'sends PUT /companies/:id request' do
+      id = post_new_id(old_name)
 
       put "/api/companies/#{id}",
-          params: { company: { name: 'Eagle Airways' } }.to_json,
+          params: { company: { name: new_name } }.to_json,
           headers: api_headers
 
       expect(response).to have_http_status(:ok)
+      expect(json_body['company']).to include('id' => id, 'name' => new_name)
     end
-  end
 
-  describe 'PATCH /companies/:id' do
-    it 'updates a company' do
-      id = post_new_id
+    it 'sends PATCH /companies/:id request' do
+      id = post_new_id(old_name)
 
       patch "/api/companies/#{id}",
-            params: { company: { name: 'Eagle Airways' } }.to_json,
+            params: { company: { name: new_name } }.to_json,
             headers: api_headers
 
       expect(response).to have_http_status(:ok)
+      expect(json_body['company']).to include('id' => id, 'name' => new_name)
     end
   end
 
   describe 'DELETE /companies/:id' do
-    it 'delete a company' do
-      id = post_new_id
+    it 'deletes a company' do
+      id = post_new_id('Dunedain')
 
       delete "/api/companies/#{id}"
 
       expect(response).to have_http_status(:no_content)
+
+      get "/api/companies/#{id}"
+
+      expect(response).to have_http_status(:not_found)
     end
   end
 
-  def post_new_id
+  def post_new_id(name)
     post  '/api/companies',
-          params: { company: { name: 'Croatia Airlines' } }.to_json,
+          params: { company: { name: name } }.to_json,
           headers: api_headers
 
     json_body['company']['id']

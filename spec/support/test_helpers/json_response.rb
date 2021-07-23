@@ -12,26 +12,12 @@ module TestHelpers
     end
 
     def jsonapi_headers
-      {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'x_api_serializer': 'json_api'
-      }
+      api_headers.merge('X_API_SERIALIZER': 'json_api')
     end
 
-    def root_headers_one
+    def root_headers(value)
       {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'x_api_serializer_root': '1'
-      }
-    end
-
-    def root_headers_zero
-      {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'x_api_serializer_root': '0'
+        'X_API_SERIALIZER_ROOT': value
       }
     end
 

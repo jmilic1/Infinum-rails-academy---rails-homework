@@ -1,9 +1,9 @@
 RSpec.describe 'users API', type: :request do
   include TestHelpers::JsonResponse
 
-  let!(:users) { create_list(:user, 3) }
-
   describe 'GET /users' do
+    before { create_list(:user, 3) }
+
     it 'successfully returns a list of users' do
       get '/api/users'
 
@@ -13,7 +13,7 @@ RSpec.describe 'users API', type: :request do
 
     it 'returns a list of users without root' do
       get '/api/users',
-          headers: root_headers_zero
+          headers: root_headers('0')
 
       expect(response).to have_http_status(:ok)
       expect(json_body.length).to equal(3)
@@ -21,14 +21,16 @@ RSpec.describe 'users API', type: :request do
   end
 
   describe 'GET /users/:id' do
+    let(:user) { create(:user) }
+
     it 'returns a single user' do
-      get "/api/users/#{users.first.id}"
+      get "/api/users/#{user.id}"
 
       expect(json_body['user']).to include('first_name')
     end
 
     it 'returns a single user serialized by json_api' do
-      get "/api/users/#{users.first.id}",
+      get "/api/users/#{user.id}",
           headers: jsonapi_headers
 
       expect(json_body['user']).to include('first_name')
@@ -38,13 +40,16 @@ RSpec.describe 'users API', type: :request do
   describe 'POST /users' do
     context 'when params are valid' do
       it 'creates a user' do
-        post  '/api/users',
-              params: { user: { first_name: 'Ime',
-                                email: 'ime.prezime@backend.com',
-                                password: 'password-numero' } }.to_json,
-              headers: api_headers
+        first_name = 'FirstName'
+        email = 'first.name@backend.com'
 
-        expect(json_body['user']).to include('first_name' => 'Ime')
+        id = post_new_id(first_name, email)
+
+        get "/api/users/#{id}"
+
+        expect(json_body['user']).to include('id' => id,
+                                             'first_name' => first_name,
+                                             'email' => email)
       end
     end
 
@@ -60,15 +65,20 @@ RSpec.describe 'users API', type: :request do
     end
   end
 
-  describe 'PUT /users/:id' do
-    it 'updates a user' do
-      id = post_new_id
+  describe 'updating users' do
+    let(:old_name) { 'Aragorn' }
+    let(:email) { 'ime.prezime@backend.com' }
+    let(:new_name) { 'Legolas' }
+
+    it 'sends PUT /users/:id request' do
+      id = post_new_id(old_name, email)
 
       put "/api/users/#{id}",
-          params: { user: { first_name: 'Ime' } }.to_json,
+          params: { user: { first_name: new_name } }.to_json,
           headers: api_headers
 
       expect(response).to have_http_status(:ok)
+      expect(json_body['user']).to include('first_name' => new_name, 'email' => email)
     end
 
     it 'returns 400 Bad Request' do
@@ -80,35 +90,36 @@ RSpec.describe 'users API', type: :request do
 
       expect(response).to have_http_status(:bad_request)
     end
-  end
 
-  describe 'PATCH /users/:id' do
-    it 'updates a user' do
-      id = post_new_id
+    it 'sends PATCH /users/:id request' do
+      id = post_new_id(old_name, email)
 
       patch "/api/users/#{id}",
-            params: { user: { first_name: 'Ime' } }.to_json,
+            params: { user: { first_name: new_name } }.to_json,
             headers: api_headers
 
       expect(response).to have_http_status(:ok)
+      expect(json_body['user']).to include('first_name' => new_name, 'email' => email)
     end
   end
 
   describe 'DELETE /users/:id' do
-    it 'delete a user' do
-      id = post_new_id
+    it 'deletes a user' do
+      id = post_new_id('Ime', 'ime.prezime@backend.com')
 
       delete "/api/users/#{id}"
 
       expect(response).to have_http_status(:no_content)
+
+      get "/api/users/#{id}"
+
+      expect(response).to have_http_status(:not_found)
     end
   end
 
-  def post_new_id
+  def post_new_id(first_name, email, password)
     post  '/api/users',
-          params: { user: { first_name: 'Ime',
-                            email: 'ime.prezime@backend.com',
-                            password: 'password-numero' } }.to_json,
+          params: { user: { first_name: first_name, email: email, password: password } }.to_json,
           headers: api_headers
 
     json_body['user']['id']
