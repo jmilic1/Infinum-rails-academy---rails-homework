@@ -1,18 +1,10 @@
 RSpec.describe 'Bookings API', type: :request do
   include TestHelpers::JsonResponse
   let(:flight) { create(:flight) }
-  let(:token) do
-    email = 'aragorn.dunedain@gmail.com'
-    password = 'IsildursHeir'
-    post '/api/users',
-         params: { user: { first_name: 'Aragorn', email: email,
-                           password: password } }.to_json,
-         headers: api_headers
+  let(:token) { 'abc-123' }
 
-    post '/api/sessions',
-         params: { session: { email: email, password: password } }.to_json,
-         headers: api_headers
-    json_body['session']['token']
+  before do
+    create(:user, token: token)
   end
 
   describe 'GET /bookings' do
