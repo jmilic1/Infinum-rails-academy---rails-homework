@@ -54,7 +54,7 @@ module Api
 
       booking = Booking.find_by(id: params[:id], user_id: user.id)
       if booking.nil?
-        return render json: { errors: 'Booking with such id was not found' }, status: :not_found
+        return render json: { errors: { resource: ['is forbidden'] } }, status: :forbidden
       end
 
       if booking.update(booking_params)
@@ -70,7 +70,7 @@ module Api
 
       booking = Booking.find_by(id: params[:id], user_id: user.id)
       if booking.nil?
-        return render json: { errors: 'Booking with such id was not found' }, status: :not_found
+        return render json: { errors: { resource: ['is forbidden'] } }, status: :forbidden
       end
 
       if booking.destroy
