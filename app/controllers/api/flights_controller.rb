@@ -24,7 +24,7 @@ module Api
       flight = Flight.find(params[:id])
 
       if flight.nil?
-        return render json: { errors: 'Flight with such id does not exist' }, status: :bad_request
+        return render json: { errors: 'Flight with such id does not exist' }, status: :not_found
       end
 
       if request.headers['X_API_SERIALIZER'] == 'json_api'
@@ -39,7 +39,7 @@ module Api
       flight = Flight.find(params[:id])
 
       if flight.nil?
-        return render json: { errors: 'Flight with such id does not exist' }, status: :bad_request
+        return render json: { errors: 'Flight with such id does not exist' }, status: :not_found
       end
 
       if flight.update(flight_params)
@@ -53,7 +53,7 @@ module Api
       flight = Flight.find(params[:id])
 
       if flight.nil?
-        return render json: { errors: 'Flight with such id does not exist' }, status: :bad_request
+        return render json: { errors: 'Flight with such id does not exist' }, status: :not_found
       end
 
       if flight.destroy

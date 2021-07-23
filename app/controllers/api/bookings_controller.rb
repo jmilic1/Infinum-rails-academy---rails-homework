@@ -25,7 +25,7 @@ module Api
     def show
       booking = Booking.find(params[:id])
       if booking.nil?
-        return render json: { errors: 'Booking with such id does not exist' }, status: :bad_request
+        return render json: { errors: 'Booking with such id does not exist' }, status: :not_found
       end
 
       if request.headers['X_API_SERIALIZER'] == 'json_api'
@@ -40,8 +40,7 @@ module Api
       booking = Booking.find(params[:id])
 
       if booking.nil?
-        return render json: { errors: 'Booking with such id does not exist' },
-                      status: :bad_request
+        return render json: { errors: 'Booking with such id does not exist' }, status: :not_found
       end
 
       if booking.update(booking_params)
@@ -55,7 +54,7 @@ module Api
       booking = Booking.find(params[:id])
 
       if booking.nil?
-        return render json: { errors: 'Booking with such id does not exist' }, status: :bad_request
+        return render json: { errors: 'Booking with such id does not exist' }, status: :not_found
       end
 
       if booking.destroy

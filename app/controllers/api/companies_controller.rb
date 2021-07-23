@@ -25,7 +25,7 @@ module Api
       company = Company.find(params[:id])
 
       if company.nil?
-        return render json: { errors: 'Company with such id does not exist' }, status: :bad_request
+        return render json: { errors: 'Company with such id does not exist' }, status: :not_found
       end
 
       if request.headers['X_API_SERIALIZER'] == 'json_api'
@@ -40,8 +40,7 @@ module Api
       company = Company.find(params[:id])
 
       if company.nil?
-        return render json: { errors: 'Company with such id does not exist' },
-                      status: :bad_request
+        return render json: { errors: 'Company with such id does not exist' }, status: :not_found
       end
 
       if company.update(company_params)
@@ -55,8 +54,7 @@ module Api
       company = Company.find(params[:id])
 
       if company.nil?
-        return render json: { errors: 'Company with such id does not exist' },
-                      status: :bad_request
+        return render json: { errors: 'Company with such id does not exist' }, status: :not_found
       end
 
       if company.destroy

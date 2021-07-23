@@ -22,7 +22,7 @@ module Api
       user = User.find(params[:id])
 
       if user.nil?
-        return render json: { errors: 'User with such id does not exist' }, status: :bad_request
+        return render json: { errors: 'User with such id does not exist' }, status: :not_found
       end
 
       if request.headers['X_API_SERIALIZER'] == 'json_api'
@@ -37,8 +37,7 @@ module Api
       user = User.find(params[:id])
 
       if user.nil?
-        return render json: { errors: 'User with such id does not exist' },
-                      status: :bad_request
+        return render json: { errors: 'User with such id does not exist' }, status: :not_found
       end
 
       if user.update(user_params)
@@ -52,7 +51,7 @@ module Api
       user = User.find(params[:id])
 
       if user.nil?
-        return render json: { errors: 'User with such id does not exist' }, status: :bad_request
+        return render json: { errors: 'User with such id does not exist' }, status: :not_found
       end
 
       if user.destroy
