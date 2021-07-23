@@ -2,7 +2,7 @@ module Api
   class CompaniesController < ApplicationController
     # rubocop:disable Layout/LineLength
     def index
-      if request.headers['x_api_serializer_root'] == '0'
+      if request.headers['X_API_SERIALIZER_ROOT'] == '0'
         render json: CompanySerializer.render_as_hash(Company.all, view: :extended), status: :ok
       else
         render json: { companies: CompanySerializer.render_as_hash(Company.all, view: :extended) }, status: :ok
@@ -28,7 +28,7 @@ module Api
       end
 
       # rubocop:disable Layout/LineLength
-      if request.headers['x_api_serializer'] == 'json_api'
+      if request.headers['X_API_SERIALIZER'] == 'json_api'
         render json: { company: JsonApi::CompanySerializer.new(company).serializable_hash.to_json }, status: :ok
       else
         render json: { company: CompanySerializer.render_as_hash(company, view: :extended) }, status: :ok

@@ -2,7 +2,7 @@ module Api
   class BookingsController < ApplicationController
     # rubocop:disable Layout/LineLength
     def index
-      if request.headers['x_api_serializer_root'] == '0'
+      if request.headers['X_API_SERIALIZER_ROOT'] == '0'
         render json: BookingSerializer.render_as_hash(Booking.all, view: :extended), status: :ok
       else
         render json: { bookings: BookingSerializer.render_as_hash(Booking.all, view: :extended) }, status: :ok
@@ -28,7 +28,7 @@ module Api
       end
 
       # rubocop:disable Layout/LineLength
-      if request.headers['x_api_serializer'] == 'json_api'
+      if request.headers['X_API_SERIALIZER'] == 'json_api'
         render json: { booking: JsonApi::BookingSerializer.new(booking).serializable_hash.to_json }, status: :ok
       else
         render json: { booking: BookingSerializer.render_as_hash(booking, view: :extended) }, status: :ok

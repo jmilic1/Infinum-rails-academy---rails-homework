@@ -15,7 +15,7 @@ module TestHelpers
       {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'x_api_serializer': 'json_api'
+        'X_API_SERIALIZER': 'json_api'
       }
     end
 
@@ -23,7 +23,7 @@ module TestHelpers
       {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'x_api_serializer_root': '1'
+        'X_API_SERIALIZER_ROOT': '1'
       }
     end
 
@@ -31,7 +31,7 @@ module TestHelpers
       {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'x_api_serializer_root': '0'
+        'X_API_SERIALIZER_ROOT': '0'
       }
     end
   end
