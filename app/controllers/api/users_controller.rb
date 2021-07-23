@@ -38,6 +38,7 @@ module Api
       end
     end
 
+    # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     def update
       user = User.find_by(id: params[:id])
       if user.nil?
@@ -46,7 +47,7 @@ module Api
 
       user_values = user_params
       if !user_values['password'].nil? && user_values['password'].length.zero?
-        return render json: { errors: {'credentials': ['are invalid'] } },
+        return render json: { errors: { credentials: ['are invalid'] } },
                       status: :bad_request
       end
 
@@ -56,6 +57,7 @@ module Api
         render json: { errors: user.errors }, status: :bad_request
       end
     end
+    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
     def destroy
       user = User.find_by(id: params[:id])

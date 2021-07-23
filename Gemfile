@@ -7,7 +7,7 @@ gem 'blueprinter'
 gem 'http'
 gem 'jsonapi-serializer'
 gem 'pg'
-gem "pundit"
+gem 'pundit'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails', branch: 'main'
 gem 'rails', '~> 6.1.3', '>= 6.1.3.2'
