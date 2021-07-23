@@ -50,12 +50,16 @@ RSpec.describe 'Companies API', type: :request do
       end
 
       it 'checks a company was created' do
-        id = post_new_id
+        name = 'Eagle Express'
+        post  '/api/companies',
+              params: { company: { name: name } }.to_json,
+              headers: api_headers
+
+        id = json_body['company']['id']
 
         get "/api/companies/#{id}"
-        json_body = JSON.parse(response.body)
 
-        expect(json_body['company']).to include('id' => id)
+        expect(json_body['company']).to include('id' => id, 'name' => name)
       end
     end
 

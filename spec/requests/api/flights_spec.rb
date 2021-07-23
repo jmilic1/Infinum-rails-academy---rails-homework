@@ -57,14 +57,33 @@ RSpec.describe 'Flights API', type: :request do
         expect(json_body['flight']).to include('no_of_seats' => 10)
       end
 
+      # rubocop:disable RSpec/ExampleLength
       it 'checks a flight was created' do
-        id = post_new_id
+        name = 'Minas Tirith - Minas Morgul'
+        no_of_seats = 25
+        base_price = 12
+        departs_at = 10.days.after
+        arrives_at = 11.days.after
+        company_id = company.id
+        post  '/api/flights',
+              params: { flight: { name: name,
+                                  no_of_seats: no_of_seats,
+                                  base_price: base_price,
+                                  departs_at: departs_at,
+                                  arrives_at: arrives_at,
+                                  company_id: company_id } }.to_json,
+              headers: api_headers
+        id = json_body['flight']['id']
 
         get "/api/flights/#{id}"
-        json_body = JSON.parse(response.body)
+        puts json_body['flight']
 
-        expect(json_body['flight']).to include('id' => id)
+        expect(json_body['flight']).to include('id' => id,
+                                               'name' => name,
+                                               'no_of_seats' => no_of_seats,
+                                               'base_price' => base_price)
       end
+      # rubocop:enable RSpec/ExampleLength
     end
 
     context 'when params are invalid' do

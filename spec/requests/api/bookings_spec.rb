@@ -55,15 +55,27 @@ RSpec.describe 'Bookings API', type: :request do
         expect(json_body['booking']).to include('no_of_seats' => 10)
       end
 
+      # rubocop:disable RSpec/ExampleLength
       it 'checks a booking was created' do
-        id = post_new_id
+        no_of_seats = 25
+        seat_price = 29
+        post  '/api/bookings',
+              params: { booking: { no_of_seats: no_of_seats,
+                                   seat_price: seat_price,
+                                   flight_id: flight.id,
+                                   user_id: user.id } }.to_json,
+              headers: api_headers
+
+        id = json_body['booking']['id']
 
         get "/api/bookings/#{id}"
-        json_body = JSON.parse(response.body)
 
-        expect(json_body['booking']).to include('id' => id)
+        expect(json_body['booking']).to include('id' => id,
+                                                'no_of_seats' => no_of_seats,
+                                                'seat_price' => seat_price)
       end
     end
+    # rubocop:enable RSpec/ExampleLength
 
     context 'when params are invalid' do
       it 'returns 400 Bad Request' do

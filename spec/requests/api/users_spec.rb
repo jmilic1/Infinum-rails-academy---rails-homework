@@ -48,12 +48,19 @@ RSpec.describe 'users API', type: :request do
       end
 
       it 'checks a user was created' do
-        id = post_new_id
+        first_name = 'FirstName'
+        email = 'first.name@backend.com'
+        post  '/api/users',
+              params: { user: { first_name: first_name, email: email } }.to_json,
+              headers: api_headers
+
+        id = json_body['user']['id']
 
         get "/api/users/#{id}"
-        json_body = JSON.parse(response.body)
 
-        expect(json_body['user']).to include('id' => id)
+        expect(json_body['user']).to include('id' => id,
+                                             'first_name' => first_name,
+                                             'email' => email)
       end
     end
 
