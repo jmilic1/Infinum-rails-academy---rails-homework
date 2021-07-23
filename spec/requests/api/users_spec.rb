@@ -1,9 +1,9 @@
 RSpec.describe 'users API', type: :request do
   include TestHelpers::JsonResponse
 
-  let!(:users) { create_list(:user, 3) }
-
   describe 'GET /users' do
+    before { create_list(:user, 3) }
+
     it 'successfully returns a list of users' do
       get '/api/users'
 
@@ -21,14 +21,16 @@ RSpec.describe 'users API', type: :request do
   end
 
   describe 'GET /users/:id' do
+    let(:user) { create(:user) }
+
     it 'returns a single user' do
-      get "/api/users/#{users.first.id}"
+      get "/api/users/#{user.id}"
 
       expect(json_body['user']).to include('first_name')
     end
 
     it 'returns a single user serialized by json_api' do
-      get "/api/users/#{users.first.id}",
+      get "/api/users/#{user.id}",
           headers: jsonapi_headers
 
       expect(json_body['user']).to include('first_name')

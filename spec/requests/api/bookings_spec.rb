@@ -1,21 +1,16 @@
 RSpec.describe 'Bookings API', type: :request do
   include TestHelpers::JsonResponse
-
-  let(:flight) do
-    create(:flight)
-  end
-
-  let(:user) do
-    create(:user)
-  end
-
-  let!(:bookings) { create_list(:booking, 3) }
+  let(:flight) { create(:flight) }
+  let(:user) { create(:user) }
 
   describe 'GET /bookings' do
+    before { create_list(:booking, 3) }
+
     it 'successfully returns a list of bookings' do
       get '/api/bookings'
 
       expect(response).to have_http_status(:ok)
+      expect(json_body['bookings'].length).to equal(3)
     end
 
     it 'returns a list of bookings without root' do
@@ -28,15 +23,17 @@ RSpec.describe 'Bookings API', type: :request do
   end
 
   describe 'GET /bookings/:id' do
+    let(:booking) { create(:booking) }
+
     it 'returns a single booking' do
-      get "/api/bookings/#{bookings.first.id}"
+      get "/api/bookings/#{booking.id}"
       json_body = JSON.parse(response.body)
 
       expect(json_body['booking']).to include('no_of_seats')
     end
 
     it 'returns a single booking serialized by json_api' do
-      get "/api/bookings/#{bookings.first.id}",
+      get "/api/bookings/#{booking.id}",
           headers: jsonapi_headers
       json_body = JSON.parse(response.body)
 

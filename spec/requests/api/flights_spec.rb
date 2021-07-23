@@ -1,13 +1,10 @@
 RSpec.describe 'Flights API', type: :request do
   include TestHelpers::JsonResponse
-
-  let(:company) do
-    create(:company)
-  end
-
-  let!(:flights) { create_list(:flight, 3) }
+  let(:company) { create(:company) }
 
   describe 'GET /flights' do
+    before { create_list(:flight, 3) }
+
     it 'successfully returns a list of flights' do
       get '/api/flights'
 
@@ -25,15 +22,17 @@ RSpec.describe 'Flights API', type: :request do
   end
 
   describe 'GET /flights/:id' do
+    let(:flight) { create(:flight) }
+
     it 'returns a single flights' do
-      get "/api/flights/#{flights.first.id}"
+      get "/api/flights/#{flight.id}"
       json_body = JSON.parse(response.body)
 
       expect(json_body['flight']).to include('no_of_seats')
     end
 
     it 'returns a single flight serialized by json_api' do
-      get "/api/flights/#{flights.first.id}",
+      get "/api/flights/#{flight.id}",
           headers: jsonapi_headers
       json_body = JSON.parse(response.body)
 
@@ -42,6 +41,8 @@ RSpec.describe 'Flights API', type: :request do
   end
 
   describe 'POST /flights' do
+    let(:company) { create(:company) }
+
     context 'when params are valid' do
       it 'creates a flight' do
         post  '/api/flights',

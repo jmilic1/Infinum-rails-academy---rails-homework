@@ -1,13 +1,14 @@
 RSpec.describe 'Companies API', type: :request do
   include TestHelpers::JsonResponse
 
-  let!(:companies) { create_list(:company, 3) }
-
   describe 'GET /companies' do
+    before { create_list(:company, 3) }
+
     it 'successfully returns a list of companies' do
       get '/api/companies'
 
       expect(response).to have_http_status(:ok)
+      expect(json_body['companies'].length).to equal(3)
     end
 
     it 'returns a list of companies without root' do
@@ -20,15 +21,17 @@ RSpec.describe 'Companies API', type: :request do
   end
 
   describe 'GET /companies/:id' do
+    let(:company) { create(:company) }
+
     it 'returns a single company' do
-      get "/api/companies/#{companies.first.id}"
+      get "/api/companies/#{company.id}"
       json_body = JSON.parse(response.body)
 
       expect(json_body['company']).to include('name')
     end
 
     it 'returns a single company serialized by json_api' do
-      get "/api/companies/#{companies.first.id}",
+      get "/api/companies/#{company.id}",
           headers: jsonapi_headers
       json_body = JSON.parse(response.body)
 
