@@ -1,6 +1,13 @@
 RSpec.describe 'Flights API', type: :request do
   include TestHelpers::JsonResponse
   let(:company) { create(:company) }
+  let(:admin_token) { 'admin-token' }
+  let(:public_token) { 'public-token' }
+
+  before do
+    create(:user, token: admin_token, role: 'admin')
+    create(:user, token: public_token, role: 'public')
+  end
 
   describe 'GET /flights' do
     before { create_list(:flight, 3) }
@@ -61,7 +68,7 @@ RSpec.describe 'Flights API', type: :request do
       it 'returns 400 Bad Request' do
         post '/api/flights',
              params: { flight: { no_of_seats: 0 } }.to_json,
-             headers: api_headers
+             headers: auth_headers(admin_token)
 
         expect(response).to have_http_status(:bad_request)
         expect(json_body['errors']).to include('no_of_seats')
@@ -81,7 +88,7 @@ RSpec.describe 'Flights API', type: :request do
 
       put "/api/flights/#{id}",
           params: { flight: { no_of_seats: new_no_of_seats } }.to_json,
-          headers: api_headers
+          headers: auth_headers(admin_token)
 
       expect(response).to have_http_status(:ok)
       expect(json_body['flight']).to include('id' => id,
@@ -96,7 +103,7 @@ RSpec.describe 'Flights API', type: :request do
 
       patch "/api/flights/#{id}",
             params: { flight: { no_of_seats: new_no_of_seats } }.to_json,
-            headers: api_headers
+            headers: auth_headers(admin_token)
 
       expect(response).to have_http_status(:ok)
       expect(json_body['flight']).to include('id' => id,
@@ -114,7 +121,8 @@ RSpec.describe 'Flights API', type: :request do
                        1.day.after,
                        2.days.after)
 
-      delete "/api/flights/#{id}"
+      delete "/api/flights/#{id}",
+             headers: auth_headers(admin_token)
 
       expect(response).to have_http_status(:no_content)
 
@@ -132,7 +140,7 @@ RSpec.describe 'Flights API', type: :request do
                               departs_at: departs_at,
                               arrives_at: arrives_at,
                               company_id: company.id } }.to_json,
-          headers: api_headers
+          headers: auth_headers(admin_token)
 
     json_body['flight']['id']
   end

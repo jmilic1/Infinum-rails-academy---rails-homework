@@ -27,26 +27,32 @@ module Api
       end
     end
 
+    # rubocop:disable Metrics/MethodLength
     def show
-      user = User.find_by(id: params[:id])
-      if user.nil?
+      @user = User.find_by(id: params[:id])
+      if @user.nil?
         return render json: { errors: 'User with such id does not exist' }, status: :not_found
       end
 
+      authorize @user
+
       if request.headers['X_API_SERIALIZER'] == 'json_api'
-        render json: { user:  JsonApi::UserSerializer.new(user).serializable_hash.to_json },
+        render json: { user:  JsonApi::UserSerializer.new(@user).serializable_hash.to_json },
                status: :ok
       else
-        render json: UserSerializer.render(user, view: :extended, root: :user), status: :ok
+        render json: UserSerializer.render(@user, view: :extended, root: :user), status: :ok
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
     def update
-      user = User.find_by(id: params[:id])
-      if user.nil?
+      @user = User.find_by(id: params[:id])
+      if @user.nil?
         return render json: { errors: 'User with such id does not exist' }, status: :not_found
       end
+
+      authorize @user
 
       user_values = user_params
       if !user_values['password'].nil? && user_values['password'].length.zero?
@@ -54,10 +60,10 @@ module Api
                       status: :bad_request
       end
 
-      if user.update(user_values)
-        render json: UserSerializer.render(user, view: :extended, root: :user), status: :ok
+      if @user.update(user_values)
+        render json: UserSerializer.render(@user, view: :extended, root: :user), status: :ok
       else
-        render json: { errors: user.errors }, status: :bad_request
+        render json: { errors: @user.errors }, status: :bad_request
       end
     end
     # rubocop:enable Metrics/MethodLength, Metrics/AbcSize

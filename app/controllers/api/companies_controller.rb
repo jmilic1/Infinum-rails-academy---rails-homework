@@ -37,28 +37,32 @@ module Api
     end
 
     def update
-      company = Company.find_by(id: params[:id])
-      if company.nil?
+      @company = Company.find_by(id: params[:id])
+      if @company.nil?
         return render json: { errors: 'Company with such id does not exist' }, status: :not_found
       end
 
-      if company.update(company_params)
-        render json: CompanySerializer.render(company, view: :extended, root: :company), status: :ok
+      authorize @company
+
+      if @company.update(company_params)
+        render json: CompanySerializer.render(@company, view: :extended, root: :company), status: :ok
       else
-        render json: { errors: company.errors }, status: :bad_request
+        render json: { errors: @company.errors }, status: :bad_request
       end
     end
 
     def destroy
-      company = Company.find_by(id: params[:id])
-      if company.nil?
+      @company = Company.find_by(id: params[:id])
+      if @company.nil?
         return render json: { errors: 'Company with such id does not exist' }, status: :not_found
       end
 
-      if company.destroy
+      authorize @company
+
+      if @company.destroy
         render json: {}, status: :no_content
       else
-        render json: { errors: company.errors }, status: :bad_request
+        render json: { errors: @company.errors }, status: :bad_request
       end
     end
 

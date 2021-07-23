@@ -32,14 +32,15 @@ RSpec.describe 'users API', type: :request do
     let(:user) { create(:user) }
 
     it 'returns a single user' do
-      get "/api/users/#{user.id}"
+      get "/api/users/#{user.id}",
+          headers: auth_headers(admin_token)
 
       expect(json_body['user']).to include('first_name')
     end
 
     it 'returns a single user serialized by json_api' do
       get "/api/users/#{user.id}",
-          headers: jsonapi_headers
+          headers: jsonapi_headers.merge(auth_headers(admin_token))
 
       expect(json_body['user']).to include('first_name')
     end
@@ -54,7 +55,8 @@ RSpec.describe 'users API', type: :request do
 
         id = post_new_id(first_name, email, password)
 
-        get "/api/users/#{id}"
+        get "/api/users/#{id}",
+            headers: auth_headers(admin_token)
 
         expect(json_body['user']).to include('id' => id,
                                              'first_name' => first_name,
@@ -74,6 +76,7 @@ RSpec.describe 'users API', type: :request do
     end
   end
 
+  # rubocop:disable RSpec/MultipleMemoizedHelpers
   describe 'updating users' do
     let(:old_name) { 'Aragorn' }
     let(:email) { 'ime.prezime@backend.com' }
@@ -85,7 +88,7 @@ RSpec.describe 'users API', type: :request do
 
       put "/api/users/#{id}",
           params: { user: { first_name: new_name } }.to_json,
-          headers: api_headers
+          headers: auth_headers(admin_token)
 
       expect(response).to have_http_status(:ok)
       expect(json_body['user']).to include('first_name' => new_name, 'email' => email)
@@ -96,7 +99,7 @@ RSpec.describe 'users API', type: :request do
 
       put "/api/users/#{id}",
           params: { user: { first_name: 'Ime', password: '' } }.to_json,
-          headers: api_headers
+          headers: auth_headers(admin_token)
 
       expect(response).to have_http_status(:bad_request)
     end
@@ -106,12 +109,13 @@ RSpec.describe 'users API', type: :request do
 
       patch "/api/users/#{id}",
             params: { user: { first_name: new_name } }.to_json,
-            headers: api_headers
+            headers: auth_headers(admin_token)
 
       expect(response).to have_http_status(:ok)
       expect(json_body['user']).to include('first_name' => new_name, 'email' => email)
     end
   end
+  # rubocop:enable RSpec/MultipleMemoizedHelpers
 
   describe 'DELETE /users/:id' do
     it 'deletes a user' do
@@ -130,7 +134,7 @@ RSpec.describe 'users API', type: :request do
   def post_new_id(first_name, email, password)
     post  '/api/users',
           params: { user: { first_name: first_name, email: email, password: password } }.to_json,
-          headers: api_headers
+          headers: auth_headers(admin_token)
 
     json_body['user']['id']
   end

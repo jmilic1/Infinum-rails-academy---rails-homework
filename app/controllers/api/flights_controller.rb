@@ -10,13 +10,14 @@ module Api
     end
 
     def create
-      flight = Flight.new(flight_params)
+      @flight = Flight.new(flight_params)
+      authorize @flight
 
-      if flight.save
-        render json: FlightSerializer.render(flight, view: :extended, root: :flight),
+      if @flight.save
+        render json: FlightSerializer.render(@flight, view: :extended, root: :flight),
                status: :created
       else
-        render json: { errors: flight.errors }, status: :bad_request
+        render json: { errors: @flight.errors }, status: :bad_request
       end
     end
 
@@ -35,28 +36,32 @@ module Api
     end
 
     def update
-      flight = Flight.find_by(id: params[:id])
-      if flight.nil?
+      @flight = Flight.find_by(id: params[:id])
+      if @flight.nil?
         return render json: { errors: 'Flight with such id does not exist' }, status: :not_found
       end
 
-      if flight.update(flight_params)
-        render json: FlightSerializer.render(flight, view: :extended, root: :flight), status: :ok
+      authorize @flight
+
+      if @flight.update(flight_params)
+        render json: FlightSerializer.render(@flight, view: :extended, root: :flight), status: :ok
       else
-        render json: { errors: flight.errors }, status: :bad_request
+        render json: { errors: @flight.errors }, status: :bad_request
       end
     end
 
     def destroy
-      flight = Flight.find_by(id: params[:id])
-      if flight.nil?
+      @flight = Flight.find_by(id: params[:id])
+      if @flight.nil?
         return render json: { errors: 'Flight with such id does not exist' }, status: :not_found
       end
 
-      if flight.destroy
+      authorize @flight
+
+      if @flight.destroy
         render json: {}, status: :no_content
       else
-        render json: { errors: flight.errors }, status: :bad_request
+        render json: { errors: @flight.errors }, status: :bad_request
       end
     end
 

@@ -77,7 +77,7 @@ RSpec.describe 'Companies API', type: :request do
 
       put "/api/companies/#{id}",
           params: { company: { name: new_name } }.to_json,
-          headers: api_headers
+          headers: auth_headers(admin_token)
 
       expect(response).to have_http_status(:ok)
       expect(json_body['company']).to include('id' => id, 'name' => new_name)
@@ -88,7 +88,7 @@ RSpec.describe 'Companies API', type: :request do
 
       patch "/api/companies/#{id}",
             params: { company: { name: new_name } }.to_json,
-            headers: api_headers
+            headers: auth_headers(admin_token)
 
       expect(response).to have_http_status(:ok)
       expect(json_body['company']).to include('id' => id, 'name' => new_name)
@@ -99,7 +99,8 @@ RSpec.describe 'Companies API', type: :request do
     it 'deletes a company' do
       id = post_new_id('Dunedain')
 
-      delete "/api/companies/#{id}"
+      delete "/api/companies/#{id}",
+             headers: auth_headers(admin_token)
 
       expect(response).to have_http_status(:no_content)
 

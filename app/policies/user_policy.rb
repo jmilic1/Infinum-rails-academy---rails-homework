@@ -10,7 +10,7 @@ class UserPolicy
     user.admin?
   end
 
-  def create?
+  def show?
     user.admin?
   end
 

@@ -14,7 +14,7 @@ class ReadablePolicy
     user.admin?
   end
 
-  def delete?
+  def destroy?
     user.admin?
   end
 end
