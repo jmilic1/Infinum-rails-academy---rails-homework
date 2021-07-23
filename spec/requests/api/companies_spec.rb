@@ -48,6 +48,15 @@ RSpec.describe 'Companies API', type: :request do
 
         expect(json_body['company']).to include('name' => 'Croatia Airlines')
       end
+
+      it 'checks a company was created' do
+        id = post_new_id
+
+        get "/api/companies/#{id}"
+        json_body = JSON.parse(response.body)
+
+        expect(json_body['company']).to include('id' => id)
+      end
     end
 
     context 'when params are invalid' do

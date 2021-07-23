@@ -56,6 +56,15 @@ RSpec.describe 'Flights API', type: :request do
 
         expect(json_body['flight']).to include('no_of_seats' => 10)
       end
+
+      it 'checks a flight was created' do
+        id = post_new_id
+
+        get "/api/flights/#{id}"
+        json_body = JSON.parse(response.body)
+
+        expect(json_body['flight']).to include('id' => id)
+      end
     end
 
     context 'when params are invalid' do

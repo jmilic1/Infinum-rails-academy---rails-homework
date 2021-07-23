@@ -46,6 +46,15 @@ RSpec.describe 'users API', type: :request do
 
         expect(json_body['user']).to include('first_name' => 'Ime')
       end
+
+      it 'checks a user was created' do
+        id = post_new_id
+
+        get "/api/users/#{id}"
+        json_body = JSON.parse(response.body)
+
+        expect(json_body['user']).to include('id' => id)
+      end
     end
 
     context 'when params are invalid' do

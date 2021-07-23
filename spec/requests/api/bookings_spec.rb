@@ -54,6 +54,15 @@ RSpec.describe 'Bookings API', type: :request do
         puts json_body
         expect(json_body['booking']).to include('no_of_seats' => 10)
       end
+
+      it 'checks a booking was created' do
+        id = post_new_id
+
+        get "/api/bookings/#{id}"
+        json_body = JSON.parse(response.body)
+
+        expect(json_body['booking']).to include('id' => id)
+      end
     end
 
     context 'when params are invalid' do
