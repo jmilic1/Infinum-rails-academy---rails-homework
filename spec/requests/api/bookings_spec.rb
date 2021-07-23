@@ -68,8 +68,7 @@ RSpec.describe 'Bookings API', type: :request do
       get "/api/bookings/#{booking['id']}",
           headers: jsonapi_headers.merge(auth_headers(token))
 
-      puts json_body
-      expect(json_body['booking']).to include('no_of_seats' => 20)
+      expect(json_body['booking']).to include('no_of_seats')
     end
   end
 
@@ -80,7 +79,8 @@ RSpec.describe 'Bookings API', type: :request do
         seat_price = 30
         id = post_new_id(no_of_seats, seat_price)
 
-        get "/api/bookings/#{id}"
+        get "/api/bookings/#{id}",
+            headers: auth_headers(token)
 
         expect(json_body['booking']).to include('id' => id,
                                                 'no_of_seats' => no_of_seats,
@@ -92,7 +92,7 @@ RSpec.describe 'Bookings API', type: :request do
       it 'returns 400 Bad Request' do
         post '/api/bookings',
              params: { booking: { no_of_seats: 0 } }.to_json,
-             headers: api_headers
+             headers: auth_headers(token)
 
         expect(response).to have_http_status(:bad_request)
         expect(json_body['errors']).to include('no_of_seats')
@@ -110,7 +110,7 @@ RSpec.describe 'Bookings API', type: :request do
 
       put "/api/bookings/#{id}",
           params: { booking: { seat_price: new_seat_price } }.to_json,
-          headers: api_headers
+          headers: auth_headers(token)
 
       expect(response).to have_http_status(:ok)
       expect(json_body['booking']).to include('id' => id,
@@ -123,12 +123,26 @@ RSpec.describe 'Bookings API', type: :request do
 
       patch "/api/bookings/#{id}",
             params: { booking: { seat_price: new_seat_price } }.to_json,
-            headers: api_headers
+            headers: auth_headers(token)
 
       expect(response).to have_http_status(:ok)
       expect(json_body['booking']).to include('id' => id,
                                               'no_of_seats' => no_of_seats,
                                               'seat_price' => new_seat_price)
+    end
+
+    it 'does not update user id of bookings' do
+      booking = post_new(10, 20)
+      id = booking['id']
+      user_id = booking['user']['id']
+
+      put "/api/bookings/#{id}",
+          params: { booking: { user_id: user_id + 1 } }.to_json,
+          headers: auth_headers(token)
+
+      expect(response).to have_http_status(:ok)
+      expect(json_body['booking']).to include('id' => id)
+      expect(json_body['booking']['user']).to include('id' => user_id)
     end
   end
 
@@ -136,11 +150,12 @@ RSpec.describe 'Bookings API', type: :request do
     it 'deletes a booking' do
       id = post_new_id(10, 20)
 
-      delete "/api/bookings/#{id}"
+      delete "/api/bookings/#{id}",
+             headers: auth_headers(token)
 
       expect(response).to have_http_status(:no_content)
 
-      get "/api/bookings/#{id}"
+      get "/api/bookings/#{id}", headers: auth_headers(token)
 
       expect(response).to have_http_status(:not_found)
     end
@@ -150,10 +165,19 @@ RSpec.describe 'Bookings API', type: :request do
     post  '/api/bookings',
           params: { booking: { no_of_seats: no_of_seats,
                                seat_price: seat_price,
-                               flight_id: flight.id,
-                               user_id: user.id } }.to_json,
-          headers: api_headers
+                               flight_id: flight.id } }.to_json,
+          headers: auth_headers(token)
 
     json_body['booking']['id']
+  end
+
+  def post_new(no_of_seats, seat_price)
+    post  '/api/bookings',
+          params: { booking: { no_of_seats: no_of_seats,
+                               seat_price: seat_price,
+                               flight_id: flight.id } }.to_json,
+          headers: auth_headers(token)
+
+    json_body['booking']
   end
 end

@@ -26,7 +26,6 @@ RSpec.describe 'Flights API', type: :request do
 
     it 'returns a single flights' do
       get "/api/flights/#{flight.id}"
-      json_body = JSON.parse(response.body)
 
       expect(json_body['flight']).to include('no_of_seats')
     end
@@ -34,7 +33,6 @@ RSpec.describe 'Flights API', type: :request do
     it 'returns a single flight serialized by json_api' do
       get "/api/flights/#{flight.id}",
           headers: jsonapi_headers
-      json_body = JSON.parse(response.body)
 
       expect(json_body['flight']).to include('no_of_seats')
     end

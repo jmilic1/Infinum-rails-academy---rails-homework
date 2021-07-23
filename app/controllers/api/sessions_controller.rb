@@ -16,8 +16,15 @@ module Api
     end
 
     def delete
-      user = User.find_by(token: request.headers['Authorization'])
+      token = request.headers['Authorization']
+      return render_error if token.nil?
+
+      user = User.find_by(token: token)
+      return render_error if user.nil?
+
       user.regenerate_token
+
+      render json: {}, status: :no_content
     end
 
     private
