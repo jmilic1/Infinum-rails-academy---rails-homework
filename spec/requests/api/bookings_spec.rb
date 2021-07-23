@@ -1,10 +1,12 @@
 RSpec.describe 'Bookings API', type: :request do
   include TestHelpers::JsonResponse
   let(:flight) { create(:flight) }
-  let(:token) { 'abc-123' }
+  let(:admin_token) { 'admin-token' }
+  let(:public_token) { 'public-token' }
 
   before do
-    create(:user, token: token)
+    create(:user, token: admin_token, role: 'admin')
+    create(:user, token: public_token, role: 'public')
   end
 
   describe 'GET /bookings' do
@@ -13,18 +15,18 @@ RSpec.describe 'Bookings API', type: :request do
             params: { booking: { no_of_seats: 10,
                                  seat_price: 10,
                                  flight_id: flight.id } }.to_json,
-            headers: auth_headers(token)
+            headers: auth_headers(admin_token)
 
       post  '/api/bookings',
             params: { booking: { no_of_seats: 20,
                                  seat_price: 20,
                                  flight_id: flight.id } }.to_json,
-            headers: auth_headers(token)
+            headers: auth_headers(admin_token)
     end
 
     it 'successfully returns a list of bookings' do
       get '/api/bookings',
-          headers: auth_headers(token)
+          headers: auth_headers(admin_token)
 
       expect(response).to have_http_status(:ok)
       expect(json_body['bookings'].length).to equal(2)
@@ -32,7 +34,7 @@ RSpec.describe 'Bookings API', type: :request do
 
     it 'returns a list of bookings without root' do
       get '/api/bookings',
-          headers: auth_headers(token).merge(root_headers('0'))
+          headers: auth_headers(admin_token).merge(root_headers('0'))
 
       expect(response).to have_http_status(:ok)
       expect(json_body.length).to equal(2)
@@ -45,20 +47,20 @@ RSpec.describe 'Bookings API', type: :request do
            params: { booking: { no_of_seats: 20,
                                 seat_price: 20,
                                 flight_id: flight.id } }.to_json,
-           headers: auth_headers(token)
+           headers: auth_headers(admin_token)
       json_body['booking']
     end
 
     it 'returns a single booking' do
       get "/api/bookings/#{booking['id']}",
-          headers: auth_headers(token)
+          headers: auth_headers(admin_token)
 
       expect(json_body['booking']).to include('no_of_seats' => 20)
     end
 
     it 'returns a single booking serialized by json_api' do
       get "/api/bookings/#{booking['id']}",
-          headers: jsonapi_headers.merge(auth_headers(token))
+          headers: jsonapi_headers.merge(auth_headers(admin_token))
 
       expect(json_body['booking']).to include('no_of_seats')
     end
@@ -72,7 +74,7 @@ RSpec.describe 'Bookings API', type: :request do
         id = post_new_id(no_of_seats, seat_price)
 
         get "/api/bookings/#{id}",
-            headers: auth_headers(token)
+            headers: auth_headers(admin_token)
 
         expect(json_body['booking']).to include('id' => id,
                                                 'no_of_seats' => no_of_seats,
@@ -84,7 +86,7 @@ RSpec.describe 'Bookings API', type: :request do
       it 'returns 400 Bad Request' do
         post '/api/bookings',
              params: { booking: { no_of_seats: 0 } }.to_json,
-             headers: auth_headers(token)
+             headers: auth_headers(admin_token)
 
         expect(response).to have_http_status(:bad_request)
         expect(json_body['errors']).to include('no_of_seats')
@@ -92,6 +94,7 @@ RSpec.describe 'Bookings API', type: :request do
     end
   end
 
+  # rubocop:disable RSpec/MultipleMemoizedHelpers
   describe 'updating bookings' do
     let(:no_of_seats) { 25 }
     let(:old_seat_price) { 30 }
@@ -102,7 +105,7 @@ RSpec.describe 'Bookings API', type: :request do
 
       put "/api/bookings/#{id}",
           params: { booking: { seat_price: new_seat_price } }.to_json,
-          headers: auth_headers(token)
+          headers: auth_headers(admin_token)
 
       expect(response).to have_http_status(:ok)
       expect(json_body['booking']).to include('id' => id,
@@ -115,13 +118,14 @@ RSpec.describe 'Bookings API', type: :request do
 
       patch "/api/bookings/#{id}",
             params: { booking: { seat_price: new_seat_price } }.to_json,
-            headers: auth_headers(token)
+            headers: auth_headers(admin_token)
 
       expect(response).to have_http_status(:ok)
       expect(json_body['booking']).to include('id' => id,
                                               'no_of_seats' => no_of_seats,
                                               'seat_price' => new_seat_price)
     end
+    # rubocop:enable RSpec/MultipleMemoizedHelpers
 
     it 'does not update user id of bookings' do
       booking = post_new(10, 20)
@@ -130,7 +134,7 @@ RSpec.describe 'Bookings API', type: :request do
 
       put "/api/bookings/#{id}",
           params: { booking: { user_id: user_id + 1 } }.to_json,
-          headers: auth_headers(token)
+          headers: auth_headers(admin_token)
 
       expect(response).to have_http_status(:ok)
       expect(json_body['booking']).to include('id' => id)
@@ -143,13 +147,13 @@ RSpec.describe 'Bookings API', type: :request do
       id = post_new_id(10, 20)
 
       delete "/api/bookings/#{id}",
-             headers: auth_headers(token)
+             headers: auth_headers(admin_token)
 
       expect(response).to have_http_status(:no_content)
 
-      get "/api/bookings/#{id}", headers: auth_headers(token)
+      get "/api/bookings/#{id}", headers: auth_headers(admin_token)
 
-      expect(response).to have_http_status(:forbidden)
+      expect(response).to have_http_status(:not_found)
     end
   end
 
@@ -158,7 +162,7 @@ RSpec.describe 'Bookings API', type: :request do
           params: { booking: { no_of_seats: no_of_seats,
                                seat_price: seat_price,
                                flight_id: flight.id } }.to_json,
-          headers: auth_headers(token)
+          headers: auth_headers(admin_token)
 
     json_body['booking']['id']
   end
@@ -168,7 +172,7 @@ RSpec.describe 'Bookings API', type: :request do
           params: { booking: { no_of_seats: no_of_seats,
                                seat_price: seat_price,
                                flight_id: flight.id } }.to_json,
-          headers: auth_headers(token)
+          headers: auth_headers(admin_token)
 
     json_body['booking']
   end

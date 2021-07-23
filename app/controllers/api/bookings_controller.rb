@@ -1,16 +1,16 @@
 module Api
   class BookingsController < ApplicationController
-    # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+    # rubocop:disable Metrics/MethodLength
     def index
-      user = find_user_by_token
-      return render json: { errors: { token: ['is invalid'] } }, status: :unauthorized if user.nil?
+      @bookings = Booking.all
+      authorize @bookings
 
       if request.headers['X_API_SERIALIZER_ROOT'] == '0'
-        render json: BookingSerializer.render(Booking.where(user_id: user.id), view: :extended),
+        render json: BookingSerializer.render(@bookings, view: :extended),
                status: :ok
       else
-        render json: BookingSerializer.render(Booking.where(user_id: user.id), view: :extended,
-                                                                               root: :bookings),
+        render json: BookingSerializer.render(@bookings, view: :extended,
+                                                         root: :bookings),
                status: :ok
       end
     end
@@ -31,52 +31,53 @@ module Api
       end
     end
 
+    # rubocop:disable Layout/LineLength
     def show
-      user = find_user_by_token
-      return render json: { errors: { token: ['is invalid'] } }, status: :unauthorized if user.nil?
-
-      booking = Booking.find_by(id: params[:id], user_id: user.id)
-      if booking.nil?
-        return render json: { errors: { resource: ['is forbidden'] } }, status: :forbidden
+      @booking = Booking.find_by(id: params[:id])
+      if @booking.nil?
+        return render json: { errors: 'Booking with such id does not exist' }, status: :not_found
       end
+
+      authorize @booking
 
       if request.headers['X_API_SERIALIZER'] == 'json_api'
-        render json: { booking: JsonApi::BookingSerializer.new(booking).serializable_hash.to_json },
+        render json: { booking: JsonApi::BookingSerializer.new(@booking).serializable_hash.to_json },
                status: :ok
       else
-        render json: BookingSerializer.render(booking, view: :extended, root: :booking), status: :ok
+        render json: BookingSerializer.render(@booking, view: :extended, root: :booking),
+               status: :ok
       end
     end
+    # rubocop:enable Layout/LineLength
 
     def update
-      user = find_user_by_token
-      return render json: { errors: { token: ['is invalid'] } }, status: :unauthorized if user.nil?
-
-      booking = Booking.find_by(id: params[:id], user_id: user.id)
-      if booking.nil?
+      @booking = Booking.find_by(id: params[:id])
+      if @booking.nil?
         return render json: { errors: { resource: ['is forbidden'] } }, status: :forbidden
       end
 
-      if booking.update(booking_params)
-        render json: BookingSerializer.render(booking, view: :extended, root: :booking), status: :ok
+      authorize @booking
+
+      if @booking.update(booking_params)
+        render json: BookingSerializer.render(@booking, view: :extended, root: :booking),
+               status: :ok
       else
-        render json: { errors: booking.errors }, status: :bad_request
+        render json: { errors: @booking.errors }, status: :bad_request
       end
     end
 
     def destroy
-      user = find_user_by_token
-      return render json: { errors: { token: ['is invalid'] } }, status: :unauthorized if user.nil?
-
-      booking = Booking.find_by(id: params[:id], user_id: user.id)
-      if booking.nil?
+      @booking = Booking.find_by(id: params[:id])
+      if @booking.nil?
         return render json: { errors: { resource: ['is forbidden'] } }, status: :forbidden
       end
 
-      if booking.destroy
+      authorize @booking
+
+      if @booking.destroy
         render json: {}, status: :no_content
       else
-        render json: { errors: errors }, status: :bad_request
+        render json: { errors: @booking.errors }, status: :bad_request
       end
     end
 
@@ -89,6 +90,6 @@ module Api
     def find_user_by_token
       User.find_by(token: request.headers['Authorization'])
     end
-    # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
+    # rubocop:enable Metrics/MethodLength
   end
 end

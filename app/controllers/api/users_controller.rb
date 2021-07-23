@@ -69,15 +69,17 @@ module Api
     # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
     def destroy
-      user = User.find_by(id: params[:id])
-      if user.nil?
+      @user = User.find_by(id: params[:id])
+      if @user.nil?
         return render json: { errors: 'User with such id does not exist' }, status: :not_found
       end
 
-      if user.destroy
+      authorize @user
+
+      if @user.destroy
         render json: {}, status: :no_content
       else
-        render json: { errors: user.errors }, status: :bad_request
+        render json: { errors: @user.errors }, status: :bad_request
       end
     end
 

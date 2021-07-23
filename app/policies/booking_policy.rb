@@ -1,0 +1,2 @@
+class BookingPolicy < PrivatePolicy
+end
