@@ -1,15 +1,16 @@
 module Api
   class BookingsController < ApplicationController
+    # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
     def index
       user = find_user_by_token
       return render json: { errors: { token: ['is invalid'] } }, status: :bad_request if user.nil?
 
       if request.headers['X_API_SERIALIZER_ROOT'] == '0'
-        render json: BookingSerializer.render(Booking.find_by(user_id: user.id), view: :extended),
+        render json: BookingSerializer.render(Booking.where(user_id: user.id), view: :extended),
                status: :ok
       else
-        render json: BookingSerializer.render(Booking.find_by(user_id: user.id), view: :extended,
-                                                                                 root: :bookings),
+        render json: BookingSerializer.render(Booking.where(user_id: user.id), view: :extended,
+                                                                               root: :bookings),
                status: :ok
       end
     end
@@ -88,5 +89,6 @@ module Api
     def find_user_by_token
       User.find_by(token: request.headers['Authorization'])
     end
+    # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
   end
 end

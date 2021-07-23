@@ -12,7 +12,7 @@ module TestHelpers
     end
 
     def jsonapi_headers
-      api_headers.merge('X_API_SERIALIZER': 'json_api')
+      { 'X_API_SERIALIZER': 'json_api' }
     end
 
     def root_headers(value)
@@ -22,11 +22,7 @@ module TestHelpers
     end
 
     def auth_headers(token)
-      {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': token
-      }
+      api_headers.merge('Authorization': token)
     end
   end
 end

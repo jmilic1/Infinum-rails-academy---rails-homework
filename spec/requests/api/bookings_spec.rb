@@ -1,43 +1,75 @@
 RSpec.describe 'Bookings API', type: :request do
   include TestHelpers::JsonResponse
   let(:flight) { create(:flight) }
-  let(:user) { create(:user) }
+  let(:token) do
+    email = 'aragorn.dunedain@gmail.com'
+    password = 'IsildursHeir'
+    post '/api/users',
+         params: { user: { first_name: 'Aragorn', email: email,
+                           password: password } }.to_json,
+         headers: api_headers
+
+    post '/api/sessions',
+         params: { session: { email: email, password: password } }.to_json,
+         headers: api_headers
+    json_body['session']['token']
+  end
 
   describe 'GET /bookings' do
-    before { create_list(:booking, 3) }
+    before do
+      post  '/api/bookings',
+            params: { booking: { no_of_seats: 10,
+                                 seat_price: 10,
+                                 flight_id: flight.id } }.to_json,
+            headers: auth_headers(token)
+
+      post  '/api/bookings',
+            params: { booking: { no_of_seats: 20,
+                                 seat_price: 20,
+                                 flight_id: flight.id } }.to_json,
+            headers: auth_headers(token)
+    end
 
     it 'successfully returns a list of bookings' do
-      get '/api/bookings'
+      get '/api/bookings',
+          headers: auth_headers(token)
 
       expect(response).to have_http_status(:ok)
-      expect(json_body['bookings'].length).to equal(3)
+      expect(json_body['bookings'].length).to equal(2)
     end
 
     it 'returns a list of bookings without root' do
       get '/api/bookings',
-          headers: root_headers('0')
+          headers: auth_headers(token).merge(root_headers('0'))
 
       expect(response).to have_http_status(:ok)
-      expect(json_body.length).to equal(3)
+      expect(json_body.length).to equal(2)
     end
   end
 
   describe 'GET /bookings/:id' do
-    let(:booking) { create(:booking) }
+    let(:booking) do
+      post '/api/bookings',
+           params: { booking: { no_of_seats: 20,
+                                seat_price: 20,
+                                flight_id: flight.id } }.to_json,
+           headers: auth_headers(token)
+      json_body['booking']
+    end
 
     it 'returns a single booking' do
-      get "/api/bookings/#{booking.id}"
-      json_body = JSON.parse(response.body)
+      get "/api/bookings/#{booking['id']}",
+          headers: auth_headers(token)
 
-      expect(json_body['booking']).to include('no_of_seats')
+      expect(json_body['booking']).to include('no_of_seats' => 20)
     end
 
     it 'returns a single booking serialized by json_api' do
-      get "/api/bookings/#{booking.id}",
-          headers: jsonapi_headers
-      json_body = JSON.parse(response.body)
+      get "/api/bookings/#{booking['id']}",
+          headers: jsonapi_headers.merge(auth_headers(token))
 
-      expect(json_body['booking']).to include('no_of_seats')
+      puts json_body
+      expect(json_body['booking']).to include('no_of_seats' => 20)
     end
   end
 
