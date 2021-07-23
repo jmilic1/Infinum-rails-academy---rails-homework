@@ -6,7 +6,7 @@ module Api
         render json: BookingSerializer.render(Booking.all, view: :extended),
                status: :ok
       else
-        render json: { bookings: BookingSerializer.render(Booking.all, view: :extended) },
+        render json: BookingSerializer.render(Booking.all, view: :extended, root: :users),
                status: :ok
       end
     end
@@ -15,7 +15,7 @@ module Api
       booking = Booking.new(booking_params)
 
       if booking.save
-        render json: { booking: BookingSerializer.render(booking, view: :extended) },
+        render json: BookingSerializer.render(booking, view: :extended, root: :booking),
                status: :created
       else
         render json: { errors: booking.errors },
@@ -33,7 +33,7 @@ module Api
         render json: { booking: JsonApi::BookingSerializer.new(booking).serializable_hash.to_json },
                status: :ok
       else
-        render json: { booking: BookingSerializer.render_as_hash(booking, view: :extended) },
+        render json: BookingSerializer.render_as_hash(booking, view: :extended, root: :booking),
                status: :ok
       end
     end
@@ -47,7 +47,7 @@ module Api
       end
 
       if booking.update(booking_params)
-        render json: { booking: BookingSerializer.render_as_hash(booking, view: :extended) },
+        render json: BookingSerializer.render_as_hash(booking, view: :extended, root: :booking),
                status: :ok
       else
         render json: { errors: booking.errors },
@@ -81,7 +81,7 @@ module Api
         render json: { errors: 'Booking with such id does not exist' },
                status: :bad_request
       else
-        render json: { booking: UserSerializer.render(booking, view: :extended).serializable_hash },
+        render json: UserSerializer.render(booking, view: :extended, root: :booking),
                status: :ok
       end
     end
