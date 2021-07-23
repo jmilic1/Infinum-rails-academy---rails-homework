@@ -11,6 +11,10 @@ module Api
     end
 
     def create
+      user_values = user_params
+      return render json: { errors: { credentials: ['are invalid'] } }, status: :bad_request if user_values['password'].nil? ||
+                                                                                                user_values['password'].length.zero?
+
       user = User.new(user_params)
 
       if user.save
@@ -37,6 +41,7 @@ module Api
       # rubocop:enable Layout/LineLength
     end
 
+    # rubocop:disable Metrics/MethodLength
     def update
       user = User.find(params[:id])
 
@@ -44,12 +49,19 @@ module Api
         return render json: { errors: 'User with such id does not exist' }, status: :bad_request
       end
 
-      if user.update(user_params)
+      # rubocop:disable Layout/LineLength
+      user_values = user_params
+      return render json: { errors: 'New password cannot be nil/empty string' }, status: :bad_request if !user_values['password'].nil? &&
+                                                                                                         user_values['password'].length.zero?
+      # rubocop:enable Layout/LineLength
+
+      if user.update(user_values)
         render json: { user: UserSerializer.render_as_hash(user, view: :extended) }, status: :ok
       else
         render json: { errors: user.errors }, status: :bad_request
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     def destroy
       user = User.find(params[:id])
@@ -68,7 +80,7 @@ module Api
     private
 
     def user_params
-      params.require(:user).permit(:first_name, :last_name, :email)
+      params.require(:user).permit(:first_name, :last_name, :email, :password)
     end
   end
 end

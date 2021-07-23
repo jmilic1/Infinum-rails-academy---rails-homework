@@ -13,7 +13,7 @@
 #
 class User < ApplicationRecord
   has_secure_password
-  has_secure_password :recovery_password, validations: false
+  has_secure_token
 
   has_many :bookings, dependent: :destroy
 

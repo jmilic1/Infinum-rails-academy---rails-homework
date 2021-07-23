@@ -2,10 +2,13 @@ module Api
   class BookingsController < ApplicationController
     # rubocop:disable Layout/LineLength
     def index
+      user = find_user_by_token
+      return render json: { errors: 'No user with such token exists' }, status: :bad_request if user.nil?
+
       if request.headers['x_api_serializer_root'] == '0'
-        render json: BookingSerializer.render_as_hash(Booking.all, view: :extended), status: :ok
+        render json: BookingSerializer.render_as_hash(Booking.where(user.id), view: :extended), status: :ok
       else
-        render json: { bookings: BookingSerializer.render_as_hash(Booking.all, view: :extended) }, status: :ok
+        render json: { bookings: BookingSerializer.render_as_hash(Booking.(user.id), view: :extended) }, status: :ok
       end
     end
 
@@ -82,6 +85,10 @@ module Api
 
     def booking_params
       params.require(:booking).permit(:no_of_seats, :seat_price, :flight_id, :user_id)
+    end
+
+    def find_user_by_token
+      User.find_by(token: request.headers['Authorization'])
     end
   end
 end

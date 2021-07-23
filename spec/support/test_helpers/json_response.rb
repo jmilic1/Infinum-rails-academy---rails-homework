@@ -34,5 +34,13 @@ module TestHelpers
         'x_api_serializer_root': '0'
       }
     end
+
+    def auth_headers(token)
+      {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': token
+      }
+    end
   end
 end

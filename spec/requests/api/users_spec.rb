@@ -39,7 +39,9 @@ RSpec.describe 'users API', type: :request do
     context 'when params are valid' do
       it 'creates a user' do
         post  '/api/users',
-              params: { user: { first_name: 'Ime', email: 'ime.prezime@backend.com' } }.to_json,
+              params: { user: { first_name: 'Ime',
+                                email: 'ime.prezime@backend.com',
+                                password: 'password-numero' } }.to_json,
               headers: api_headers
 
         expect(json_body['user']).to include('first_name' => 'Ime')
@@ -49,7 +51,7 @@ RSpec.describe 'users API', type: :request do
     context 'when params are invalid' do
       it 'returns 400 Bad Request' do
         post '/api/users',
-             params: { user: { first_name: '' } }.to_json,
+             params: { user: { first_name: '', password: 'password' } }.to_json,
              headers: api_headers
 
         expect(response).to have_http_status(:bad_request)
@@ -67,6 +69,16 @@ RSpec.describe 'users API', type: :request do
           headers: api_headers
 
       expect(response).to have_http_status(:ok)
+    end
+
+    it 'returns 400 Bad Request' do
+      id = post_new_id
+
+      put "/api/users/#{id}",
+          params: { user: { first_name: 'Ime', password: '' } }.to_json,
+          headers: api_headers
+
+      expect(response).to have_http_status(:bad_request)
     end
   end
 
@@ -94,7 +106,9 @@ RSpec.describe 'users API', type: :request do
 
   def post_new_id
     post  '/api/users',
-          params: { user: { first_name: 'Ime', email: 'ime.prezime@backend.com' } }.to_json,
+          params: { user: { first_name: 'Ime',
+                            email: 'ime.prezime@backend.com',
+                            password: 'password-numero' } }.to_json,
           headers: api_headers
 
     json_body['user']['id']
