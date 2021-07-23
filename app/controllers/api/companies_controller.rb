@@ -36,6 +36,7 @@ module Api
       end
     end
 
+    # rubocop:disable Metrics/MethodLength
     def update
       @company = Company.find_by(id: params[:id])
       if @company.nil?
@@ -45,11 +46,13 @@ module Api
       authorize @company
 
       if @company.update(company_params)
-        render json: CompanySerializer.render(@company, view: :extended, root: :company), status: :ok
+        render json: CompanySerializer.render(@company, view: :extended, root: :company),
+               status: :ok
       else
         render json: { errors: @company.errors }, status: :bad_request
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     def destroy
       @company = Company.find_by(id: params[:id])

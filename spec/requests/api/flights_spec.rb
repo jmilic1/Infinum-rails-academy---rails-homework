@@ -76,6 +76,7 @@ RSpec.describe 'Flights API', type: :request do
     end
   end
 
+  # rubocop:disable RSpec/MultipleMemoizedHelpers
   describe 'updating flights' do
     let(:name) { 'Zagreb - Split' }
     let(:old_no_of_seats) { 10 }
@@ -112,6 +113,7 @@ RSpec.describe 'Flights API', type: :request do
                                              'base_price' => base_price)
     end
   end
+  # rubocop:enable RSpec/MultipleMemoizedHelpers
 
   describe 'DELETE /flights/:id' do
     it 'deletes a flight' do
