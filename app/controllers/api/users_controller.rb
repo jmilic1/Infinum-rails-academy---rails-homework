@@ -1,11 +1,12 @@
 module Api
   class UsersController < ApplicationController
-    # rubocop:disable Layout/LineLength
     def index
       if request.headers['X_API_SERIALIZER_ROOT'] == '0'
-        render json: UserSerializer.render_as_hash(User.all, view: :extended), status: :ok
+        render json: UserSerializer.render_as_hash(User.all, view: :extended),
+               status: :ok
       else
-        render json: { users: UserSerializer.render_as_hash(User.all, view: :extended) }, status: :ok
+        render json: { users: UserSerializer.render_as_hash(User.all, view: :extended) },
+               status: :ok
       end
     end
 
@@ -13,40 +14,45 @@ module Api
       user = User.new(user_params)
 
       if user.save
-        render json: { user: UserSerializer.render_as_hash(user, view: :extended) }, status: :created
+        render json: { user: UserSerializer.render_as_hash(user, view: :extended) },
+               status: :created
       else
-        render json: { errors: user.errors }, status: :bad_request
+        render json: { errors: user.errors },
+               status: :bad_request
       end
     end
-    # rubocop:enable Layout/LineLength
 
     def show
       user = User.find(params[:id])
 
       if user.nil?
-        return render json: { errors: 'User with such id does not exist' }, status: :bad_request
+        return render json: { errors: 'User with such id does not exist' },
+                      status: :bad_request
       end
 
-      # rubocop:disable Layout/LineLength
       if request.headers['X_API_SERIALIZER'] == 'json_api'
-        render json: { user:  JsonApi::UserSerializer.new(user).serializable_hash.to_json }, status: :ok
+        render json: { user:  JsonApi::UserSerializer.new(user).serializable_hash.to_json },
+               status: :ok
       else
-        render json: { user: UserSerializer.render_as_hash(user, view: :extended) }, status: :ok
+        render json: { user: UserSerializer.render_as_hash(user, view: :extended) },
+               status: :ok
       end
-      # rubocop:enable Layout/LineLength
     end
 
     def update
       user = User.find(params[:id])
 
       if user.nil?
-        return render json: { errors: 'User with such id does not exist' }, status: :bad_request
+        return render json: { errors: 'User with such id does not exist' },
+                      status: :bad_request
       end
 
       if user.update(user_params)
-        render json: { user: UserSerializer.render_as_hash(user, view: :extended) }, status: :ok
+        render json: { user: UserSerializer.render_as_hash(user, view: :extended) },
+               status: :ok
       else
-        render json: { errors: user.errors }, status: :bad_request
+        render json: { errors: user.errors },
+               status: :bad_request
       end
     end
 
@@ -54,13 +60,16 @@ module Api
       user = User.find(params[:id])
 
       if user.nil?
-        return render json: { errors: 'User with such id does not exist' }, status: :bad_request
+        return render json: { errors: 'User with such id does not exist' },
+                      status: :bad_request
       end
 
       if user.destroy
-        render json: {}, status: :no_content
+        render json: {},
+               status: :no_content
       else
-        render json: { errors: user.errors }, status: :bad_request
+        render json: { errors: user.errors },
+               status: :bad_request
       end
     end
 
