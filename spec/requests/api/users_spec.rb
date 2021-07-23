@@ -13,7 +13,7 @@ RSpec.describe 'users API', type: :request do
 
     it 'returns a list of users without root' do
       get '/api/users',
-          headers: root_headers_zero
+          headers: root_headers('0')
 
       expect(response).to have_http_status(:ok)
       expect(json_body.length).to equal(3)

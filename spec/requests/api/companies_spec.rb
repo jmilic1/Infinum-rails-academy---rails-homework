@@ -12,7 +12,7 @@ RSpec.describe 'Companies API', type: :request do
 
     it 'returns a list of companies without root' do
       get '/api/companies',
-          headers: root_headers_zero
+          headers: root_headers('0')
 
       expect(response).to have_http_status(:ok)
       expect(json_body.length).to equal(3)
