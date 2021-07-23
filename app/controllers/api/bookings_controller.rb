@@ -2,9 +2,7 @@ module Api
   class BookingsController < ApplicationController
     def index
       user = find_user_by_token
-      if user.nil?
-        return render json: { errors: 'No user with such token exists' }, status: :bad_request
-      end
+      return render json: { errors: { token: ['is invalid'] } }, status: :bad_request if user.nil?
 
       if request.headers['X_API_SERIALIZER_ROOT'] == '0'
         render json: BookingSerializer.render(Booking.find_by(user_id: user.id), view: :extended),
@@ -17,7 +15,11 @@ module Api
     end
 
     def create
+      user = find_user_by_token
+      return render json: { errors: { token: ['is invalid'] } }, status: :bad_request if user.nil?
+
       booking = Booking.new(booking_params)
+      booking.user_id = user.id
 
       if booking.save
         render json: BookingSerializer.render(booking, view: :extended, root: :booking),
@@ -29,9 +31,12 @@ module Api
     end
 
     def show
-      booking = Booking.find_by(id: params[:id])
+      user = find_user_by_token
+      return render json: { errors: { token: ['is invalid'] } }, status: :bad_request if user.nil?
+
+      booking = Booking.find_by(id: params[:id], user_id: user.id)
       if booking.nil?
-        return render json: { errors: 'Booking with such id does not exist' }, status: :not_found
+        return render json: { errors: 'Booking with such id was not found' }, status: :not_found
       end
 
       if request.headers['X_API_SERIALIZER'] == 'json_api'
@@ -43,9 +48,12 @@ module Api
     end
 
     def update
-      booking = Booking.find_by(id: params[:id])
+      user = find_user_by_token
+      return render json: { errors: { token: ['is invalid'] } }, status: :bad_request if user.nil?
+
+      booking = Booking.find_by(id: params[:id], user_id: user.id)
       if booking.nil?
-        return render json: { errors: 'Booking with such id does not exist' }, status: :not_found
+        return render json: { errors: 'Booking with such id was not found' }, status: :not_found
       end
 
       if booking.update(booking_params)
@@ -56,9 +64,12 @@ module Api
     end
 
     def destroy
-      booking = Booking.find_by(id: params[:id])
+      user = find_user_by_token
+      return render json: { errors: { token: ['is invalid'] } }, status: :bad_request if user.nil?
+
+      booking = Booking.find_by(id: params[:id], user_id: user.id)
       if booking.nil?
-        return render json: { errors: 'Booking with such id does not exist' }, status: :not_found
+        return render json: { errors: 'Booking with such id was not found' }, status: :not_found
       end
 
       if booking.destroy
@@ -71,7 +82,7 @@ module Api
     private
 
     def booking_params
-      params.require(:booking).permit(:no_of_seats, :seat_price, :flight_id, :user_id)
+      params.require(:booking).permit(:no_of_seats, :seat_price, :flight_id)
     end
 
     def find_user_by_token

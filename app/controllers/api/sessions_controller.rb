@@ -10,10 +10,14 @@ module Api
 
       return render_error unless user
 
-      # rubocop:disable Layout/LineLength
-      render json: { session: { user: UserSerializer.render_as_hash(user, view: :extended), token: user.token } },
+      render json: { session: { user: UserSerializer.render_as_hash(user, view: :extended),
+                                token: user.token } },
              status: :ok
-      # rubocop:enable Layout/LineLength
+    end
+
+    def delete
+      user = User.find_by(token: request.headers['Authorization'])
+      user.regenerate_token
     end
 
     private

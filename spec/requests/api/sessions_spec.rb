@@ -55,6 +55,29 @@ RSpec.describe 'Session API', type: :request do
         expect(response).to have_http_status(:bad_request)
         expect(json_body['errors']).to include('credentials')
       end
+
+      it 'returns 400 Bad Request if no password is given' do
+        user = post_new_user
+
+        post  '/api/sessions',
+              params: { session: { email: user['email'] } }.to_json,
+              headers: api_headers
+
+        expect(response).to have_http_status(:bad_request)
+        expect(json_body['errors']).to include('credentials')
+      end
+
+      it 'returns 400 Bad Request if blank password is given' do
+        user = post_new_user
+
+        post  '/api/sessions',
+              params: { session: { email: user['email'],
+                                   password: '' } }.to_json,
+              headers: api_headers
+
+        expect(response).to have_http_status(:bad_request)
+        expect(json_body['errors']).to include('credentials')
+      end
     end
   end
 
