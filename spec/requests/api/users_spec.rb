@@ -42,8 +42,9 @@ RSpec.describe 'users API', type: :request do
       it 'creates a user' do
         first_name = 'FirstName'
         email = 'first.name@backend.com'
+        password = 'password'
 
-        id = post_new_id(first_name, email)
+        id = post_new_id(first_name, email, password)
 
         get "/api/users/#{id}"
 
@@ -68,10 +69,11 @@ RSpec.describe 'users API', type: :request do
   describe 'updating users' do
     let(:old_name) { 'Aragorn' }
     let(:email) { 'ime.prezime@backend.com' }
+    let(:password) { 'password' }
     let(:new_name) { 'Legolas' }
 
     it 'sends PUT /users/:id request' do
-      id = post_new_id(old_name, email)
+      id = post_new_id(old_name, email, password)
 
       put "/api/users/#{id}",
           params: { user: { first_name: new_name } }.to_json,
@@ -82,7 +84,7 @@ RSpec.describe 'users API', type: :request do
     end
 
     it 'returns 400 Bad Request' do
-      id = post_new_id
+      id = post_new_id(old_name, email, password)
 
       put "/api/users/#{id}",
           params: { user: { first_name: 'Ime', password: '' } }.to_json,
@@ -92,7 +94,7 @@ RSpec.describe 'users API', type: :request do
     end
 
     it 'sends PATCH /users/:id request' do
-      id = post_new_id(old_name, email)
+      id = post_new_id(old_name, email, password)
 
       patch "/api/users/#{id}",
             params: { user: { first_name: new_name } }.to_json,
@@ -105,7 +107,7 @@ RSpec.describe 'users API', type: :request do
 
   describe 'DELETE /users/:id' do
     it 'deletes a user' do
-      id = post_new_id('Ime', 'ime.prezime@backend.com')
+      id = post_new_id('Ime', 'ime.prezime@backend.com', 'password')
 
       delete "/api/users/#{id}"
 

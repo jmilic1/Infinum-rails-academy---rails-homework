@@ -2,13 +2,16 @@ module Api
   class BookingsController < ApplicationController
     def index
       user = find_user_by_token
-      return render json: { errors: 'No user with such token exists' }, status: :bad_request if user.nil?
+      if user.nil?
+        return render json: { errors: 'No user with such token exists' }, status: :bad_request
+      end
 
       if request.headers['X_API_SERIALIZER_ROOT'] == '0'
-        render json: BookingSerializer.render(Booking.find_by_user_id(user.id), view: :extended),
+        render json: BookingSerializer.render(Booking.find_by(user_id: user.id), view: :extended),
                status: :ok
       else
-        render json: BookingSerializer.render(Booking.find_by_user_id(user.id), view: :extended, root: :bookings),
+        render json: BookingSerializer.render(Booking.find_by(user_id: user.id), view: :extended,
+                                                                                 root: :bookings),
                status: :ok
       end
     end

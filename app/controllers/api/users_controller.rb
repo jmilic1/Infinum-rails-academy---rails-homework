@@ -10,8 +10,10 @@ module Api
 
     def create
       user_values = user_params
-      return render json: { errors: { credentials: ['are invalid'] } }, status: :bad_request if user_values['password'].nil? ||
-                                                                                                user_values['password'].length.zero?
+
+      if user_values['password'].nil? || user_values['password'].length.zero?
+        return render json: { errors: { credentials: ['are invalid'] } }, status: :bad_request
+      end
 
       user = User.new(user_params)
 
@@ -43,9 +45,12 @@ module Api
       end
 
       user_values = user_params
-      return render json: { errors: 'New password cannot be nil/empty string' }, status: :bad_request if !user_values['password'].nil? && user_values['password'].length.zero?
+      if !user_values['password'].nil? && user_values['password'].length.zero?
+        return render json: { errors: {'credentials': ['are invalid'] } },
+                      status: :bad_request
+      end
 
-        if user.update(user_values)
+      if user.update(user_values)
         render json: UserSerializer.render(user, view: :extended, root: :user), status: :ok
       else
         render json: { errors: user.errors }, status: :bad_request
