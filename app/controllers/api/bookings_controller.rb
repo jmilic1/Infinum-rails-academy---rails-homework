@@ -2,6 +2,10 @@ module Api
   class BookingsController < ApplicationController
     # rubocop:disable Metrics/MethodLength
     def index
+      if find_user_by_token.nil?
+        return render json: { errors: { resource: ['forbidden'] } }, status: :unauthorized
+      end
+
       @bookings = Booking.all
       authorize @bookings
 

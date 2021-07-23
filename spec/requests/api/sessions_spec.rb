@@ -1,22 +1,19 @@
 RSpec.describe 'Session API', type: :request do
   include TestHelpers::JsonResponse
   let(:password) { 'password-numero' }
+  let(:admin_token) { 'admin-token' }
+  let(:public_token) { 'public-token' }
+  let(:email) { 'myEmail.backend@backend.com' }
 
-  let(:user) do
-    post  '/api/users',
-          params: { user: { first_name: 'Ime',
-                            email: 'ime.prezime@backend.com',
-                            password: password } }.to_json,
-          headers: api_headers
-
-    json_body['user']
+  before do
+    create(:user, email: email, password: password, token: admin_token, role: 'admin')
   end
 
   describe 'POST /sessions' do
     context 'when params are valid' do
       it 'creates a session' do
         post  '/api/sessions',
-              params: { session: { email: user['email'],
+              params: { session: { email: email,
                                    password: password } }.to_json,
               headers: api_headers
 
@@ -50,7 +47,7 @@ RSpec.describe 'Session API', type: :request do
 
       it 'returns 400 Bad Request if wrong password is given' do
         post  '/api/sessions',
-              params: { session: { email: user['email'],
+              params: { session: { email: email,
                                    password: 'wrong password whoops' } }.to_json,
               headers: api_headers
 
@@ -60,7 +57,7 @@ RSpec.describe 'Session API', type: :request do
 
       it 'returns 400 Bad Request if no password is given' do
         post  '/api/sessions',
-              params: { session: { email: user['email'] } }.to_json,
+              params: { session: { email: email } }.to_json,
               headers: api_headers
 
         expect(response).to have_http_status(:bad_request)
@@ -69,7 +66,7 @@ RSpec.describe 'Session API', type: :request do
 
       it 'returns 400 Bad Request if blank password is given' do
         post  '/api/sessions',
-              params: { session: { email: user['email'],
+              params: { session: { email: email,
                                    password: '' } }.to_json,
               headers: api_headers
 
@@ -91,13 +88,13 @@ RSpec.describe 'Session API', type: :request do
           headers: auth_headers(token)
 
       expect(response).to have_http_status(:unauthorized)
-      expect(json_body['errors']).to include('token')
+      expect(json_body['errors']).to include('resource')
     end
   end
 
   def post_new_session
     post  '/api/sessions',
-          params: { session: { email: user['email'],
+          params: { session: { email: email,
                                password: password } }.to_json,
           headers: api_headers
     json_body['session']['token']

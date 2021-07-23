@@ -6,20 +6,16 @@ class PrivatePolicy
     @record = record
   end
 
-  def index?
-    user.admin?
-  end
-
   def show?
-    user.admin?
+    user.admin? || user.public?
   end
 
   def update?
-    user.admin?
+    user.admin? || user.public?
   end
 
   def destroy?
-    user.admin?
+    user.admin? || user.public?
   end
 
   class Scope
