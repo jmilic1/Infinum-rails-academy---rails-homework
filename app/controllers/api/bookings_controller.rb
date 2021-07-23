@@ -23,7 +23,7 @@ module Api
     end
 
     def show
-      booking = Booking.find(params[:id])
+      booking = Booking.find_by(id: params[:id])
       if booking.nil?
         return render json: { errors: 'Booking with such id does not exist' }, status: :not_found
       end
@@ -37,8 +37,7 @@ module Api
     end
 
     def update
-      booking = Booking.find(params[:id])
-
+      booking = Booking.find_by(id: params[:id])
       if booking.nil?
         return render json: { errors: 'Booking with such id does not exist' }, status: :not_found
       end
@@ -51,8 +50,7 @@ module Api
     end
 
     def destroy
-      booking = Booking.find(params[:id])
-
+      booking = Booking.find_by(id: params[:id])
       if booking.nil?
         return render json: { errors: 'Booking with such id does not exist' }, status: :not_found
       end

@@ -21,8 +21,7 @@ module Api
     end
 
     def show
-      flight = Flight.find(params[:id])
-
+      flight = Flight.find_by(id: params[:id])
       if flight.nil?
         return render json: { errors: 'Flight with such id does not exist' }, status: :not_found
       end
@@ -36,8 +35,7 @@ module Api
     end
 
     def update
-      flight = Flight.find(params[:id])
-
+      flight = Flight.find_by(id: params[:id])
       if flight.nil?
         return render json: { errors: 'Flight with such id does not exist' }, status: :not_found
       end
@@ -50,8 +48,7 @@ module Api
     end
 
     def destroy
-      flight = Flight.find(params[:id])
-
+      flight = Flight.find_by(id: params[:id])
       if flight.nil?
         return render json: { errors: 'Flight with such id does not exist' }, status: :not_found
       end

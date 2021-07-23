@@ -19,8 +19,7 @@ module Api
     end
 
     def show
-      user = User.find(params[:id])
-
+      user = User.find_by(id: params[:id])
       if user.nil?
         return render json: { errors: 'User with such id does not exist' }, status: :not_found
       end
@@ -34,8 +33,7 @@ module Api
     end
 
     def update
-      user = User.find(params[:id])
-
+      user = User.find_by(id: params[:id])
       if user.nil?
         return render json: { errors: 'User with such id does not exist' }, status: :not_found
       end
@@ -48,8 +46,7 @@ module Api
     end
 
     def destroy
-      user = User.find(params[:id])
-
+      user = User.find_by(id: params[:id])
       if user.nil?
         return render json: { errors: 'User with such id does not exist' }, status: :not_found
       end

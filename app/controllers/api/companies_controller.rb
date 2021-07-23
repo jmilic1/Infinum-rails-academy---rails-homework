@@ -22,8 +22,7 @@ module Api
     end
 
     def show
-      company = Company.find(params[:id])
-
+      company = Company.find_by(id: params[:id])
       if company.nil?
         return render json: { errors: 'Company with such id does not exist' }, status: :not_found
       end
@@ -37,8 +36,7 @@ module Api
     end
 
     def update
-      company = Company.find(params[:id])
-
+      company = Company.find_by(id: params[:id])
       if company.nil?
         return render json: { errors: 'Company with such id does not exist' }, status: :not_found
       end
@@ -51,8 +49,7 @@ module Api
     end
 
     def destroy
-      company = Company.find(params[:id])
-
+      company = Company.find_by(id: params[:id])
       if company.nil?
         return render json: { errors: 'Company with such id does not exist' }, status: :not_found
       end
