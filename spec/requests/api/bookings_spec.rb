@@ -149,7 +149,7 @@ RSpec.describe 'Bookings API', type: :request do
 
       get "/api/bookings/#{id}", headers: auth_headers(token)
 
-      expect(response).to have_http_status(:not_found)
+      expect(response).to have_http_status(:forbidden)
     end
   end
 
