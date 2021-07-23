@@ -1,6 +1,5 @@
 module Api
   class BookingsController < ApplicationController
-    # rubocop:disable Metrics/MethodLength
     def index
       if request.headers['X_API_SERIALIZER_ROOT'] == '0'
         render json: BookingSerializer.render(Booking.all, view: :extended),
@@ -33,8 +32,7 @@ module Api
         render json: { booking: JsonApi::BookingSerializer.new(booking).serializable_hash.to_json },
                status: :ok
       else
-        render json: BookingSerializer.render_as_hash(booking, view: :extended, root: :booking),
-               status: :ok
+        render json: BookingSerializer.render(booking, view: :extended, root: :booking), status: :ok
       end
     end
 
@@ -47,11 +45,9 @@ module Api
       end
 
       if booking.update(booking_params)
-        render json: BookingSerializer.render_as_hash(booking, view: :extended, root: :booking),
-               status: :ok
+        render json: BookingSerializer.render(booking, view: :extended, root: :booking), status: :ok
       else
-        render json: { errors: booking.errors },
-               status: :bad_request
+        render json: { errors: booking.errors }, status: :bad_request
       end
     end
 
@@ -59,33 +55,17 @@ module Api
       booking = Booking.find(params[:id])
 
       if booking.nil?
-        return render json: { errors: 'Booking with such id does not exist' },
-                      status: :bad_request
+        return render json: { errors: 'Booking with such id does not exist' }, status: :bad_request
       end
 
       if booking.destroy
-        render json: {},
-               status: :no_content
+        render json: {}, status: :no_content
       else
-        render json: { errors: errors },
-               status: :bad_request
+        render json: { errors: errors }, status: :bad_request
       end
     end
 
     private
-
-    def get_booking(id)
-      booking = Booking.find(id)
-
-      if booking.nil?
-        render json: { errors: 'Booking with such id does not exist' },
-               status: :bad_request
-      else
-        render json: BookingSerializer.render(booking, view: :extended, root: :booking),
-               status: :ok
-      end
-    end
-    # rubocop:enable Metrics/MethodLength
 
     def booking_params
       params.require(:booking).permit(:no_of_seats, :seat_price, :flight_id, :user_id)

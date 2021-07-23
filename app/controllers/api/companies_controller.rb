@@ -1,12 +1,11 @@
 module Api
   class CompaniesController < ApplicationController
-    # rubocop:disable Metrics/MethodLength
     def index
       if request.headers['X_API_SERIALIZER_ROOT'] == '0'
-        render json: CompanySerializer.render_as_hash(Company.all, view: :extended),
+        render json: CompanySerializer.render(Company.all, view: :extended),
                status: :ok
       else
-        render json: { companies: CompanySerializer.render_as_hash(Company.all, view: :extended) },
+        render json: CompanySerializer.render(Company.all, view: :extended, root: :companies),
                status: :ok
       end
     end
@@ -15,11 +14,10 @@ module Api
       company = Company.new(company_params)
 
       if company.save
-        render json: { company: CompanySerializer.render_as_hash(company, view: :extended) },
+        render json: CompanySerializer.render(company, view: :extended, root: :company),
                status: :created
       else
-        render json: { errors: company.errors },
-               status: :bad_request
+        render json: { errors: company.errors }, status: :bad_request
       end
     end
 
@@ -27,16 +25,14 @@ module Api
       company = Company.find(params[:id])
 
       if company.nil?
-        return render json: { errors: 'Company with such id does not exist' },
-                      status: :bad_request
+        return render json: { errors: 'Company with such id does not exist' }, status: :bad_request
       end
 
       if request.headers['X_API_SERIALIZER'] == 'json_api'
         render json: { company: JsonApi::CompanySerializer.new(company).serializable_hash.to_json },
                status: :ok
       else
-        render json: { company: CompanySerializer.render_as_hash(company, view: :extended) },
-               status: :ok
+        render json: CompanySerializer.render(company, view: :extended, root: :company), status: :ok
       end
     end
 
@@ -49,11 +45,9 @@ module Api
       end
 
       if company.update(company_params)
-        render json: { company: CompanySerializer.render_as_hash(company, view: :extended) },
-               status: :ok
+        render json: CompanySerializer.render(company, view: :extended, root: :company), status: :ok
       else
-        render json: { errors: company.errors },
-               status: :bad_request
+        render json: { errors: company.errors }, status: :bad_request
       end
     end
 
@@ -66,14 +60,11 @@ module Api
       end
 
       if company.destroy
-        render json: {},
-               status: :no_content
+        render json: {}, status: :no_content
       else
-        render json: { errors: company.errors },
-               status: :bad_request
+        render json: { errors: company.errors }, status: :bad_request
       end
     end
-    # rubocop:enable Metrics/MethodLength
 
     private
 
