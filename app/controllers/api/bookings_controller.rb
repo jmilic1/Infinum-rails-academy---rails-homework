@@ -6,7 +6,7 @@ module Api
         render json: BookingSerializer.render(Booking.all, view: :extended),
                status: :ok
       else
-        render json: BookingSerializer.render(Booking.all, view: :extended, root: :users),
+        render json: BookingSerializer.render(Booking.all, view: :extended, root: :bookings),
                status: :ok
       end
     end
@@ -81,7 +81,7 @@ module Api
         render json: { errors: 'Booking with such id does not exist' },
                status: :bad_request
       else
-        render json: UserSerializer.render(booking, view: :extended, root: :booking),
+        render json: BookingSerializer.render(booking, view: :extended, root: :booking),
                status: :ok
       end
     end
