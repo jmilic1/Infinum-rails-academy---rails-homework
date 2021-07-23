@@ -40,21 +40,10 @@ RSpec.describe 'users API', type: :request do
   describe 'POST /users' do
     context 'when params are valid' do
       it 'creates a user' do
-        post  '/api/users',
-              params: { user: { first_name: 'Ime', email: 'ime.prezime@backend.com' } }.to_json,
-              headers: api_headers
-
-        expect(json_body['user']).to include('first_name' => 'Ime')
-      end
-
-      it 'checks a user was created' do
         first_name = 'FirstName'
         email = 'first.name@backend.com'
-        post  '/api/users',
-              params: { user: { first_name: first_name, email: email } }.to_json,
-              headers: api_headers
 
-        id = json_body['user']['id']
+        id = post_new_id(first_name, email)
 
         get "/api/users/#{id}"
 
@@ -76,33 +65,37 @@ RSpec.describe 'users API', type: :request do
     end
   end
 
-  describe 'PUT /users/:id' do
-    it 'updates a user' do
-      id = post_new_id
+  describe 'updating users' do
+    let(:old_name) { 'Aragorn' }
+    let(:email) { 'ime.prezime@backend.com' }
+    let(:new_name) { 'Legolas' }
+
+    it 'sends PUT /users/:id request' do
+      id = post_new_id(old_name, email)
 
       put "/api/users/#{id}",
-          params: { user: { first_name: 'Ime' } }.to_json,
+          params: { user: { first_name: new_name } }.to_json,
           headers: api_headers
 
       expect(response).to have_http_status(:ok)
+      expect(json_body['user']).to include('first_name' => new_name, 'email' => email)
     end
-  end
 
-  describe 'PATCH /users/:id' do
-    it 'updates a user' do
-      id = post_new_id
+    it 'sends PATCH /users/:id request' do
+      id = post_new_id(old_name, email)
 
       patch "/api/users/#{id}",
-            params: { user: { first_name: 'Ime' } }.to_json,
+            params: { user: { first_name: new_name } }.to_json,
             headers: api_headers
 
       expect(response).to have_http_status(:ok)
+      expect(json_body['user']).to include('first_name' => new_name, 'email' => email)
     end
   end
 
   describe 'DELETE /users/:id' do
-    it 'delete a user' do
-      id = post_new_id
+    it 'deletes a user' do
+      id = post_new_id('Ime', 'ime.prezime@backend.com')
 
       delete "/api/users/#{id}"
 
@@ -110,9 +103,9 @@ RSpec.describe 'users API', type: :request do
     end
   end
 
-  def post_new_id
+  def post_new_id(first_name, email)
     post  '/api/users',
-          params: { user: { first_name: 'Ime', email: 'ime.prezime@backend.com' } }.to_json,
+          params: { user: { first_name: first_name, email: email } }.to_json,
           headers: api_headers
 
     json_body['user']['id']

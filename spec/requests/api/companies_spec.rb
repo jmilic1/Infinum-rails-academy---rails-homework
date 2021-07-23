@@ -42,20 +42,8 @@ RSpec.describe 'Companies API', type: :request do
   describe 'POST /companies' do
     context 'when params are valid' do
       it 'creates a company' do
-        post  '/api/companies',
-              params: { company: { name: 'Croatia Airlines' } }.to_json,
-              headers: api_headers
-
-        expect(json_body['company']).to include('name' => 'Croatia Airlines')
-      end
-
-      it 'checks a company was created' do
         name = 'Eagle Express'
-        post  '/api/companies',
-              params: { company: { name: name } }.to_json,
-              headers: api_headers
-
-        id = json_body['company']['id']
+        id = post_new_id(name)
 
         get "/api/companies/#{id}"
 
@@ -75,33 +63,36 @@ RSpec.describe 'Companies API', type: :request do
     end
   end
 
-  describe 'PUT /companies/:id' do
-    it 'updates a company' do
-      id = post_new_id
+  describe 'updating companies' do
+    let(:old_name) { 'Dunedain' }
+    let(:new_name) { 'Elves' }
+
+    it 'sends PUT /companies/:id request' do
+      id = post_new_id(old_name)
 
       put "/api/companies/#{id}",
-          params: { company: { name: 'Eagle Airways' } }.to_json,
+          params: { company: { name: new_name } }.to_json,
           headers: api_headers
 
       expect(response).to have_http_status(:ok)
+      expect(json_body['company']).to include('id' => id, 'name' => new_name)
     end
-  end
 
-  describe 'PATCH /companies/:id' do
-    it 'updates a company' do
-      id = post_new_id
+    it 'sends PATCH /companies/:id request' do
+      id = post_new_id(old_name)
 
       patch "/api/companies/#{id}",
-            params: { company: { name: 'Eagle Airways' } }.to_json,
+            params: { company: { name: new_name } }.to_json,
             headers: api_headers
 
       expect(response).to have_http_status(:ok)
+      expect(json_body['company']).to include('id' => id, 'name' => new_name)
     end
   end
 
   describe 'DELETE /companies/:id' do
-    it 'delete a company' do
-      id = post_new_id
+    it 'deletes a company' do
+      id = post_new_id('Dunedain')
 
       delete "/api/companies/#{id}"
 
@@ -109,9 +100,9 @@ RSpec.describe 'Companies API', type: :request do
     end
   end
 
-  def post_new_id
+  def post_new_id(name)
     post  '/api/companies',
-          params: { company: { name: 'Croatia Airlines' } }.to_json,
+          params: { company: { name: name } }.to_json,
           headers: api_headers
 
     json_body['company']['id']
