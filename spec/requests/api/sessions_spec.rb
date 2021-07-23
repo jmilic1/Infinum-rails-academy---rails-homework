@@ -90,7 +90,7 @@ RSpec.describe 'Session API', type: :request do
       get '/api/bookings',
           headers: auth_headers(token)
 
-      expect(response).to have_http_status(:bad_request)
+      expect(response).to have_http_status(:unauthorized)
       expect(json_body['errors']).to include('token')
     end
   end
