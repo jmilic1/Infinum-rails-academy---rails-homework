@@ -1,5 +1,6 @@
 module Api
   class BookingsController < ApplicationController
+    # rubocop:disable Metrics/MethodLength
     def index
       if request.headers['X_API_SERIALIZER_ROOT'] == '0'
         render json: BookingSerializer.render(Booking.all, view: :extended),
@@ -24,10 +25,8 @@ module Api
 
     def show
       booking = Booking.find(params[:id])
-
       if booking.nil?
-        return render json: { errors: 'Booking with such id does not exist' },
-                      status: :bad_request
+        return render json: { errors: 'Booking with such id does not exist' }, status: :bad_request
       end
 
       if request.headers['X_API_SERIALIZER'] == 'json_api'
@@ -86,6 +85,7 @@ module Api
                status: :ok
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     def booking_params
       params.require(:booking).permit(:no_of_seats, :seat_price, :flight_id, :user_id)

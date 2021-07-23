@@ -1,5 +1,6 @@
 module Api
   class CompaniesController < ApplicationController
+    # rubocop:disable Metrics/MethodLength
     def index
       if request.headers['X_API_SERIALIZER_ROOT'] == '0'
         render json: CompanySerializer.render_as_hash(Company.all, view: :extended),
@@ -72,6 +73,7 @@ module Api
                status: :bad_request
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     private
 

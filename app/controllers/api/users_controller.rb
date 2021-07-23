@@ -1,5 +1,6 @@
 module Api
   class UsersController < ApplicationController
+    # rubocop:disable Metrics/MethodLength
     def index
       if request.headers['X_API_SERIALIZER_ROOT'] == '0'
         render json: UserSerializer.render_as_hash(User.all, view: :extended),
@@ -72,6 +73,7 @@ module Api
                status: :bad_request
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     private
 
