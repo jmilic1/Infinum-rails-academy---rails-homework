@@ -69,7 +69,7 @@ module Api
         render json: { errors: @user.errors }, status: :bad_request
       end
     end
-    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
+    # rubocop:enable Metrics/AbcSize
 
     def destroy
       @user = User.find_by(id: params[:id])
@@ -86,6 +86,7 @@ module Api
         render json: { errors: @user.errors }, status: :bad_request
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     private
 
