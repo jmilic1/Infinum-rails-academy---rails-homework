@@ -94,10 +94,11 @@ RSpec.describe 'Bookings API', type: :request do
     end
   end
 
+  # rubocop:disable RSpec/ExampleLength
   describe 'POST /bookings' do
     context 'when params are valid' do
       it 'creates a booking' do
-        get "/api/bookings/",
+        get '/api/bookings/',
             headers: auth_headers(admin_token)
 
         puts json_body
@@ -106,7 +107,7 @@ RSpec.describe 'Bookings API', type: :request do
         seat_price = 30
         id = post_new_id(no_of_seats, seat_price)
 
-        get "/api/bookings/",
+        get '/api/bookings/',
             headers: auth_headers(admin_token)
 
         puts json_body
@@ -119,6 +120,7 @@ RSpec.describe 'Bookings API', type: :request do
                                                 'seat_price' => seat_price)
       end
     end
+    # rubocop:enable RSpec/ExampleLength
 
     context 'when params are invalid' do
       it 'returns 400 Bad Request' do
