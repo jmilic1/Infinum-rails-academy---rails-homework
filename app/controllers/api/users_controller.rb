@@ -3,6 +3,7 @@ module Api
     def index
       @users = User.all
       authorize @users
+      @users = policy_scope(User)
 
       if request.headers['X_API_SERIALIZER_ROOT'] == '0'
         render json: UserSerializer.render(@users, view: :extended), status: :ok
@@ -35,6 +36,7 @@ module Api
       end
 
       authorize @user
+      @users = policy_scope(User)
 
       if request.headers['X_API_SERIALIZER'] == 'json_api'
         render json: { user:  JsonApi::UserSerializer.new(@user).serializable_hash.to_json },
@@ -53,6 +55,7 @@ module Api
       end
 
       authorize @user
+      @users = policy_scope(User)
 
       user_values = user_params
       if !user_values['password'].nil? && user_values['password'].length.zero?
@@ -75,6 +78,7 @@ module Api
       end
 
       authorize @user
+      @users = policy_scope(User)
 
       if @user.destroy
         render json: {}, status: :no_content

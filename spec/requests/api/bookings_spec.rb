@@ -6,7 +6,7 @@ RSpec.describe 'Bookings API', type: :request do
 
   before do
     create(:user, token: admin_token, role: 'admin')
-    create(:user, token: public_token, role: 'public')
+    create(:user, token: public_token)
   end
 
   describe 'GET /bookings' do
@@ -22,6 +22,18 @@ RSpec.describe 'Bookings API', type: :request do
                                  seat_price: 20,
                                  flight_id: flight.id } }.to_json,
             headers: auth_headers(admin_token)
+
+      post  '/api/bookings',
+            params: { booking: { no_of_seats: 10,
+                                 seat_price: 10,
+                                 flight_id: flight.id } }.to_json,
+            headers: auth_headers(public_token)
+
+      post  '/api/bookings',
+            params: { booking: { no_of_seats: 20,
+                                 seat_price: 20,
+                                 flight_id: flight.id } }.to_json,
+            headers: auth_headers(public_token)
     end
 
     it 'successfully returns a list of bookings' do
@@ -29,12 +41,28 @@ RSpec.describe 'Bookings API', type: :request do
           headers: auth_headers(admin_token)
 
       expect(response).to have_http_status(:ok)
-      expect(json_body['bookings'].length).to equal(2)
+      expect(json_body['bookings'].length).to equal(4)
     end
 
     it 'returns a list of bookings without root' do
       get '/api/bookings',
           headers: auth_headers(admin_token).merge(root_headers('0'))
+
+      expect(response).to have_http_status(:ok)
+      expect(json_body.length).to equal(4)
+    end
+
+    it 'successfully returns a list of bookings for public user' do
+      get '/api/bookings',
+          headers: auth_headers(public_token)
+
+      expect(response).to have_http_status(:ok)
+      expect(json_body['bookings'].length).to equal(2)
+    end
+
+    it 'returns a list of bookings without root for public user' do
+      get '/api/bookings',
+          headers: auth_headers(public_token).merge(root_headers('0'))
 
       expect(response).to have_http_status(:ok)
       expect(json_body.length).to equal(2)

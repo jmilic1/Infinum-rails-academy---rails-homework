@@ -4,6 +4,7 @@ module Api
     def index
       @bookings = Booking.all
       authorize @bookings
+      @bookings = policy_scope(Booking)
 
       if request.headers['X_API_SERIALIZER_ROOT'] == '0'
         render json: BookingSerializer.render(@bookings, view: :extended),
@@ -39,6 +40,7 @@ module Api
       end
 
       authorize @booking
+      @bookings = policy_scope(Booking)
 
       if request.headers['X_API_SERIALIZER'] == 'json_api'
         render json: { booking: JsonApi::BookingSerializer.new(@booking).serializable_hash.to_json },
@@ -57,6 +59,7 @@ module Api
       end
 
       authorize @booking
+      @bookings = policy_scope(Booking)
 
       if @booking.update(booking_params)
         render json: BookingSerializer.render(@booking, view: :extended, root: :booking),
@@ -73,6 +76,7 @@ module Api
       end
 
       authorize @booking
+      @bookings = policy_scope(Booking)
 
       if @booking.destroy
         render json: {}, status: :no_content
