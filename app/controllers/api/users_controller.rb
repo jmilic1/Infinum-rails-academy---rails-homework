@@ -22,7 +22,7 @@ module Api
       user = User.find(params[:id])
 
       if request.headers['X_API_SERIALIZER'] == 'json_api'
-        render json: { user:  JsonApi::UserSerializer.new(user).serializable_hash.to_json },
+        render json: { user: JsonApi::UserSerializer.new(user).serializable_hash.to_json },
                status: :ok
       else
         render json: UserSerializer.render(user, view: :extended, root: :user), status: :ok
