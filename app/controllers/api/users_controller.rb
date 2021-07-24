@@ -19,10 +19,7 @@ module Api
     end
 
     def show
-      user = User.find_by(id: params[:id])
-      if user.nil?
-        return render json: { errors: 'User with such id does not exist' }, status: :not_found
-      end
+      user = User.find(params[:id])
 
       if request.headers['X_API_SERIALIZER'] == 'json_api'
         render json: { user:  JsonApi::UserSerializer.new(user).serializable_hash.to_json },
@@ -33,10 +30,7 @@ module Api
     end
 
     def update
-      user = User.find_by(id: params[:id])
-      if user.nil?
-        return render json: { errors: 'User with such id does not exist' }, status: :not_found
-      end
+      user = User.find(params[:id])
 
       if user.update(user_params)
         render json: UserSerializer.render(user, view: :extended, root: :user), status: :ok
@@ -46,10 +40,7 @@ module Api
     end
 
     def destroy
-      user = User.find_by(id: params[:id])
-      if user.nil?
-        return render json: { errors: 'User with such id does not exist' }, status: :not_found
-      end
+      user = User.find(params[:id])
 
       if user.destroy
         render json: {}, status: :no_content

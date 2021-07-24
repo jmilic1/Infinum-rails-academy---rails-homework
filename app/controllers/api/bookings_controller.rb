@@ -23,10 +23,7 @@ module Api
     end
 
     def show
-      booking = Booking.find_by(id: params[:id])
-      if booking.nil?
-        return render json: { errors: 'Booking with such id does not exist' }, status: :not_found
-      end
+      booking = Booking.find(params[:id])
 
       if request.headers['X_API_SERIALIZER'] == 'json_api'
         render json: { booking: JsonApi::BookingSerializer.new(booking).serializable_hash.to_json },
@@ -37,10 +34,7 @@ module Api
     end
 
     def update
-      booking = Booking.find_by(id: params[:id])
-      if booking.nil?
-        return render json: { errors: 'Booking with such id does not exist' }, status: :not_found
-      end
+      booking = Booking.find(params[:id])
 
       if booking.update(booking_params)
         render json: BookingSerializer.render(booking, view: :extended, root: :booking), status: :ok
@@ -50,15 +44,12 @@ module Api
     end
 
     def destroy
-      booking = Booking.find_by(id: params[:id])
-      if booking.nil?
-        return render json: { errors: 'Booking with such id does not exist' }, status: :not_found
-      end
+      booking = Booking.find(params[:id])
 
       if booking.destroy
         render json: {}, status: :no_content
       else
-        render json: { errors: errors }, status: :unprocessable_entity
+        render json: { errors: booking.errors }, status: :unprocessable_entity
       end
     end
 

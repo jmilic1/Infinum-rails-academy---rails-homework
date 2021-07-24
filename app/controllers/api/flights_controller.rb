@@ -21,10 +21,7 @@ module Api
     end
 
     def show
-      flight = Flight.find_by(id: params[:id])
-      if flight.nil?
-        return render json: { errors: 'Flight with such id does not exist' }, status: :not_found
-      end
+      flight = Flight.find(params[:id])
 
       if request.headers['X_API_SERIALIZER'] == 'json_api'
         render json: { flight: JsonApi::FlightSerializer.new(flight).serializable_hash.to_json },
@@ -35,10 +32,7 @@ module Api
     end
 
     def update
-      flight = Flight.find_by(id: params[:id])
-      if flight.nil?
-        return render json: { errors: 'Flight with such id does not exist' }, status: :not_found
-      end
+      flight = Flight.find(params[:id])
 
       if flight.update(flight_params)
         render json: FlightSerializer.render(flight, view: :extended, root: :flight), status: :ok
@@ -48,10 +42,7 @@ module Api
     end
 
     def destroy
-      flight = Flight.find_by(id: params[:id])
-      if flight.nil?
-        return render json: { errors: 'Flight with such id does not exist' }, status: :not_found
-      end
+      flight = Flight.find(params[:id])
 
       if flight.destroy
         render json: {}, status: :no_content

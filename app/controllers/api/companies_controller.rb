@@ -22,10 +22,7 @@ module Api
     end
 
     def show
-      company = Company.find_by(id: params[:id])
-      if company.nil?
-        return render json: { errors: 'Company with such id does not exist' }, status: :not_found
-      end
+      company = Company.find(params[:id])
 
       if request.headers['X_API_SERIALIZER'] == 'json_api'
         render json: { company: JsonApi::CompanySerializer.new(company).serializable_hash.to_json },
@@ -36,10 +33,7 @@ module Api
     end
 
     def update
-      company = Company.find_by(id: params[:id])
-      if company.nil?
-        return render json: { errors: 'Company with such id does not exist' }, status: :not_found
-      end
+      company = Company.find(params[:id])
 
       if company.update(company_params)
         render json: CompanySerializer.render(company, view: :extended, root: :company), status: :ok
@@ -49,10 +43,7 @@ module Api
     end
 
     def destroy
-      company = Company.find_by(id: params[:id])
-      if company.nil?
-        return render json: { errors: 'Company with such id does not exist' }, status: :not_found
-      end
+      company = Company.find(params[:id])
 
       if company.destroy
         render json: {}, status: :no_content
