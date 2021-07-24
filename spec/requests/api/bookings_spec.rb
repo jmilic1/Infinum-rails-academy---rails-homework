@@ -71,7 +71,7 @@ RSpec.describe 'Bookings API', type: :request do
       it 'returns 400 Bad Request' do
         post_new(invalid_params)
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:bad_request)
         expect(json_body['errors']).to include('no_of_seats', 'seat_price', 'flight', 'user')
         expect(Booking.count).to eq(0)
       end

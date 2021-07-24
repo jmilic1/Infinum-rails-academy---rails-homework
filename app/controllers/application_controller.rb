@@ -3,6 +3,10 @@ class ApplicationController < ActionController::Base
 
   rescue_from ActiveRecord::RecordNotFound, with: :entity_not_found
 
+  def render_bad_request(record)
+    render json: { errors: record.errors }, status: :bad_request
+  end
+
   private
 
   def entity_not_found

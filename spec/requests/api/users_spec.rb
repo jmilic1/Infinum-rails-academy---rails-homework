@@ -67,7 +67,7 @@ RSpec.describe 'users API', type: :request do
       it 'returns 400 Bad Request' do
         post_new(invalid_params)
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:bad_request)
         expect(json_body['errors']).to include('first_name', 'email')
         expect(Booking.count).to eq(0)
       end

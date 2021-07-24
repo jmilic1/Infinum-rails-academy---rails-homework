@@ -73,7 +73,7 @@ RSpec.describe 'Flights API', type: :request do
       it 'returns 400 Bad Request' do
         post_new(invalid_params)
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:bad_request)
         expect(json_body['errors']).to include('name',
                                                'no_of_seats',
                                                'base_price',

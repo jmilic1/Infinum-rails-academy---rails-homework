@@ -14,7 +14,7 @@ module Api
       if user.save
         render json: UserSerializer.render(user, view: :extended, root: :user), status: :created
       else
-        render json: { errors: user.errors }, status: :unprocessable_entity
+        render_bad_request(user)
       end
     end
 
@@ -35,7 +35,7 @@ module Api
       if user.update(user_params)
         render json: UserSerializer.render(user, view: :extended, root: :user), status: :ok
       else
-        render json: { errors: user.errors }, status: :unprocessable_entity
+        render_bad_request(user)
       end
     end
 
@@ -45,7 +45,7 @@ module Api
       if user.destroy
         render json: {}, status: :no_content
       else
-        render json: { errors: user.errors }, status: :unprocessable_entity
+        render_bad_request(user)
       end
     end
 
