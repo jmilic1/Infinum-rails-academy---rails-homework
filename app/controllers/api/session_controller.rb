@@ -1,5 +1,5 @@
 module Api
-  class SessionsController < ApplicationController
+  class SessionController < ApplicationController
     def create
       credentials = session_params
 

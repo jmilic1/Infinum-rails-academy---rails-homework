@@ -9,10 +9,10 @@ RSpec.describe 'Session API', type: :request do
     create(:user, email: email, password: password, token: admin_token, role: 'admin')
   end
 
-  describe 'POST /sessions' do
+  describe 'POST /session' do
     context 'when params are valid' do
       it 'creates a session' do
-        post  '/api/sessions',
+        post  '/api/session',
               params: { session: { email: email,
                                    password: password } }.to_json,
               headers: api_headers
@@ -26,7 +26,7 @@ RSpec.describe 'Session API', type: :request do
 
     context 'when params are invalid' do
       it 'returns 400 Bad Request if no email is given' do
-        post  '/api/sessions',
+        post  '/api/session',
               params: { session: { password: password } }.to_json,
               headers: api_headers
 
@@ -36,7 +36,7 @@ RSpec.describe 'Session API', type: :request do
       end
 
       it 'returns 400 Bad Request if wrong email is given' do
-        post  '/api/sessions',
+        post  '/api/session',
               params: { session: { email: 'wrong.email@bad.com',
                                    password: password } }.to_json,
               headers: api_headers
@@ -46,7 +46,7 @@ RSpec.describe 'Session API', type: :request do
       end
 
       it 'returns 400 Bad Request if wrong password is given' do
-        post  '/api/sessions',
+        post  '/api/session',
               params: { session: { email: email,
                                    password: 'wrong password whoops' } }.to_json,
               headers: api_headers
@@ -56,7 +56,7 @@ RSpec.describe 'Session API', type: :request do
       end
 
       it 'returns 400 Bad Request if no password is given' do
-        post  '/api/sessions',
+        post  '/api/session',
               params: { session: { email: email } }.to_json,
               headers: api_headers
 
@@ -65,7 +65,7 @@ RSpec.describe 'Session API', type: :request do
       end
 
       it 'returns 400 Bad Request if blank password is given' do
-        post  '/api/sessions',
+        post  '/api/session',
               params: { session: { email: email,
                                    password: '' } }.to_json,
               headers: api_headers
@@ -76,7 +76,7 @@ RSpec.describe 'Session API', type: :request do
     end
   end
 
-  describe 'DELETE /sessions' do
+  describe 'DELETE /session' do
     it 'successfully logs out current user' do
       token = post_new_session
       delete '/api/session',
@@ -93,7 +93,7 @@ RSpec.describe 'Session API', type: :request do
   end
 
   def post_new_session
-    post  '/api/sessions',
+    post  '/api/session',
           params: { session: { email: email,
                                password: password } }.to_json,
           headers: api_headers
