@@ -16,7 +16,7 @@ module Api
         render json: FlightSerializer.render(flight, view: :extended, root: :flight),
                status: :created
       else
-        render json: { errors: flight.errors }, status: :bad_request
+        render json: { errors: flight.errors }, status: :unprocessable_entity
       end
     end
 
@@ -43,7 +43,7 @@ module Api
       if flight.update(flight_params)
         render json: FlightSerializer.render(flight, view: :extended, root: :flight), status: :ok
       else
-        render json: { errors: flight.errors }, status: :bad_request
+        render json: { errors: flight.errors }, status: :unprocessable_entity
       end
     end
 
@@ -56,7 +56,7 @@ module Api
       if flight.destroy
         render json: {}, status: :no_content
       else
-        render json: { errors: flight.errors }, status: :bad_request
+        render json: { errors: flight.errors }, status: :unprocessable_entity
       end
     end
 

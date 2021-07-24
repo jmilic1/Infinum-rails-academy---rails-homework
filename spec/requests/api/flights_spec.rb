@@ -65,7 +65,7 @@ RSpec.describe 'Flights API', type: :request do
              params: { flight: { no_of_seats: 0 } }.to_json,
              headers: api_headers
 
-        expect(response).to have_http_status(:bad_request)
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(json_body['errors']).to include('no_of_seats')
       end
     end

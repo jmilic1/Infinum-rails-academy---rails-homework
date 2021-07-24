@@ -16,9 +16,7 @@ module TestHelpers
     end
 
     def root_headers(value)
-      {
-        'X_API_SERIALIZER_ROOT': value
-      }
+      api_headers.merge('X_API_SERIALIZER_ROOT': value)
     end
   end
 end

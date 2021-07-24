@@ -18,7 +18,7 @@ module Api
                status: :created
       else
         render json: { errors: booking.errors },
-               status: :bad_request
+               status: :unprocessable_entity
       end
     end
 
@@ -45,7 +45,7 @@ module Api
       if booking.update(booking_params)
         render json: BookingSerializer.render(booking, view: :extended, root: :booking), status: :ok
       else
-        render json: { errors: booking.errors }, status: :bad_request
+        render json: { errors: booking.errors }, status: :unprocessable_entity
       end
     end
 
@@ -58,7 +58,7 @@ module Api
       if booking.destroy
         render json: {}, status: :no_content
       else
-        render json: { errors: errors }, status: :bad_request
+        render json: { errors: errors }, status: :unprocessable_entity
       end
     end
 

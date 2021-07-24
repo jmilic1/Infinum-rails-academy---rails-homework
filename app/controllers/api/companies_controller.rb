@@ -17,7 +17,7 @@ module Api
         render json: CompanySerializer.render(company, view: :extended, root: :company),
                status: :created
       else
-        render json: { errors: company.errors }, status: :bad_request
+        render json: { errors: company.errors }, status: :unprocessable_entity
       end
     end
 
@@ -44,7 +44,7 @@ module Api
       if company.update(company_params)
         render json: CompanySerializer.render(company, view: :extended, root: :company), status: :ok
       else
-        render json: { errors: company.errors }, status: :bad_request
+        render json: { errors: company.errors }, status: :unprocessable_entity
       end
     end
 
@@ -57,7 +57,7 @@ module Api
       if company.destroy
         render json: {}, status: :no_content
       else
-        render json: { errors: company.errors }, status: :bad_request
+        render json: { errors: company.errors }, status: :unprocessable_entity
       end
     end
 
