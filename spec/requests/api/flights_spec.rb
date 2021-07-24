@@ -74,7 +74,12 @@ RSpec.describe 'Flights API', type: :request do
         post_new(invalid_params)
 
         expect(response).to have_http_status(:unprocessable_entity)
-        expect(json_body['errors']).to include('name', 'no_of_seats', 'base_price', 'departs_at', 'arrives_at', 'company')
+        expect(json_body['errors']).to include('name',
+                                               'no_of_seats',
+                                               'base_price',
+                                               'departs_at',
+                                               'arrives_at',
+                                               'company')
         expect(Flight.count).to eq(0)
       end
     end
@@ -126,7 +131,11 @@ RSpec.describe 'Flights API', type: :request do
   end
 
   def verify_show
-    expect(json_body['flight']).to include('name', 'no_of_seats', 'base_price', 'departs_at', 'arrives_at')
+    expect(json_body['flight']).to include('name',
+                                           'no_of_seats',
+                                           'base_price',
+                                           'departs_at',
+                                           'arrives_at')
   end
 
   def setup_index
