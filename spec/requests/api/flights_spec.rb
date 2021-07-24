@@ -1,11 +1,10 @@
 RSpec.describe 'Flights API', type: :request do
   include TestHelpers::JsonResponse
-  let(:company) { create(:company) }
 
   describe 'GET /flights' do
-    before { create_list(:flight, 3) }
-
     it 'successfully returns a list of flights' do
+      setup_index
+
       get '/api/flights'
 
       expect(response).to have_http_status(:ok)
@@ -13,6 +12,8 @@ RSpec.describe 'Flights API', type: :request do
     end
 
     it 'returns a list of flights without root' do
+      setup_index
+
       get '/api/flights',
           headers: root_headers('0')
 
@@ -22,49 +23,59 @@ RSpec.describe 'Flights API', type: :request do
   end
 
   describe 'GET /flights/:id' do
-    let(:flight) { create(:flight) }
-
     it 'returns a single flights' do
+      flight = setup_show
+
       get "/api/flights/#{flight.id}"
 
-      expect(json_body['flight']).to include('no_of_seats')
+      verify_show
     end
 
     it 'returns a single flight serialized by json_api' do
+      flight = setup_show
+
       get "/api/flights/#{flight.id}",
           headers: jsonapi_headers
 
-      expect(json_body['flight']).to include('no_of_seats')
+      verify_show
     end
   end
 
   describe 'POST /flights' do
-    let(:company) { create(:company) }
-
     context 'when params are valid' do
+      let(:valid_params) do
+        company = create(:company)
+        { name: 'Minas Tirith - Minas Morgul',
+          no_of_seats: 20,
+          base_price: 30,
+          departs_at: 10.days.after,
+          arrives_at: 11.days.after,
+          company_id: company.id }
+      end
+
       it 'creates a flight' do
-        name = 'Minas Tirith - Minas Morgul'
-        no_of_seats = 25
-        base_price = 12
-        id = post_new_id(name, no_of_seats, base_price, 10.days.after, 11.days.after)
+        post_new(valid_params)
 
-        get "/api/flights/#{id}"
-
-        expect(json_body['flight']).to include('id' => id,
-                                               'name' => name,
-                                               'no_of_seats' => no_of_seats,
-                                               'base_price' => base_price)
+        expect(response).to have_http_status(:created)
+        expect(Flight.count).to eq(1)
+        flight = Flight.all.first
+        expect(flight.name).to eq(valid_params[:name])
+        expect(flight.no_of_seats).to eq(valid_params[:no_of_seats])
+        expect(flight.base_price).to eq(valid_params[:base_price])
       end
     end
 
     context 'when params are invalid' do
+      let(:invalid_params) do
+        { no_of_seats: 0 }
+      end
+
       it 'returns 400 Bad Request' do
-        post '/api/flights',
-             params: { flight: { no_of_seats: 0 } }.to_json,
-             headers: api_headers
+        post_new(invalid_params)
 
         expect(response).to have_http_status(:unprocessable_entity)
-        expect(json_body['errors']).to include('no_of_seats')
+        expect(json_body['errors']).to include('name', 'no_of_seats', 'base_price', 'departs_at', 'arrives_at', 'company')
+        expect(Flight.count).to eq(0)
       end
     end
   end
@@ -72,68 +83,59 @@ RSpec.describe 'Flights API', type: :request do
   describe 'updating flights' do
     let(:name) { 'Zagreb - Split' }
     let(:old_no_of_seats) { 10 }
-    let(:base_price) { 10 }
     let(:new_no_of_seats) { 32 }
+    let(:update_params) { { no_of_seats: new_no_of_seats } }
+    let(:flight) { create(:flight, name: name, no_of_seats: old_no_of_seats) }
 
     it 'sends PUT /flights/:id request' do
-      id = post_new_id(name, old_no_of_seats, base_price,
-                       1.day.after, 2.days.after)
-
-      put "/api/flights/#{id}",
-          params: { flight: { no_of_seats: new_no_of_seats } }.to_json,
+      put "/api/flights/#{flight.id}",
+          params: { flight: update_params }.to_json,
           headers: api_headers
 
-      expect(response).to have_http_status(:ok)
-      expect(json_body['flight']).to include('id' => id,
-                                             'name' => name,
-                                             'no_of_seats' => new_no_of_seats,
-                                             'base_price' => base_price)
+      verify_update(Flight.find(flight.id), name, new_no_of_seats)
     end
 
     it 'sends PATCH /flights/:id request' do
-      id = post_new_id(name, old_no_of_seats, base_price,
-                       1.day.after, 2.days.after)
-
-      patch "/api/flights/#{id}",
-            params: { flight: { no_of_seats: new_no_of_seats } }.to_json,
+      patch "/api/flights/#{flight.id}",
+            params: { flight: update_params }.to_json,
             headers: api_headers
 
-      expect(response).to have_http_status(:ok)
-      expect(json_body['flight']).to include('id' => id,
-                                             'name' => name,
-                                             'no_of_seats' => new_no_of_seats,
-                                             'base_price' => base_price)
+      verify_update(Flight.find(flight.id), name, new_no_of_seats)
     end
   end
 
   describe 'DELETE /flights/:id' do
     it 'deletes a flight' do
-      id = post_new_id('Zagreb - Split',
-                       10,
-                       10,
-                       1.day.after,
-                       2.days.after)
+      flight = create(:flight)
 
-      delete "/api/flights/#{id}"
+      delete "/api/flights/#{flight.id}"
 
       expect(response).to have_http_status(:no_content)
-
-      get "/api/flights/#{id}"
-
-      expect(response).to have_http_status(:not_found)
+      expect(Flight.all.length).to eq(0)
     end
   end
 
-  def post_new_id(name, no_of_seats, base_price, departs_at, arrives_at)
+  def post_new(flight_params)
     post  '/api/flights',
-          params: { flight: { name: name,
-                              no_of_seats: no_of_seats,
-                              base_price: base_price,
-                              departs_at: departs_at,
-                              arrives_at: arrives_at,
-                              company_id: company.id } }.to_json,
+          params: { flight: flight_params }.to_json,
           headers: api_headers
+  end
 
-    json_body['flight']['id']
+  def setup_show
+    create(:flight)
+  end
+
+  def verify_show
+    expect(json_body['flight']).to include('name', 'no_of_seats', 'base_price', 'departs_at', 'arrives_at')
+  end
+
+  def setup_index
+    create_list(:flight, 3)
+  end
+
+  def verify_update(flight, name, no_of_seats)
+    expect(response).to have_http_status(:ok)
+    expect(flight.name).to eq(name)
+    expect(flight.no_of_seats).to eq(no_of_seats)
   end
 end

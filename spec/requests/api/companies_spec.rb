@@ -2,9 +2,9 @@ RSpec.describe 'Companies API', type: :request do
   include TestHelpers::JsonResponse
 
   describe 'GET /companies' do
-    before { create_list(:company, 3) }
-
     it 'successfully returns a list of companies' do
+      setup_index
+
       get '/api/companies'
 
       expect(response).to have_http_status(:ok)
@@ -12,6 +12,8 @@ RSpec.describe 'Companies API', type: :request do
     end
 
     it 'returns a list of companies without root' do
+      setup_index
+
       get '/api/companies',
           headers: root_headers('0')
 
@@ -21,42 +23,50 @@ RSpec.describe 'Companies API', type: :request do
   end
 
   describe 'GET /companies/:id' do
-    let(:company) { create(:company) }
-
     it 'returns a single company' do
+      company = setup_show
+
       get "/api/companies/#{company.id}"
 
-      expect(json_body['company']).to include('name')
+      verify_show
     end
 
     it 'returns a single company serialized by json_api' do
+      company = setup_show
+
       get "/api/companies/#{company.id}",
           headers: jsonapi_headers
 
-      expect(json_body['company']).to include('name')
+      verify_show
     end
   end
 
   describe 'POST /companies' do
     context 'when params are valid' do
+      let(:valid_params) do
+        { name: 'Eagle Express' }
+      end
+
       it 'creates a company' do
-        name = 'Eagle Express'
-        id = post_new_id(name)
+        post_new(valid_params)
 
-        get "/api/companies/#{id}"
-
-        expect(json_body['company']).to include('id' => id, 'name' => name)
+        expect(response).to have_http_status(:created)
+        expect(Company.count).to eq(1)
+        expect(Company.all.first.name).to eq(valid_params[:name])
       end
     end
 
     context 'when params are invalid' do
+      let(:invalid_params) do
+        { name: '' }
+      end
+
       it 'returns 400 Bad Request' do
-        post '/api/companies',
-             params: { company: { name: '' } }.to_json,
-             headers: api_headers
+        post_new(invalid_params)
 
         expect(response).to have_http_status(:unprocessable_entity)
         expect(json_body['errors']).to include('name')
+        expect(Booking.count).to eq(0)
       end
     end
   end
@@ -64,49 +74,57 @@ RSpec.describe 'Companies API', type: :request do
   describe 'updating companies' do
     let(:old_name) { 'Dunedain' }
     let(:new_name) { 'Elves' }
+    let(:update_params) { { name: new_name } }
+    let(:company) { create(:company, name: old_name) }
 
     it 'sends PUT /companies/:id request' do
-      id = post_new_id(old_name)
-
-      put "/api/companies/#{id}",
-          params: { company: { name: new_name } }.to_json,
+      put "/api/companies/#{company.id}",
+          params: { company: update_params }.to_json,
           headers: api_headers
 
-      expect(response).to have_http_status(:ok)
-      expect(json_body['company']).to include('id' => id, 'name' => new_name)
+      verify_update(Company.find(company.id), new_name)
     end
 
     it 'sends PATCH /companies/:id request' do
-      id = post_new_id(old_name)
-
-      patch "/api/companies/#{id}",
-            params: { company: { name: new_name } }.to_json,
+      patch "/api/companies/#{company.id}",
+            params: { company: update_params }.to_json,
             headers: api_headers
 
-      expect(response).to have_http_status(:ok)
-      expect(json_body['company']).to include('id' => id, 'name' => new_name)
+      verify_update(Company.find(company.id), new_name)
     end
   end
 
   describe 'DELETE /companies/:id' do
     it 'deletes a company' do
-      id = post_new_id('Dunedain')
+      company = create(:company)
 
-      delete "/api/companies/#{id}"
+      delete "/api/companies/#{company.id}"
 
       expect(response).to have_http_status(:no_content)
-
-      get "/api/companies/#{id}"
-
-      expect(response).to have_http_status(:not_found)
+      expect(Company.all.length).to eq(0)
     end
   end
 
-  def post_new_id(name)
+  def post_new(company_params)
     post  '/api/companies',
-          params: { company: { name: name } }.to_json,
+          params: { company: company_params }.to_json,
           headers: api_headers
+  end
 
-    json_body['company']['id']
+  def setup_show
+    create(:company)
+  end
+
+  def verify_show
+    expect(json_body['company']).to include('name')
+  end
+
+  def setup_index
+    create_list(:company, 3)
+  end
+
+  def verify_update(company, new_name)
+    expect(response).to have_http_status(:ok)
+    expect(company.name).to eq(new_name)
   end
 end
