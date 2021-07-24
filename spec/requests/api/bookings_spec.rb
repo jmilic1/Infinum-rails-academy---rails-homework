@@ -101,16 +101,12 @@ RSpec.describe 'Bookings API', type: :request do
         get '/api/bookings/',
             headers: auth_headers(admin_token)
 
-        puts json_body
-
         no_of_seats = 25
         seat_price = 30
         id = post_new_id(no_of_seats, seat_price)
 
         get '/api/bookings/',
             headers: auth_headers(admin_token)
-
-        puts json_body
 
         get "/api/bookings/#{id}",
             headers: auth_headers(admin_token)
