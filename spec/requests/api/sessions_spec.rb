@@ -88,7 +88,7 @@ RSpec.describe 'Session API', type: :request do
           headers: auth_headers(token)
 
       expect(response).to have_http_status(:unauthorized)
-      expect(json_body['errors']).to include('resource')
+      expect(json_body['errors']).to include('token')
     end
   end
 

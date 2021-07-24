@@ -5,4 +5,12 @@ class ApplicationController < ActionController::Base
   def current_user
     User.find_by(token: request.headers['Authorization'])
   end
+
+  rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
+
+  private
+
+  def user_not_authorized
+    render json: { errors: { token: ['is invalid'] } }, status: :unauthorized
+  end
 end

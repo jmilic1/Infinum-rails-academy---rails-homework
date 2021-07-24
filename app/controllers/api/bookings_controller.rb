@@ -2,10 +2,6 @@ module Api
   class BookingsController < ApplicationController
     # rubocop:disable Metrics/MethodLength
     def index
-      if find_user_by_token.nil?
-        return render json: { errors: { token: ['is invalid'] } }, status: :unauthorized
-      end
-
       @bookings = Booking.all
       authorize @bookings
 
@@ -35,10 +31,8 @@ module Api
       end
     end
 
-    # rubocop:disable Layout/LineLength, Metrics/AbcSize
+    # rubocop:disable Layout/LineLength
     def show
-      return render json: { errors: { token: ['is invalid'] } }, status: :unauthorized if find_user_by_token.nil?
-
       @booking = Booking.find_by(id: params[:id])
       if @booking.nil?
         return render json: { errors: 'Booking with such id does not exist' }, status: :not_found
@@ -54,7 +48,7 @@ module Api
                status: :ok
       end
     end
-    # rubocop:enable Layout/LineLength, Metrics/AbcSize
+    # rubocop:enable Layout/LineLength
 
     def update
       @booking = Booking.find_by(id: params[:id])
