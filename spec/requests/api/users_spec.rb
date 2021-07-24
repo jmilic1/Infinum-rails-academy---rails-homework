@@ -121,7 +121,8 @@ RSpec.describe 'users API', type: :request do
     it 'deletes a user' do
       id = post_new_id('Ime', 'ime.prezime@backend.com', 'password')
 
-      delete "/api/users/#{id}"
+      delete "/api/users/#{id}",
+             headers: auth_headers(admin_token)
 
       expect(response).to have_http_status(:no_content)
 
