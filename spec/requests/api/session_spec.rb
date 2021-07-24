@@ -17,7 +17,7 @@ RSpec.describe 'Session API', type: :request do
                                    password: password } }.to_json,
               headers: api_headers
 
-        expect(response).to have_http_status(:ok)
+        expect(response).to have_http_status(:created)
         json = json_body
         expect(json['session']).to include('user')
         expect(json['session']).to include('token')
@@ -30,9 +30,9 @@ RSpec.describe 'Session API', type: :request do
               params: { session: { password: password } }.to_json,
               headers: api_headers
 
-        expect(response).to have_http_status(:bad_request)
+        expect(response).to have_http_status(:unauthorized)
         json = json_body
-        expect(json['errors']).to include('credentials')
+        expect(json['errors']).to include('token')
       end
 
       it 'returns 400 Bad Request if wrong email is given' do
@@ -41,8 +41,8 @@ RSpec.describe 'Session API', type: :request do
                                    password: password } }.to_json,
               headers: api_headers
 
-        expect(response).to have_http_status(:bad_request)
-        expect(json_body['errors']).to include('credentials')
+        expect(response).to have_http_status(:unauthorized)
+        expect(json_body['errors']).to include('token')
       end
 
       it 'returns 400 Bad Request if wrong password is given' do
@@ -51,8 +51,8 @@ RSpec.describe 'Session API', type: :request do
                                    password: 'wrong password whoops' } }.to_json,
               headers: api_headers
 
-        expect(response).to have_http_status(:bad_request)
-        expect(json_body['errors']).to include('credentials')
+        expect(response).to have_http_status(:unauthorized)
+        expect(json_body['errors']).to include('token')
       end
 
       it 'returns 400 Bad Request if no password is given' do
@@ -60,8 +60,8 @@ RSpec.describe 'Session API', type: :request do
               params: { session: { email: email } }.to_json,
               headers: api_headers
 
-        expect(response).to have_http_status(:bad_request)
-        expect(json_body['errors']).to include('credentials')
+        expect(response).to have_http_status(:unauthorized)
+        expect(json_body['errors']).to include('token')
       end
 
       it 'returns 400 Bad Request if blank password is given' do
@@ -70,8 +70,8 @@ RSpec.describe 'Session API', type: :request do
                                    password: '' } }.to_json,
               headers: api_headers
 
-        expect(response).to have_http_status(:bad_request)
-        expect(json_body['errors']).to include('credentials')
+        expect(response).to have_http_status(:unauthorized)
+        expect(json_body['errors']).to include('token')
       end
     end
   end
