@@ -44,15 +44,10 @@ RSpec.describe 'Bookings API', type: :request do
   describe 'POST /bookings' do
     context 'when params are valid' do
       it 'creates a booking' do
-        no_of_seats = 25
-        seat_price = 30
-        id = post_new_id(no_of_seats, seat_price)
+        post_new_id(25, 30)
 
-        get "/api/bookings/#{id}"
-
-        expect(json_body['booking']).to include('id' => id,
-                                                'no_of_seats' => no_of_seats,
-                                                'seat_price' => seat_price)
+        expect(response).to have_http_status(:created)
+        expect(Booking.count).to eq(1)
       end
     end
 
@@ -63,7 +58,7 @@ RSpec.describe 'Bookings API', type: :request do
              headers: api_headers
 
         expect(response).to have_http_status(:unprocessable_entity)
-        expect(json_body['errors']).to include('no_of_seats')
+        expect(Booking.count).to eq(0)
       end
     end
   end
