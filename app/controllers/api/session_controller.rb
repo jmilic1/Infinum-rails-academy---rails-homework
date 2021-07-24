@@ -12,7 +12,7 @@ module Api
 
       render json: { session: { user: UserSerializer.render_as_hash(user, view: :extended),
                                 token: user.token } },
-             status: :ok
+             status: :created
     end
 
     def delete
@@ -34,7 +34,7 @@ module Api
     end
 
     def render_error
-      render json: { errors: { credentials: ['are invalid'] } }, status: :bad_request
+      render json: { errors: { token: ['is invalid'] } }, status: :unauthorized
     end
   end
 end
