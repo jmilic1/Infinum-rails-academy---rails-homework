@@ -20,14 +20,14 @@ class UserPolicy
   end
 
   def update?
-    raise Pundit::NotAuthorizedError if user.nil?
+    raise Pundit::NotDefinedError if user.nil?
     raise Pundit::NotAuthorizedError if !user.admin? && record.id != user.id
 
     user.admin? || user.public?
   end
 
   def destroy?
-    raise Pundit::NotAuthorizedError if user.nil?
+    raise Pundit::NotDefinedError if user.nil?
     raise Pundit::NotAuthorizedError if !user.admin? && record.id != user.id
 
     user.admin? || user.public?
