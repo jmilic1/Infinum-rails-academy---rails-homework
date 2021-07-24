@@ -79,7 +79,7 @@ RSpec.describe 'Session API', type: :request do
   describe 'DELETE /sessions' do
     it 'successfully logs out current user' do
       token = post_new_session
-      delete '/api/sessions',
+      delete '/api/session',
              headers: auth_headers(token)
 
       expect(response).to have_http_status(:no_content)
