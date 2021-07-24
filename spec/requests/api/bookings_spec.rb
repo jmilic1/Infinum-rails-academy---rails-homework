@@ -27,7 +27,6 @@ RSpec.describe 'Bookings API', type: :request do
 
     it 'returns a single booking' do
       get "/api/bookings/#{booking.id}"
-      json_body = JSON.parse(response.body)
 
       expect(json_body['booking']).to include('no_of_seats')
     end
@@ -35,7 +34,6 @@ RSpec.describe 'Bookings API', type: :request do
     it 'returns a single booking serialized by json_api' do
       get "/api/bookings/#{booking.id}",
           headers: jsonapi_headers
-      json_body = JSON.parse(response.body)
 
       expect(json_body['booking']).to include('no_of_seats')
     end

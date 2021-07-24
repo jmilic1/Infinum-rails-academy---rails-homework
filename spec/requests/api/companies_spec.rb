@@ -25,7 +25,6 @@ RSpec.describe 'Companies API', type: :request do
 
     it 'returns a single company' do
       get "/api/companies/#{company.id}"
-      json_body = JSON.parse(response.body)
 
       expect(json_body['company']).to include('name')
     end
@@ -33,7 +32,6 @@ RSpec.describe 'Companies API', type: :request do
     it 'returns a single company serialized by json_api' do
       get "/api/companies/#{company.id}",
           headers: jsonapi_headers
-      json_body = JSON.parse(response.body)
 
       expect(json_body['company']).to include('name')
     end
