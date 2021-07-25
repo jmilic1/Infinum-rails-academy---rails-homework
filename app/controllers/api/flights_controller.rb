@@ -1,12 +1,7 @@
 module Api
   class FlightsController < ApplicationController
     def index
-      if request.headers['X_API_SERIALIZER_ROOT'] == '0'
-        render json: FlightSerializer.render(Flight.all, view: :extended), status: :ok
-      else
-        render json: FlightSerializer.render(Flight.all, view: :extended, root: :flights),
-               status: :ok
-      end
+      common_index(FlightSerializer, Flight, :flights)
     end
 
     def create

@@ -1,13 +1,7 @@
 module Api
   class CompaniesController < ApplicationController
     def index
-      if request.headers['X_API_SERIALIZER_ROOT'] == '0'
-        render json: CompanySerializer.render(Company.all, view: :extended),
-               status: :ok
-      else
-        render json: CompanySerializer.render(Company.all, view: :extended, root: :companies),
-               status: :ok
-      end
+      common_index(CompanySerializer, Company, :companies)
     end
 
     def create

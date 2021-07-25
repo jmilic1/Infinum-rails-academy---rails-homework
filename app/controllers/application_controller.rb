@@ -7,6 +7,16 @@ class ApplicationController < ActionController::Base
     render json: { errors: record.errors }, status: :bad_request
   end
 
+  def common_index(serializer, record, root)
+    if request.headers['X_API_SERIALIZER_ROOT'] == '0'
+      render json: serializer.render(record.all, view: :extended),
+             status: :ok
+    else
+      render json: serializer.render(record.all, view: :extended, root: root),
+             status: :ok
+    end
+  end
+
   private
 
   def entity_not_found

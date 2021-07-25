@@ -1,11 +1,7 @@
 module Api
   class UsersController < ApplicationController
     def index
-      if request.headers['X_API_SERIALIZER_ROOT'] == '0'
-        render json: UserSerializer.render(User.all, view: :extended), status: :ok
-      else
-        render json: UserSerializer.render(User.all, view: :extended, root: :users), status: :ok
-      end
+      common_index(UserSerializer, User, :users)
     end
 
     def create

@@ -1,13 +1,7 @@
 module Api
   class BookingsController < ApplicationController
     def index
-      if request.headers['X_API_SERIALIZER_ROOT'] == '0'
-        render json: BookingSerializer.render(Booking.all, view: :extended),
-               status: :ok
-      else
-        render json: BookingSerializer.render(Booking.all, view: :extended, root: :bookings),
-               status: :ok
-      end
+      common_index(BookingSerializer, Booking, :bookings)
     end
 
     def create
