@@ -5,24 +5,11 @@ module Api
     end
 
     def create
-      user = User.new(user_params)
-
-      if user.save
-        render json: UserSerializer.render(user, view: :extended, root: :user), status: :created
-      else
-        render_bad_request(user)
-      end
+      common_create(UserSerializer, User, user_params, :user)
     end
 
     def show
-      user = User.find(params[:id])
-
-      if request.headers['X_API_SERIALIZER'] == 'json_api'
-        render json: { user: JsonApi::UserSerializer.new(user).serializable_hash.to_json },
-               status: :ok
-      else
-        render json: UserSerializer.render(user, view: :extended, root: :user), status: :ok
-      end
+      common_show(JsonApi::UserSerializer, UserSerializer, User, :user)
     end
 
     def update

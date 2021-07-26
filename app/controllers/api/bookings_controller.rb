@@ -5,25 +5,11 @@ module Api
     end
 
     def create
-      booking = Booking.new(booking_params)
-
-      if booking.save
-        render json: BookingSerializer.render(booking, view: :extended, root: :booking),
-               status: :created
-      else
-        render_bad_request(booking)
-      end
+      common_create(BookingSerializer, Booking, booking_params, :booking)
     end
 
     def show
-      booking = Booking.find(params[:id])
-
-      if request.headers['X_API_SERIALIZER'] == 'json_api'
-        render json: { booking: JsonApi::BookingSerializer.new(booking).serializable_hash.to_json },
-               status: :ok
-      else
-        render json: BookingSerializer.render(booking, view: :extended, root: :booking), status: :ok
-      end
+      common_show(JsonApi::BookingSerializer, BookingSerializer, Booking, :booking)
     end
 
     def update
