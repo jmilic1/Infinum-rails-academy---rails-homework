@@ -6,14 +6,7 @@ module Api
       authorize @bookings
       @bookings = policy_scope(Booking)
 
-      if request.headers['X_API_SERIALIZER_ROOT'] == '0'
-        render json: BookingSerializer.render(@bookings, view: :extended),
-               status: :ok
-      else
-        render json: BookingSerializer.render(@bookings, view: :extended,
-                                                         root: :bookings),
-               status: :ok
-      end
+      common_index(BookingSerializer, @bookings, :bookings)
     end
 
     def create
@@ -30,6 +23,9 @@ module Api
         render json: { errors: booking.errors },
                status: :bad_request
       end
+
+      ##NEW
+      common_create(BookingSerializer, Booking, booking_params, :booking)
     end
 
     # rubocop:disable Layout/LineLength
@@ -49,6 +45,9 @@ module Api
         render json: BookingSerializer.render(@booking, view: :extended, root: :booking),
                status: :ok
       end
+
+      ##NEW
+      common_show(JsonApi::BookingSerializer, BookingSerializer, Booking, :booking)
     end
     # rubocop:enable Layout/LineLength
 
@@ -67,6 +66,9 @@ module Api
       else
         render json: { errors: @booking.errors }, status: :bad_request
       end
+
+      ##NEW
+      common_update(BookingSerializer, Booking, booking_params, :booking)
     end
 
     def destroy
@@ -83,6 +85,9 @@ module Api
       else
         render json: { errors: @booking.errors }, status: :bad_request
       end
+
+      ##NEW
+      common_destroy(Booking)
     end
 
     private

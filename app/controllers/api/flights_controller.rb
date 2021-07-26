@@ -1,12 +1,7 @@
 module Api
   class FlightsController < ApplicationController
     def index
-      if request.headers['X_API_SERIALIZER_ROOT'] == '0'
-        render json: FlightSerializer.render(Flight.all, view: :extended), status: :ok
-      else
-        render json: FlightSerializer.render(Flight.all, view: :extended, root: :flights),
-               status: :ok
-      end
+      common_index(FlightSerializer, Flight, :flights)
     end
 
     def create
@@ -19,20 +14,13 @@ module Api
       else
         render json: { errors: @flight.errors }, status: :bad_request
       end
+
+      #NEW
+      common_create(FlightSerializer, Flight, flight_params, :flight)
     end
 
     def show
-      flight = Flight.find_by(id: params[:id])
-      if flight.nil?
-        return render json: { errors: 'Flight with such id does not exist' }, status: :not_found
-      end
-
-      if request.headers['X_API_SERIALIZER'] == 'json_api'
-        render json: { flight: JsonApi::FlightSerializer.new(flight).serializable_hash.to_json },
-               status: :ok
-      else
-        render json: FlightSerializer.render(flight, view: :extended, root: :flight), status: :ok
-      end
+      common_show(JsonApi::FlightSerializer, FlightSerializer, Flight, :flight)
     end
 
     def update
@@ -48,6 +36,9 @@ module Api
       else
         render json: { errors: @flight.errors }, status: :bad_request
       end
+
+      #NEW
+      common_update(FlightSerializer, Flight, flight_params, :flight)
     end
 
     def destroy
@@ -63,6 +54,9 @@ module Api
       else
         render json: { errors: @flight.errors }, status: :bad_request
       end
+
+      #NEW
+      common_destroy(Flight)
     end
 
     private

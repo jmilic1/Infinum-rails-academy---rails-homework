@@ -10,6 +10,9 @@ module Api
       else
         render json: UserSerializer.render(@users, view: :extended, root: :users), status: :ok
       end
+
+      #NEW
+      common_index(UserSerializer, User, :users)
     end
 
     def create
@@ -26,6 +29,9 @@ module Api
       else
         render json: { errors: user.errors }, status: :bad_request
       end
+
+      #NEW
+      common_create(UserSerializer, User, user_params, :user)
     end
 
     # rubocop:disable Metrics/MethodLength
@@ -44,6 +50,9 @@ module Api
       else
         render json: UserSerializer.render(@user, view: :extended, root: :user), status: :ok
       end
+
+      #NEW
+      common_show(JsonApi::UserSerializer, UserSerializer, User, :user)
     end
     # rubocop:enable Metrics/MethodLength
 
@@ -68,6 +77,9 @@ module Api
       else
         render json: { errors: @user.errors }, status: :bad_request
       end
+
+      #NEW
+      common_update(UserSerializer, User, user_params, :user)
     end
     # rubocop:enable Metrics/AbcSize
 
@@ -85,6 +97,9 @@ module Api
       else
         render json: { errors: @user.errors }, status: :bad_request
       end
+
+      #NEW
+      common_destroy(User)
     end
     # rubocop:enable Metrics/MethodLength
 
