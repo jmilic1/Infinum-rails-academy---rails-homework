@@ -13,23 +13,11 @@ module Api
     end
 
     def update
-      flight = Flight.find(params[:id])
-
-      if flight.update(flight_params)
-        render json: FlightSerializer.render(flight, view: :extended, root: :flight), status: :ok
-      else
-        render_bad_request(flight)
-      end
+      common_update(FlightSerializer, Flight, flight_params, :flight)
     end
 
     def destroy
-      flight = Flight.find(params[:id])
-
-      if flight.destroy
-        render json: {}, status: :no_content
-      else
-        render_bad_request(flight)
-      end
+      common_destroy(Flight)
     end
 
     private

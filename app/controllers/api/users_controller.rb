@@ -13,23 +13,11 @@ module Api
     end
 
     def update
-      user = User.find(params[:id])
-
-      if user.update(user_params)
-        render json: UserSerializer.render(user, view: :extended, root: :user), status: :ok
-      else
-        render_bad_request(user)
-      end
+      common_update(UserSerializer, User, user_params, :user)
     end
 
     def destroy
-      user = User.find(params[:id])
-
-      if user.destroy
-        render json: {}, status: :no_content
-      else
-        render_bad_request(user)
-      end
+      common_destroy(User)
     end
 
     private

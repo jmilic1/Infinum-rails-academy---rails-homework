@@ -13,23 +13,11 @@ module Api
     end
 
     def update
-      company = Company.find(params[:id])
-
-      if company.update(company_params)
-        render json: CompanySerializer.render(company, view: :extended, root: :company), status: :ok
-      else
-        render_bad_request(company)
-      end
+      common_update(CompanySerializer, Company, company_params, :company)
     end
 
     def destroy
-      company = Company.find(params[:id])
-
-      if company.destroy
-        render json: {}, status: :no_content
-      else
-        render_bad_request(company)
-      end
+      common_destroy(Company)
     end
 
     private

@@ -39,6 +39,26 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def common_update(entity_serializer, entity, record_params, root)
+    record = entity.find(params[:id])
+
+    if record.update(record_params)
+      render json: entity_serializer.render(record, view: :extended, root: root), status: :ok
+    else
+      render_bad_request(record)
+    end
+  end
+
+  def common_destroy(entity)
+    record = entity.find(params[:id])
+
+    if record.destroy
+      render json: {}, status: :no_content
+    else
+      render_bad_request(record)
+    end
+  end
+
   private
 
   def entity_not_found

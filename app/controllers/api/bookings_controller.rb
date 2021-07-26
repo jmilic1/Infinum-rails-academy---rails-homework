@@ -13,23 +13,11 @@ module Api
     end
 
     def update
-      booking = Booking.find(params[:id])
-
-      if booking.update(booking_params)
-        render json: BookingSerializer.render(booking, view: :extended, root: :booking), status: :ok
-      else
-        render_bad_request(booking)
-      end
+      common_update(BookingSerializer, Booking, booking_params, :booking)
     end
 
     def destroy
-      booking = Booking.find(params[:id])
-
-      if booking.destroy
-        render json: {}, status: :no_content
-      else
-        render_bad_request(booking)
-      end
+      common_destroy(Booking)
     end
 
     private
