@@ -2,9 +2,9 @@ RSpec.describe 'Flights API', type: :request do
   include TestHelpers::JsonResponse
 
   describe 'GET /flights' do
-    it 'successfully returns a list of flights' do
-      setup_index
+    before { create_list(:flight, 3) }
 
+    it 'successfully returns a list of flights' do
       get '/api/flights'
 
       expect(response).to have_http_status(:ok)
@@ -12,8 +12,6 @@ RSpec.describe 'Flights API', type: :request do
     end
 
     it 'returns a list of flights without root' do
-      setup_index
-
       get '/api/flights',
           headers: root_headers('0')
 
@@ -23,42 +21,76 @@ RSpec.describe 'Flights API', type: :request do
   end
 
   describe 'GET /flights/:id' do
-    it 'returns a single flights' do
-      flight = setup_show
+    let!(:flight) { create(:flight) }
 
-      get "/api/flights/#{flight.id}"
+    context 'when flight id exists' do
+      it 'returns a single flight' do
+        get "/api/flights/#{flight.id}"
 
-      verify_show
+        expect(response).to have_http_status(:ok)
+        expect(json_body['flight']).to include('name',
+                                               'no_of_seats',
+                                               'base_price',
+                                               'departs_at',
+                                               'arrives_at')
+      end
+
+      it 'returns a single flight serialized by json_api' do
+        get "/api/flights/#{flight.id}",
+            headers: jsonapi_headers
+
+        expect(response).to have_http_status(:ok)
+        expect(json_body['flight']).to include('name',
+                                               'no_of_seats',
+                                               'base_price',
+                                               'departs_at',
+                                               'arrives_at')
+      end
     end
 
-    it 'returns a single flight serialized by json_api' do
-      flight = setup_show
+    context 'when flight id does not exist' do
+      it 'returns errors' do
+        get '/api/flights/1'
 
-      get "/api/flights/#{flight.id}",
-          headers: jsonapi_headers
-
-      verify_show
+        expect(response).to have_http_status(:not_found)
+        expect(json_body).to include('errors')
+      end
     end
   end
 
   describe 'POST /flights' do
     context 'when params are valid' do
       let(:valid_params) do
-        company = create(:company)
         { name: 'Minas Tirith - Minas Morgul',
           no_of_seats: 20,
           base_price: 30,
           departs_at: 10.days.after,
           arrives_at: 11.days.after,
-          company_id: company.id }
+          company_id: create(:company).id }
+      end
+
+      it 'returns status code 201 (created)' do
+        post  '/api/flights',
+              params: { flight: valid_params }.to_json,
+              headers: api_headers
+
+        expect(response).to have_http_status(:created)
       end
 
       it 'creates a flight' do
-        post_new(valid_params)
+        post  '/api/flights',
+              params: { flight: valid_params }.to_json,
+              headers: api_headers
 
-        expect(response).to have_http_status(:created)
         expect(Flight.count).to eq(1)
-        flight = Flight.all.first
+      end
+
+      it 'assigns correct values to created flight' do
+        post  '/api/flights',
+              params: { flight: valid_params }.to_json,
+              headers: api_headers
+
+        flight = Flight.first
         expect(flight.name).to eq(valid_params[:name])
         expect(flight.no_of_seats).to eq(valid_params[:no_of_seats])
         expect(flight.base_price).to eq(valid_params[:base_price])
@@ -71,41 +103,70 @@ RSpec.describe 'Flights API', type: :request do
       end
 
       it 'returns 400 Bad Request' do
-        post_new(invalid_params)
+        post  '/api/flights',
+              params: { flight: invalid_params }.to_json,
+              headers: api_headers
 
         expect(response).to have_http_status(:bad_request)
+      end
+
+      it 'returns errors for all invalid attributes' do
+        post  '/api/flights',
+              params: { flight: invalid_params }.to_json,
+              headers: api_headers
+
         expect(json_body['errors']).to include('name',
                                                'no_of_seats',
                                                'base_price',
                                                'departs_at',
                                                'arrives_at',
                                                'company')
+      end
+
+      it 'does not create flight' do
+        post  '/api/flights',
+              params: { flight: invalid_params }.to_json,
+              headers: api_headers
+
         expect(Flight.count).to eq(0)
       end
     end
   end
 
   describe 'updating flights' do
-    let(:name) { 'Zagreb - Split' }
-    let(:old_no_of_seats) { 10 }
-    let(:new_no_of_seats) { 32 }
-    let(:update_params) { { no_of_seats: new_no_of_seats } }
-    let(:flight) { create(:flight, name: name, no_of_seats: old_no_of_seats) }
+    let(:update_params) { { no_of_seats: 32 } }
 
-    it 'sends PUT /flights/:id request' do
-      put "/api/flights/#{flight.id}",
-          params: { flight: update_params }.to_json,
-          headers: api_headers
-
-      verify_update(Flight.find(flight.id), name, new_no_of_seats)
-    end
-
-    it 'sends PATCH /flights/:id request' do
-      patch "/api/flights/#{flight.id}",
+    context 'when id does not exist' do
+      it 'returns errors' do
+        put '/api/flights/1',
             params: { flight: update_params }.to_json,
             headers: api_headers
 
-      verify_update(Flight.find(flight.id), name, new_no_of_seats)
+        expect(response).to have_http_status(:not_found)
+        expect(json_body).to include('errors')
+      end
+    end
+
+    context 'when id exists' do
+      let!(:flight) { create(:flight, name: 'Zagreb - Split', no_of_seats: 10) }
+
+      it 'updates specified values' do
+        put "/api/flights/#{flight.id}",
+            params: { flight: update_params }.to_json,
+            headers: api_headers
+
+        updated_flight = flight.reload
+        expect(updated_flight.name).to eq('Zagreb - Split')
+        expect(updated_flight.no_of_seats).to eq(32)
+      end
+
+      it 'returns status 200 (ok)' do
+        put "/api/flights/#{flight.id}",
+            params: { flight: update_params }.to_json,
+            headers: api_headers
+
+        expect(response).to have_http_status(:ok)
+      end
     end
   end
 
@@ -118,33 +179,5 @@ RSpec.describe 'Flights API', type: :request do
       expect(response).to have_http_status(:no_content)
       expect(Flight.all.length).to eq(0)
     end
-  end
-
-  def post_new(flight_params)
-    post  '/api/flights',
-          params: { flight: flight_params }.to_json,
-          headers: api_headers
-  end
-
-  def setup_show
-    create(:flight)
-  end
-
-  def verify_show
-    expect(json_body['flight']).to include('name',
-                                           'no_of_seats',
-                                           'base_price',
-                                           'departs_at',
-                                           'arrives_at')
-  end
-
-  def setup_index
-    create_list(:flight, 3)
-  end
-
-  def verify_update(flight, name, no_of_seats)
-    expect(response).to have_http_status(:ok)
-    expect(flight.name).to eq(name)
-    expect(flight.no_of_seats).to eq(no_of_seats)
   end
 end
