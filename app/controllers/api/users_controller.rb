@@ -1,23 +1,55 @@
 module Api
   class UsersController < ApplicationController
     def index
-      common_index(UserSerializer, User, :users)
+      if request.headers['X_API_SERIALIZER_ROOT'] == '0'
+        render json: UserSerializer.render(User.all, view: :extended),
+               status: :ok
+      else
+        render json: UserSerializer.render(User.all, view: :extended, root: :users),
+               status: :ok
+      end
     end
 
     def create
-      common_create(UserSerializer, User, user_params, :user)
+      user = User.new(user_params)
+
+      if user.save
+        render json: UserSerializer.render(user, view: :extended, root: :user),
+               status: :created
+      else
+        render_bad_request(user)
+      end
     end
 
     def show
-      common_show(JsonApi::UserSerializer, UserSerializer, User, :user)
+      user = User.find(params[:id])
+
+      if request.headers['X_API_SERIALIZER'] == 'json_api'
+        render json: { user: JsonApi::UserSerializer.new(user).serializable_hash.to_json },
+               status: :ok
+      else
+        render json: UserSerializer.render(user, view: :extended, root: :user), status: :ok
+      end
     end
 
     def update
-      common_update(UserSerializer, User, user_params, :user)
+      user = User.find(params[:id])
+
+      if user.update(user_params)
+        render json: UserSerializer.render(user, view: :extended, root: :user), status: :ok
+      else
+        render_bad_request(user)
+      end
     end
 
     def destroy
-      common_destroy(User)
+      user = User.find(params[:id])
+
+      if user.destroy
+        render json: {}, status: :no_content
+      else
+        render_bad_request(user)
+      end
     end
 
     private
