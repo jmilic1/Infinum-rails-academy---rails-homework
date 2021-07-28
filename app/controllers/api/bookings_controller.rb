@@ -38,7 +38,8 @@ module Api
       @booking = policy_scope(@booking)
 
       if request.headers['X_API_SERIALIZER'] == 'json_api'
-        render json: { booking: JsonApi::BookingSerializer.new(@booking).serializable_hash.to_json },
+        render json: { booking: JsonApi::BookingSerializer.new(@booking)
+                                                          .serializable_hash.to_json },
                status: :ok
       else
         render json: BookingSerializer.render(@booking, view: :extended, root: :booking),

@@ -140,7 +140,7 @@
 #     end
 #   end
 #
-#   # rubocop:disable RSpec/MultipleMemoizedHelpers
+#
 #   describe 'updating bookings' do
 #     let(:update_params) { { seat_price: 65 } }
 #

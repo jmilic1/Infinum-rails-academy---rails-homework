@@ -5,6 +5,7 @@ module Api
 
       user = User.find_by(email: credentials['email'])
       return render_error if user.nil?
+
       user = user.authenticate(credentials['password'])
       return render_error unless user
 
