@@ -46,15 +46,15 @@ module Api
     def update
       @user = User.find(params[:id])
       authorize @user
-      @user = policy_scope(User)
+      @user = policy_scope(@user)
 
-      user_values = user_params
-      if !user_values['password'].nil? && user_values['password'].length.zero?
+      password = role_params[:password]
+      if password.nil? && password.length.zero?
         return render json: { errors: { credentials: ['are invalid'] } },
                       status: :bad_request
       end
 
-      if @user.update(user_values)
+      if @user.update(role_params)
         render json: UserSerializer.render(@user, view: :extended, root: :user), status: :ok
       else
         render_bad_request(@user)
@@ -79,6 +79,18 @@ module Api
 
     def user_params
       params.require(:user).permit(:first_name, :last_name, :email, :password)
+    end
+
+    def admin_params
+      params.require(:user).permit(:first_name, :last_name, :email, :password, :role)
+    end
+
+    def role_params
+      if current_user.admin?
+        admin_params
+      else
+        user_params
+      end
     end
   end
 end
