@@ -32,7 +32,7 @@ class UserPolicy
 
     def resolve
       if user.admin?
-        scope.all
+        scope
       else
         user
         # scope.where(id: user.id)
