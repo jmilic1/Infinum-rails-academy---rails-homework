@@ -32,10 +32,7 @@ module Api
 
     def show
       @booking = Booking.find(params[:id])
-
       authorize @booking
-      # @bookings = policy_scope(Booking)
-      # @booking = policy_scope(@booking)
 
       if request.headers['X_API_SERIALIZER'] == 'json_api'
         render json: { booking: JsonApi::BookingSerializer.new(@booking)
@@ -49,10 +46,7 @@ module Api
 
     def update
       @booking = Booking.find(params[:id])
-
       authorize @booking
-      # @bookings = policy_scope(Booking)
-      @booking = policy_scope(@booking)
 
       if @booking.update(booking_params)
         render json: BookingSerializer.render(@booking, view: :extended, root: :booking),
@@ -64,10 +58,7 @@ module Api
 
     def destroy
       @booking = Booking.find(params[:id])
-
       authorize @booking
-      # @bookings = policy_scope(Booking)
-      @booking = policy_scope(@booking)
 
       if @booking.destroy
         head :no_content
