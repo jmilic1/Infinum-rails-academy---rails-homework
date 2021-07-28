@@ -7,30 +7,19 @@ class UserPolicy
   end
 
   def index?
-    raise Pundit::NotDefinedError if user.nil?
-
     user.admin?
   end
 
   def show?
-    raise Pundit::NotDefinedError if user.nil?
-    raise Pundit::NotAuthorizedError if !user.admin? && record.id != user.id
-
-    user.admin? || user.public?
+    user.admin? || record.id == user.id
   end
 
   def update?
-    raise Pundit::NotDefinedError if user.nil?
-    raise Pundit::NotAuthorizedError if !user.admin? && record.id != user.id
-
-    user.admin? || user.public?
+    user.admin? || record.id == user.id
   end
 
   def destroy?
-    raise Pundit::NotDefinedError if user.nil?
-    raise Pundit::NotAuthorizedError if !user.admin? && record.id != user.id
-
-    user.admin? || user.public?
+    user.admin? || record.id == user.id
   end
 
   class Scope
@@ -45,7 +34,8 @@ class UserPolicy
       if user.admin?
         scope.all
       else
-        scope.where(id: user.id)
+        user
+        # scope.where(id: user.id)
       end
     end
   end

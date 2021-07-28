@@ -7,30 +7,19 @@ class BookingPolicy
   end
 
   def index?
-    raise Pundit::NotDefinedError if user.nil?
-
     user.admin? || user.public?
   end
 
   def show?
-    raise Pundit::NotDefinedError if user.nil?
-    raise Pundit::NotAuthorizedError if !user.admin? && record.user_id != user.id
-
-    user.admin? || user.public?
+    user.admin? || record.user_id == user.id
   end
 
   def update?
-    raise Pundit::NotDefinedError if user.nil?
-    raise Pundit::NotAuthorizedError if !user.admin? && record.user_id != user.id
-
-    user.admin? || user.public?
+    user.admin? || record.user_id == user.id
   end
 
   def destroy?
-    raise Pundit::NotDefinedError if user.nil?
-    raise Pundit::NotAuthorizedError if !user.admin? && record.user_id != user.id
-
-    user.admin? || user.public?
+    user.admin? || record.user_id == user.id
   end
 
   class Scope
@@ -45,7 +34,7 @@ class BookingPolicy
       if user.admin?
         scope.all
       else
-        scope.where(user_id: user.id)
+        user.bookings
       end
     end
   end

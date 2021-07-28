@@ -5,9 +5,7 @@ module Api
 
       user = User.find_by(email: credentials['email'])
       return render_error if user.nil?
-
       user = user.authenticate(credentials['password'])
-
       return render_error unless user
 
       render json: { session: { user: UserSerializer.render_as_hash(user, view: :extended),
@@ -15,16 +13,16 @@ module Api
              status: :created
     end
 
-    def delete
+    def destroy
       token = request.headers['Authorization']
-      return render_error if token.nil?
+      # return render_error if token.nil?
 
-      user = User.find_by(token: token)
-      return render_error if user.nil?
+      user = User.find(token: token)
+      # return render_error if user.nil?
 
       user.regenerate_token
 
-      render json: {}, status: :no_content
+      head :no_content
     end
 
     private

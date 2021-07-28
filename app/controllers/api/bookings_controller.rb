@@ -1,22 +1,23 @@
 module Api
   class BookingsController < ApplicationController
+    before_action :authenticate_current_user, only: [:index, :create, :show, :update, :destroy]
+
     def index
       @bookings = Booking.all
       authorize @bookings
       @bookings = policy_scope(Booking)
 
       if request.headers['X_API_SERIALIZER_ROOT'] == '0'
-        render json: BookingSerializer.render(Booking.all, view: :extended),
+        render json: BookingSerializer.render(@bookings, view: :extended),
                status: :ok
       else
-        render json: BookingSerializer.render(Booking.all, view: :extended, root: :bookings),
+        render json: BookingSerializer.render(@bookings.all, view: :extended, root: :bookings),
                status: :ok
       end
     end
 
     def create
-      user = find_user_by_token
-      return render json: { errors: { token: ['is invalid'] } }, status: :unauthorized if user.nil?
+      user = current_user
 
       booking = Booking.new(booking_params)
       booking.user_id = user.id
@@ -30,13 +31,11 @@ module Api
     end
 
     def show
-      @booking = Booking.find_by(id: params[:id])
-      if @booking.nil?
-        return render json: { errors: 'Booking with such id does not exist' }, status: :not_found
-      end
+      @booking = Booking.find(params[:id])
 
       authorize @booking
-      @bookings = policy_scope(Booking)
+      # @bookings = policy_scope(Booking)
+      @booking = policy_scope(@booking)
 
       if request.headers['X_API_SERIALIZER'] == 'json_api'
         render json: { booking: JsonApi::BookingSerializer.new(@booking).serializable_hash.to_json },
@@ -48,13 +47,11 @@ module Api
     end
 
     def update
-      @booking = Booking.find_by(id: params[:id])
-      if @booking.nil?
-        return render json: { errors: { resource: ['is forbidden'] } }, status: :forbidden
-      end
+      @booking = Booking.find(params[:id])
 
       authorize @booking
-      @bookings = policy_scope(Booking)
+      # @bookings = policy_scope(Booking)
+      @booking = policy_scope(@booking)
 
       if @booking.update(booking_params)
         render json: BookingSerializer.render(@booking, view: :extended, root: :booking),
@@ -65,13 +62,11 @@ module Api
     end
 
     def destroy
-      @booking = Booking.find_by(id: params[:id])
-      if @booking.nil?
-        return render json: { errors: { resource: ['is forbidden'] } }, status: :forbidden
-      end
+      @booking = Booking.find(params[:id])
 
       authorize @booking
-      @bookings = policy_scope(Booking)
+      # @bookings = policy_scope(Booking)
+      @booking = policy_scope(@booking)
 
       if @booking.destroy
         head :no_content
@@ -86,8 +81,8 @@ module Api
       params.require(:booking).permit(:no_of_seats, :seat_price, :flight_id)
     end
 
-    def find_user_by_token
-      User.find_by(token: request.headers['Authorization'])
+    def admin_params
+      params.require(:booking).permit(:no_of_seats, :seat_price, :flight_id, :user_id)
     end
   end
 end

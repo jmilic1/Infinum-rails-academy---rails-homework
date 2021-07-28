@@ -25,6 +25,8 @@ class User < ApplicationRecord
   validates :first_name, presence: true,
                          length: { minimum: 2 }
 
+  validates :role, inclusion: ['admin', nil]
+
   def admin?
     role == 'admin'
   end

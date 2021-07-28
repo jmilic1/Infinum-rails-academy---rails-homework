@@ -7,20 +7,14 @@ class ReadablePolicy
   end
 
   def create?
-    raise Pundit::NotDefinedError if user.nil?
-
     user.admin?
   end
 
   def update?
-    raise Pundit::NotDefinedError if user.nil?
-
     user.admin?
   end
 
   def destroy?
-    raise Pundit::NotDefinedError if user.nil?
-
     user.admin?
   end
 end

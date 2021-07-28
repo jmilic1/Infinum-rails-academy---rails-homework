@@ -1,5 +1,7 @@
 module Api
   class CompaniesController < ApplicationController
+    before_action :authenticate_current_user, only: [:create, :update, :destroy]
+
     def index
       if request.headers['X_API_SERIALIZER_ROOT'] == '0'
         render json: CompanySerializer.render(Company.all, view: :extended),
@@ -50,7 +52,7 @@ module Api
       authorize @company
 
       if @company.destroy
-        render json: {}, status: :no_content
+        head :no_content
       else
         render_bad_request(@company)
       end

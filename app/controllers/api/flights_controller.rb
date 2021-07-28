@@ -1,5 +1,7 @@
 module Api
   class FlightsController < ApplicationController
+    before_action :authenticate_current_user, only: [:create, :update, :destroy]
+
     def index
       if request.headers['X_API_SERIALIZER_ROOT'] == '0'
         render json: FlightSerializer.render(Flight.all, view: :extended),
@@ -49,7 +51,7 @@ module Api
       authorize @flight
 
       if @flight.destroy
-        render json: {}, status: :no_content
+        head :no_content
       else
         render_bad_request(@flight)
       end

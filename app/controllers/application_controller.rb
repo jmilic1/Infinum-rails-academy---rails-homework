@@ -11,7 +11,11 @@ class ApplicationController < ActionController::Base
   end
 
   def current_user
-    User.find_by(token: request.headers['Authorization'])
+    @current_user ||= User.find_by(token: request.headers['Authorization'])
+  end
+
+  def authenticate_current_user
+    raise Pundit::NotDefinedError if current_user.nil?
   end
 
   private

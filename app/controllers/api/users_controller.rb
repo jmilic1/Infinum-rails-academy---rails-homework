@@ -13,9 +13,9 @@ module Api
     end
 
     def create
-      user_values = user_params
+      password = user_params['password']
 
-      if user_values['password'].nil? || user_values['password'].length.zero?
+      if password.nil? || password.length.zero?
         return render json: { errors: { credentials: ['are invalid'] } }, status: :bad_request
       end
 
@@ -45,7 +45,7 @@ module Api
     def update
       @user = User.find(params[:id])
       authorize @user
-      @users = policy_scope(User)
+      @user = policy_scope(User)
 
       user_values = user_params
       if !user_values['password'].nil? && user_values['password'].length.zero?
@@ -67,7 +67,7 @@ module Api
       @users = policy_scope(User)
 
       if @user.destroy
-        render json: {}, status: :no_content
+        head :no_content
       else
         render_bad_request(@user)
       end
