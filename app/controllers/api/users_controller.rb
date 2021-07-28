@@ -42,7 +42,7 @@ module Api
       end
     end
 
-    # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
+    # rubocop:disable Metrics/MethodLength
     def update
       @user = User.find(params[:id])
       authorize @user
@@ -60,7 +60,6 @@ module Api
         render_bad_request(@user)
       end
     end
-    # rubocop:enable Metrics/AbcSize
 
     def destroy
       @user = User.find(params[:id])
