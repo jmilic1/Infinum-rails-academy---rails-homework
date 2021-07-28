@@ -30,6 +30,7 @@ module Api
       end
     end
 
+    # rubocop:disable Metrics/MethodLength
     def show
       @booking = Booking.find(params[:id])
 
@@ -46,6 +47,7 @@ module Api
                status: :ok
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     def update
       @booking = Booking.find(params[:id])
