@@ -14,11 +14,11 @@ module Api
     end
 
     def create
-      password = user_params['password']
-
-      if password.nil? || password.length.zero?
-        return render json: { errors: { credentials: ['are invalid'] } }, status: :bad_request
-      end
+      # password = user_params['password']
+      #
+      # # if password.nil? || password.length.zero?
+      # #   return render json: { errors: [ email ] }, status: :bad_request
+      # # end
 
       user = User.new(user_params)
 
