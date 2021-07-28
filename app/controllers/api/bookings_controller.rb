@@ -30,13 +30,12 @@ module Api
       end
     end
 
-    # rubocop:disable Metrics/MethodLength
     def show
       @booking = Booking.find(params[:id])
 
       authorize @booking
       # @bookings = policy_scope(Booking)
-      @booking = policy_scope(@booking)
+      # @booking = policy_scope(@booking)
 
       if request.headers['X_API_SERIALIZER'] == 'json_api'
         render json: { booking: JsonApi::BookingSerializer.new(@booking)
@@ -47,7 +46,6 @@ module Api
                status: :ok
       end
     end
-    # rubocop:enable Metrics/MethodLength
 
     def update
       @booking = Booking.find(params[:id])
