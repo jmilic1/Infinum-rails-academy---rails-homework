@@ -71,7 +71,7 @@ module Api
     end
 
     def role_params
-      if current_user.admin?
+      if !current_user.nil? && current_user.admin?
         admin_params
       else
         user_params
