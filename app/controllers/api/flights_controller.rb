@@ -1,7 +1,13 @@
 module Api
   class FlightsController < ApplicationController
     def index
-      common_index(FlightSerializer, Flight, :flights)
+      if request.headers['X_API_SERIALIZER_ROOT'] == '0'
+        render json: FlightSerializer.render(Flight.all, view: :extended),
+               status: :ok
+      else
+        render json: FlightSerializer.render(Flight.all, view: :extended, root: :flights),
+               status: :ok
+      end
     end
 
     def create
@@ -12,51 +18,41 @@ module Api
         render json: FlightSerializer.render(@flight, view: :extended, root: :flight),
                status: :created
       else
-        render json: { errors: @flight.errors }, status: :bad_request
+        render_bad_request(@flight)
       end
-
-      #NEW
-      common_create(FlightSerializer, Flight, flight_params, :flight)
     end
 
     def show
-      common_show(JsonApi::FlightSerializer, FlightSerializer, Flight, :flight)
+      flight = Flight.find(params[:id])
+
+      if request.headers['X_API_SERIALIZER'] == 'json_api'
+        render json: { flight: JsonApi::FlightSerializer.new(flight).serializable_hash.to_json },
+               status: :ok
+      else
+        render json: FlightSerializer.render(flight, view: :extended, root: :flight), status: :ok
+      end
     end
 
     def update
-      @flight = Flight.find_by(id: params[:id])
-      if @flight.nil?
-        return render json: { errors: 'Flight with such id does not exist' }, status: :not_found
-      end
-
+      @flight = Flight.find(params[:id])
       authorize @flight
 
       if @flight.update(flight_params)
         render json: FlightSerializer.render(@flight, view: :extended, root: :flight), status: :ok
       else
-        render json: { errors: @flight.errors }, status: :bad_request
+        render_bad_request(flight)
       end
-
-      #NEW
-      common_update(FlightSerializer, Flight, flight_params, :flight)
     end
 
     def destroy
-      @flight = Flight.find_by(id: params[:id])
-      if @flight.nil?
-        return render json: { errors: 'Flight with such id does not exist' }, status: :not_found
-      end
-
+      @flight = Flight.find(params[:id])
       authorize @flight
 
       if @flight.destroy
         render json: {}, status: :no_content
       else
-        render json: { errors: @flight.errors }, status: :bad_request
+        render_bad_request(@flight)
       end
-
-      #NEW
-      common_destroy(Flight)
     end
 
     private

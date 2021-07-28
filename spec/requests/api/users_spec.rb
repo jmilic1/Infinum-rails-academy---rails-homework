@@ -1,52 +1,43 @@
-RSpec.describe 'users API', type: :request do
+RSpec.describe 'Users API', type: :request do
   include TestHelpers::JsonResponse
-  let(:admin_token) { 'admin-token' }
-  let(:public_token) { 'public-token' }
-
-  before do
-    create(:user, token: admin_token, role: 'admin')
-    create(:user, token: public_token, role: 'public')
-  end
 
   describe 'GET /users' do
-    it 'successfully returns a list of users' do
-      setup_index
+    before { create_list(:user, 3) }
 
-      get '/api/users',
-          headers: auth_headers(admin_token)
+    it 'successfully returns a list of users' do
+      get '/api/users'
 
       expect(response).to have_http_status(:ok)
-      expect(json_body['users'].length).to equal(5)
+      expect(json_body['users'].length).to equal(3)
     end
 
     it 'returns a list of users without root' do
-      setup_index
-
       get '/api/users',
-          headers: root_headers('0').merge(auth_headers(admin_token))
+          headers: root_headers('0')
 
       expect(response).to have_http_status(:ok)
-      expect(json_body.length).to equal(5)
+      expect(json_body.length).to equal(3)
     end
   end
 
   describe 'GET /users/:id' do
-    it 'returns a single user' do
-      user = setup_show
+    let!(:user) { create(:user) }
 
-      get "/api/users/#{user.id}",
-          headers: auth_headers(admin_token)
+    context 'when user id exists' do
+      it 'returns a single user' do
+        get "/api/users/#{user.id}"
 
-      verify_show
-    end
+        expect(response).to have_http_status(:ok)
+        expect(json_body['user']).to include('first_name', 'last_name', 'email')
+      end
 
-    it 'returns a single user serialized by json_api' do
-      user = setup_show
+      it 'returns a single user serialized by json_api' do
+        get "/api/users/#{user.id}",
+            headers: jsonapi_headers
 
-      get "/api/users/#{user.id}",
-          headers: jsonapi_headers.merge(auth_headers(admin_token))
-
-      verify_show
+        expect(response).to have_http_status(:ok)
+        expect(json_body['user']).to include('first_name', 'last_name', 'email')
+      end
     end
   end
 
@@ -54,15 +45,30 @@ RSpec.describe 'users API', type: :request do
     context 'when params are valid' do
       let(:valid_params) do
         { first_name: 'Aragorn',
-          email: 'aragorn.elessar@middle.earth',
-          password: 'IsildursHeir' }
+          email: 'aragorn.elessar@middle.earth' }
+      end
+
+      it 'returns status code 201 (created)' do
+        post  '/api/users',
+              params: { user: valid_params }.to_json,
+              headers: api_headers
+
+        expect(response).to have_http_status(:created)
       end
 
       it 'creates a user' do
-        post_new(valid_params, admin_token)
+        post  '/api/users',
+              params: { user: valid_params }.to_json,
+              headers: api_headers
 
-        expect(response).to have_http_status(:created)
         expect(User.count).to eq(1)
+      end
+
+      it 'assigns correct values to created user' do
+        post  '/api/users',
+              params: { user: valid_params }.to_json,
+              headers: api_headers
+
         user = User.all.first
         expect(user.first_name).to eq(valid_params[:first_name])
         expect(user.last_name).to eq(valid_params[:last_name])
@@ -75,83 +81,86 @@ RSpec.describe 'users API', type: :request do
       end
 
       it 'returns 400 Bad Request' do
-        post_new(invalid_params, admin_token)
+        post  '/api/users',
+              params: { user: invalid_params }.to_json,
+              headers: api_headers
 
         expect(response).to have_http_status(:bad_request)
+      end
+
+      it 'returns errors for all invalid attributes' do
+        post  '/api/users',
+              params: { user: invalid_params }.to_json,
+              headers: api_headers
+
         expect(json_body['errors']).to include('first_name', 'email')
-        expect(Booking.count).to eq(0)
+      end
+
+      it 'does not create user' do
+        post  '/api/users',
+              params: { user: invalid_params }.to_json,
+              headers: api_headers
+
+        expect(User.count).to eq(0)
       end
     end
   end
 
-  # rubocop:disable RSpec/MultipleMemoizedHelpers
   describe 'updating users' do
-    let(:old_name) { 'Aragorn' }
-    let(:email) { 'aragorn.elessar@middle.earth' }
-    let(:password) { 'password' }
-    let(:new_name) { 'Legolas' }
-    let(:update_params) { { first_name: new_name } }
-    let(:user) { create(:user, first_name: old_name, email: email) }
+    let(:update_params) { { first_name: 'Legolas' } }
 
-    it 'sends PUT /users/:id request' do
-      put "/api/users/#{user.id}",
-          params: { user: update_params }.to_json,
-          headers: auth_headers(admin_token)
-
-      verify_update(User.find(user.id), new_name, email)
-    end
-
-    it 'returns 400 Bad Request' do
-      put "/api/users/#{user.id}",
-          params: { user: { first_name: 'Ime', password: '' } }.to_json,
-          headers: auth_headers(admin_token)
-
-      expect(response).to have_http_status(:bad_request)
-    end
-
-    it 'sends PATCH /users/:id request' do
-      patch "/api/users/#{user.id}",
+    context 'when id does not exist' do
+      it 'returns errors' do
+        put '/api/users/1',
             params: { user: update_params }.to_json,
-            headers: auth_headers(admin_token)
+            headers: api_headers
 
-      verify_update(User.find(user.id), new_name, email)
+        expect(response).to have_http_status(:not_found)
+        expect(json_body).to include('errors')
+      end
+    end
+
+    context 'when id exists' do
+      let!(:user) { create(:user, first_name: 'Aragorn', email: 'aragorn.elessar@middle.earth') }
+
+      it 'updates specified values' do
+        put "/api/users/#{user.id}",
+            params: { user: update_params }.to_json,
+            headers: api_headers
+
+        user_updated = user.reload
+        expect(user_updated.first_name).to eq('Legolas')
+        expect(user_updated.email).to eq('aragorn.elessar@middle.earth')
+      end
+
+      it 'returns status 200 (ok)' do
+        put "/api/users/#{user.id}",
+            params: { user: update_params }.to_json,
+            headers: api_headers
+
+        expect(response).to have_http_status(:ok)
+      end
     end
   end
-  # rubocop:enable RSpec/MultipleMemoizedHelpers
 
   describe 'DELETE /users/:id' do
-    it 'deletes a user' do
-      user = create(:user)
+    context 'when id does not exist' do
+      it 'returns status not found' do
+        delete '/api/users/1'
 
-      delete "/api/users/#{user.id}",
-             headers: auth_headers(admin_token)
-
-      expect(response).to have_http_status(:no_content)
-      expect(User.all.length).to eq(0)
+        expect(response).to have_http_status(:not_found)
+      end
     end
-  end
 
-  def post_new(user_params, token)
-    post  '/api/users',
-          params: { user: user_params }.to_json,
-          headers: auth_headers(token)
-  end
+    context 'when id exists' do
+      it 'deletes a user' do
+        user = create(:user)
 
-  def verify_show
-    expect(json_body['user']).to include('first_name', 'last_name', 'email')
-  end
+        delete "/api/users/#{user.id}"
 
-  def setup_index
-    create_list(:user, 3)
-  end
-
-  def verify_update(user, new_name, email)
-    expect(response).to have_http_status(:ok)
-    expect(user.first_name).to eq(new_name)
-    expect(user.email).to eq(email)
-  end
-
-  def setup_show
-    create(:user)
+        expect(response).to have_http_status(:no_content)
+        expect(User.all.length).to eq(0)
+      end
+    end
   end
 end

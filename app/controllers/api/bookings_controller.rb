@@ -1,12 +1,17 @@
 module Api
   class BookingsController < ApplicationController
-    # rubocop:disable Metrics/MethodLength
     def index
       @bookings = Booking.all
       authorize @bookings
       @bookings = policy_scope(Booking)
 
-      common_index(BookingSerializer, @bookings, :bookings)
+      if request.headers['X_API_SERIALIZER_ROOT'] == '0'
+        render json: BookingSerializer.render(Booking.all, view: :extended),
+               status: :ok
+      else
+        render json: BookingSerializer.render(Booking.all, view: :extended, root: :bookings),
+               status: :ok
+      end
     end
 
     def create
@@ -20,15 +25,10 @@ module Api
         render json: BookingSerializer.render(booking, view: :extended, root: :booking),
                status: :created
       else
-        render json: { errors: booking.errors },
-               status: :bad_request
+        render_bad_request(booking)
       end
-
-      ##NEW
-      common_create(BookingSerializer, Booking, booking_params, :booking)
     end
 
-    # rubocop:disable Layout/LineLength
     def show
       @booking = Booking.find_by(id: params[:id])
       if @booking.nil?
@@ -45,11 +45,7 @@ module Api
         render json: BookingSerializer.render(@booking, view: :extended, root: :booking),
                status: :ok
       end
-
-      ##NEW
-      common_show(JsonApi::BookingSerializer, BookingSerializer, Booking, :booking)
     end
-    # rubocop:enable Layout/LineLength
 
     def update
       @booking = Booking.find_by(id: params[:id])
@@ -64,11 +60,8 @@ module Api
         render json: BookingSerializer.render(@booking, view: :extended, root: :booking),
                status: :ok
       else
-        render json: { errors: @booking.errors }, status: :bad_request
+        render_bad_request(@booking)
       end
-
-      ##NEW
-      common_update(BookingSerializer, Booking, booking_params, :booking)
     end
 
     def destroy
@@ -81,13 +74,10 @@ module Api
       @bookings = policy_scope(Booking)
 
       if @booking.destroy
-        render json: {}, status: :no_content
+        head :no_content
       else
-        render json: { errors: @booking.errors }, status: :bad_request
+        render_bad_request(@booking)
       end
-
-      ##NEW
-      common_destroy(Booking)
     end
 
     private
@@ -99,6 +89,5 @@ module Api
     def find_user_by_token
       User.find_by(token: request.headers['Authorization'])
     end
-    # rubocop:enable Metrics/MethodLength
   end
 end
