@@ -30,7 +30,7 @@ RSpec.describe 'Session API', type: :request do
               params: { session: { password: password } }.to_json,
               headers: api_headers
 
-        expect(response).to have_http_status(:unauthorized)
+        expect(response).to have_http_status(:bad_request)
         json = json_body
         expect(json['errors']).to include('token')
       end
@@ -41,7 +41,7 @@ RSpec.describe 'Session API', type: :request do
                                    password: password } }.to_json,
               headers: api_headers
 
-        expect(response).to have_http_status(:unauthorized)
+        expect(response).to have_http_status(:bad_request)
         expect(json_body['errors']).to include('token')
       end
 
@@ -51,7 +51,7 @@ RSpec.describe 'Session API', type: :request do
                                    password: 'wrong password whoops' } }.to_json,
               headers: api_headers
 
-        expect(response).to have_http_status(:unauthorized)
+        expect(response).to have_http_status(:bad_request)
         expect(json_body['errors']).to include('token')
       end
 
@@ -60,7 +60,7 @@ RSpec.describe 'Session API', type: :request do
               params: { session: { email: email } }.to_json,
               headers: api_headers
 
-        expect(response).to have_http_status(:unauthorized)
+        expect(response).to have_http_status(:bad_request)
         expect(json_body['errors']).to include('token')
       end
 
@@ -70,7 +70,7 @@ RSpec.describe 'Session API', type: :request do
                                    password: '' } }.to_json,
               headers: api_headers
 
-        expect(response).to have_http_status(:unauthorized)
+        expect(response).to have_http_status(:bad_request)
         expect(json_body['errors']).to include('token')
       end
     end
