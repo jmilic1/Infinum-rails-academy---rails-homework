@@ -148,13 +148,23 @@ RSpec.describe 'Companies API', type: :request do
   end
 
   describe 'DELETE /companies/:id' do
-    it 'deletes a company' do
-      company = create(:company)
+    context 'when id does not exist' do
+      it 'returns status not found' do
+        delete '/api/companies/1'
 
-      delete "/api/companies/#{company.id}"
+        expect(response).to have_http_status(:not_found)
+      end
+    end
 
-      expect(response).to have_http_status(:no_content)
-      expect(Company.all.length).to eq(0)
+    context 'when id exists' do
+      it 'deletes a company' do
+        company = create(:company)
+
+        delete "/api/companies/#{company.id}"
+
+        expect(response).to have_http_status(:no_content)
+        expect(Company.all.length).to eq(0)
+      end
     end
   end
 end

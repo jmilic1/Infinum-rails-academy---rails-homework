@@ -144,13 +144,23 @@ RSpec.describe 'Users API', type: :request do
   end
 
   describe 'DELETE /users/:id' do
-    it 'deletes a user' do
-      user = create(:user)
+    context 'when id does not exist' do
+      it 'returns status not found' do
+        delete '/api/users/1'
 
-      delete "/api/users/#{user.id}"
+        expect(response).to have_http_status(:not_found)
+      end
+    end
 
-      expect(response).to have_http_status(:no_content)
-      expect(User.all.length).to eq(0)
+    context 'when id exists' do
+      it 'deletes a user' do
+        user = create(:user)
+
+        delete "/api/users/#{user.id}"
+
+        expect(response).to have_http_status(:no_content)
+        expect(User.all.length).to eq(0)
+      end
     end
   end
 end

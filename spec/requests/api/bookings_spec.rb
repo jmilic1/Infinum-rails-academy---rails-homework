@@ -155,13 +155,23 @@ RSpec.describe 'Bookings API', type: :request do
   end
 
   describe 'DELETE /bookings/:id' do
-    it 'deletes a booking' do
-      booking = create(:booking)
+    context 'when id does not exist' do
+      it 'returns status not found' do
+        delete '/api/bookings/1'
 
-      delete "/api/bookings/#{booking.id}"
+        expect(response).to have_http_status(:not_found)
+      end
+    end
 
-      expect(response).to have_http_status(:no_content)
-      expect(Booking.all.length).to eq(0)
+    context 'when id exists' do
+      it 'deletes a booking' do
+        booking = create(:booking)
+
+        delete "/api/bookings/#{booking.id}"
+
+        expect(response).to have_http_status(:no_content)
+        expect(Booking.all.length).to eq(0)
+      end
     end
   end
 end
