@@ -4,7 +4,7 @@ module Api
     def index
       @users = User.all
       authorize @users
-      @users = policy_scope(User)
+      @users = policy_scope(@users)
 
       if request.headers['X_API_SERIALIZER_ROOT'] == '0'
         render json: UserSerializer.render(@users, view: :extended), status: :ok
@@ -32,7 +32,7 @@ module Api
     def show
       @user = User.find(params[:id])
       authorize @user
-      @users = policy_scope(User)
+      @user = policy_scope(@user)
 
       if request.headers['X_API_SERIALIZER'] == 'json_api'
         render json: { user: JsonApi::UserSerializer.new(@user).serializable_hash.to_json },
