@@ -48,7 +48,7 @@ module Api
       @booking = Booking.find(params[:id])
       authorize @booking
 
-      if @booking.update(booking_params)
+      if @booking.update(role_params)
         render json: BookingSerializer.render(@booking, view: :extended, root: :booking),
                status: :ok
       else
@@ -75,6 +75,14 @@ module Api
 
     def admin_params
       params.require(:booking).permit(:no_of_seats, :seat_price, :flight_id, :user_id)
+    end
+
+    def role_params
+      if current_user.admin?
+        admin_params
+      else
+        booking_params
+      end
     end
   end
 end

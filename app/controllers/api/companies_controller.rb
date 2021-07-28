@@ -20,7 +20,7 @@ module Api
         render json: CompanySerializer.render(@company, view: :extended, root: :company),
                status: :created
       else
-        render_bad_request(company)
+        render_bad_request(@company)
       end
     end
 

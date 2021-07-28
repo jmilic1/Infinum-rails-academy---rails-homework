@@ -33,7 +33,7 @@ module Api
     end
 
     def render_error
-      render json: { errors: { token: ['is invalid'] } }, status: :unauthorized
+      render json: { errors: { token: ['is invalid'] } }, status: :bad_request
     end
   end
 end
