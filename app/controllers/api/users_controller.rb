@@ -49,7 +49,7 @@ module Api
       @user = policy_scope(@user)
 
       password = role_params[:password]
-      if password.nil? && password.length.zero?
+      if password.nil? || password.length.zero?
         return render json: { errors: { credentials: ['are invalid'] } },
                       status: :bad_request
       end
