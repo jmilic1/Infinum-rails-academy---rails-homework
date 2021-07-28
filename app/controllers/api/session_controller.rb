@@ -18,7 +18,7 @@ module Api
       token = request.headers['Authorization']
       # return render_error if token.nil?
 
-      user = User.find(token: token)
+      user = User.find_by(token: token)
       return render_logout_error if user.nil?
 
       user.regenerate_token
