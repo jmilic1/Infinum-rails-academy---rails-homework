@@ -20,7 +20,7 @@ module Api
       user = current_user
 
       booking = Booking.new(booking_params)
-      booking.user_id = user.id
+      booking.user = user
 
       if booking.save
         render json: BookingSerializer.render(booking, view: :extended, root: :booking),
