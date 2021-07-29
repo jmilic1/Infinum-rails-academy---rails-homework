@@ -88,7 +88,7 @@ RSpec.describe 'Session API', type: :request do
 
         old_token = user.token
         new_token = user.reload.token
-        expect(old_token).to_not eq(new_token)
+        expect(old_token).not_to eq(new_token)
       end
     end
 

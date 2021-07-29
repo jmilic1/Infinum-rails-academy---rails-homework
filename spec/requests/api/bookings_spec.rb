@@ -226,7 +226,6 @@ RSpec.describe 'Bookings API', type: :request do
   #       # expect(response).to have_http_status(:ok)
   #     end
   #
-  #     # rubocop:enable RSpec/MultipleMemoizedHelpers
   #
   #     it 'does not update user id of bookings' do
   #       put "/api/bookings/#{booking.id}",
