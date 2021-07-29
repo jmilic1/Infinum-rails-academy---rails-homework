@@ -36,16 +36,10 @@ module Api
       end
     end
 
-    # rubocop:disable Metrics/MethodLength
     def update
       @user = User.find(params[:id])
       authorize @user
       @user = policy_scope(@user)
-
-      password = role_params['password']
-      if password.nil? || password.length.zero?
-        return render json: { errors: 'password cannot be blank' }, status: :bad_request
-      end
 
       if @user.update(role_params)
         render json: UserSerializer.render(@user, view: :extended, root: :user), status: :ok
@@ -53,7 +47,6 @@ module Api
         render_bad_request(@user)
       end
     end
-    # rubocop:enable Metrics/MethodLength
 
     def destroy
       @user = User.find(params[:id])
