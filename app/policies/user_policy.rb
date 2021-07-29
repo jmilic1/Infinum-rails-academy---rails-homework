@@ -11,15 +11,15 @@ class UserPolicy
   end
 
   def show?
-    user.admin? || record.id == user.id
+    admin_or_owner?
   end
 
   def update?
-    user.admin? || record.id == user.id
+    admin_or_owner?
   end
 
   def destroy?
-    user.admin? || record.id == user.id
+    admin_or_owner?
   end
 
   class Scope
@@ -35,8 +35,11 @@ class UserPolicy
         scope
       else
         user
-        # scope.where(id: user.id)
       end
     end
+  end
+
+  def admin_or_owner?
+    user.admin? || record.user_id == user.id
   end
 end

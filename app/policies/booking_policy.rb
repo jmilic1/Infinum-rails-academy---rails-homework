@@ -11,15 +11,15 @@ class BookingPolicy
   end
 
   def show?
-    user.admin? || record.user_id == user.id
+    admin_or_owner?
   end
 
   def update?
-    user.admin? || record.user_id == user.id
+    admin_or_owner?
   end
 
   def destroy?
-    user.admin? || record.user_id == user.id
+    admin_or_owner?
   end
 
   class Scope
@@ -37,5 +37,11 @@ class BookingPolicy
         user.bookings
       end
     end
+  end
+
+  private
+
+  def admin_or_owner?
+    user.admin? || record.user_id == user.id
   end
 end
