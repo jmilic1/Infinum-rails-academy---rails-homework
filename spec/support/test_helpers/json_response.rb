@@ -19,8 +19,8 @@ module TestHelpers
       api_headers.merge('X_API_SERIALIZER_ROOT': value)
     end
 
-    def auth_headers(token)
-      api_headers.merge('Authorization': token)
+    def auth_headers(user)
+      api_headers.merge('Authorization': user.token)
     end
   end
 end

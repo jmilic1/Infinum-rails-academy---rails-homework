@@ -41,6 +41,11 @@ module Api
       authorize @user
       @user = policy_scope(@user)
 
+      password = role_params['password']
+      if password.nil? || password.length.zero?
+        return render json: { errors: 'password cannot be blank' }, status: :bad_request
+      end
+
       if @user.update(role_params)
         render json: UserSerializer.render(@user, view: :extended, root: :user), status: :ok
       else
