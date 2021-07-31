@@ -3,9 +3,8 @@ module Api
     before_action :authenticate_current_user, only: [:index, :create, :show, :update, :destroy]
 
     def index
-      @bookings = Booking.all
-      authorize @bookings
-      @bookings = policy_scope(Booking)
+      authorize Booking
+      @bookings = policy_scope(Booking.all)
 
       if request.headers['X_API_SERIALIZER_ROOT'] == '0'
         render json: BookingSerializer.render(@bookings, view: :extended),
