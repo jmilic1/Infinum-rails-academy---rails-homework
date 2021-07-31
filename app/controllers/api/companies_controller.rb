@@ -4,10 +4,11 @@ module Api
 
     def index
       if request.headers['X_API_SERIALIZER_ROOT'] == '0'
-        render json: CompanySerializer.render(Company.all, view: :extended),
+        companies = Company.all.sort_by(&:name)
+        render json: CompanySerializer.render(companies, view: :extended),
                status: :ok
       else
-        render json: CompanySerializer.render(Company.all, view: :extended, root: :companies),
+        render json: CompanySerializer.render(companies, view: :extended, root: :companies),
                status: :ok
       end
     end
