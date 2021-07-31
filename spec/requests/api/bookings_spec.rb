@@ -272,6 +272,7 @@ RSpec.describe 'Bookings API', type: :request do
 
     context 'when admin updates booking' do
       let!(:booking) { create(:booking, no_of_seats: 25, seat_price: 30, user: admin) }
+
       it 'returns status 200 (ok)' do
         put "/api/bookings/#{booking.id}",
             params: { booking: update_params }.to_json,
