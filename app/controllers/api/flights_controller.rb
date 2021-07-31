@@ -3,11 +3,14 @@ module Api
     before_action :authenticate_current_user, only: [:create, :update, :destroy]
 
     def index
+      flights = active_flights(Flight.all)
+      flights = custom_filter(flights)
+      flights = sort_flights(flights)
       if request.headers['X_API_SERIALIZER_ROOT'] == '0'
-        render json: FlightSerializer.render(Flight.all, view: :extended),
+        render json: FlightSerializer.render(flights, view: :extended),
                status: :ok
       else
-        render json: FlightSerializer.render(Flight.all, view: :extended, root: :flights),
+        render json: FlightSerializer.render(flights, view: :extended, root: :flights),
                status: :ok
       end
     end
@@ -69,5 +72,33 @@ module Api
                                      :name,
                                      :company_id)
     end
+
+    def active_flights(flights)
+      flights.select do |flight|
+        flight.departs_at > DateTime.now
+      end
+    end
+
+    def sort_flights(flights)
+      flights.sort_by do |flight|
+        [flight.departs_at,
+         flight.name,
+         flight.created_at]
+      end
+    end
+
+    # rubocop:disable Metrics/AbcSize
+    def custom_filter(flights)
+      name_cont = request.params['name_cont']
+      departs_at_eq = request.params['departs_at_eq']
+      no_of_seats = request.params['no_of_available_seats_gteq']
+
+      flights = flights.select { |flight| flight.name.include? name_cont } if name_cont
+      flights = flights.select { |flight| flight.departs_at == departs_at_eq } if departs_at_eq
+      flights = flights.select { |flight| flight.no_of_seats >= no_of_seats } if no_of_seats
+
+      flights
+    end
+    # rubocop:enable Metrics/AbcSize
   end
 end
