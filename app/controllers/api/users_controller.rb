@@ -1,6 +1,7 @@
 module Api
   class UsersController < ApplicationController
     before_action :authenticate_current_user, only: [:index, :show, :update, :destroy]
+
     def index
       @users = User.all
       authorize @users
