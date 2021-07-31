@@ -14,7 +14,7 @@ module Api
     end
 
     def create
-      user = User.new(role_params)
+      user = User.new(user_params)
 
       if user.save
         render json: UserSerializer.render(user, view: :extended, root: :user), status: :created
@@ -41,7 +41,7 @@ module Api
       authorize @user
       @user = policy_scope(@user)
 
-      if @user.update(role_params)
+      if @user.update(user_params)
         render json: UserSerializer.render(@user, view: :extended, root: :user), status: :ok
       else
         render_bad_request(@user)
@@ -63,18 +63,10 @@ module Api
     private
 
     def user_params
-      params.require(:user).permit(:first_name, :last_name, :email, :password)
-    end
-
-    def admin_params
-      params.require(:user).permit(:first_name, :last_name, :email, :password, :role)
-    end
-
-    def role_params
       if !current_user.nil? && current_user.admin?
-        admin_params
+        params.require(:user).permit(:first_name, :last_name, :email, :password, :role)
       else
-        user_params
+        params.require(:user).permit(:first_name, :last_name, :email, :password)
       end
     end
   end
