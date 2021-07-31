@@ -25,13 +25,14 @@ module Api
     end
 
     def show
-      company = Company.find(params[:id])
+      @company = Company.find(params[:id])
+      authorize @company
 
       if request.headers['X_API_SERIALIZER'] == 'json_api'
-        render json: { company: JsonApi::CompanySerializer.new(company).serializable_hash.to_json },
+        render json: { company: JsonApi::CompanySerializer.new(@company).serializable_hash.to_json },
                status: :ok
       else
-        render json: CompanySerializer.render(company, view: :extended, root: :company), status: :ok
+        render json: CompanySerializer.render(@company, view: :extended, root: :company), status: :ok
       end
     end
 
