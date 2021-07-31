@@ -25,13 +25,14 @@ module Api
     end
 
     def show
-      flight = Flight.find(params[:id])
+      @flight = Flight.find(params[:id])
+      authorize @flight
 
       if request.headers['X_API_SERIALIZER'] == 'json_api'
-        render json: { flight: JsonApi::FlightSerializer.new(flight).serializable_hash.to_json },
+        render json: { flight: JsonApi::FlightSerializer.new(@flight).serializable_hash.to_json },
                status: :ok
       else
-        render json: FlightSerializer.render(flight, view: :extended, root: :flight), status: :ok
+        render json: FlightSerializer.render(@flight, view: :extended, root: :flight), status: :ok
       end
     end
 
