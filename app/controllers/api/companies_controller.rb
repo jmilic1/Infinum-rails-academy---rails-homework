@@ -3,12 +3,14 @@ module Api
     before_action :authenticate_current_user, only: [:create, :update, :destroy]
 
     def index
+      request.params['filter']
+      companies = Company.all.sort_by(&:name)
+      view = request.params['filter'] == 'active' ? :active : :extended
       if request.headers['X_API_SERIALIZER_ROOT'] == '0'
-        companies = Company.all.sort_by(&:name)
-        render json: CompanySerializer.render(companies, view: :extended),
+        render json: CompanySerializer.render(companies, view: view),
                status: :ok
       else
-        render json: CompanySerializer.render(companies, view: :extended, root: :companies),
+        render json: CompanySerializer.render(companies, view: view, root: :companies),
                status: :ok
       end
     end
@@ -65,6 +67,10 @@ module Api
     private
 
     def company_params
+      params.require(:company).permit(:name)
+    end
+
+    def index_params
       params.require(:company).permit(:name)
     end
   end

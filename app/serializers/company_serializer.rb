@@ -15,4 +15,11 @@ class CompanySerializer < Blueprinter::Base
   view :extended do
     association :flights, blueprint: FlightSerializer
   end
+
+  view :active do
+    field :no_of_active_flights do |company|
+      company.flights.length
+    end
+    association :flights, blueprint: FlightSerializer
+  end
 end
