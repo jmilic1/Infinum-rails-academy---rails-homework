@@ -159,7 +159,6 @@ RSpec.describe 'Bookings API', type: :request do
         expect do
           post '/api/bookings', params: { booking: valid_params_admin }.to_json,
                                 headers: auth_headers(admin)
-
         end.to(change { admin.bookings.count }.by(1))
       end
 
@@ -167,7 +166,6 @@ RSpec.describe 'Bookings API', type: :request do
         expect do
           post '/api/bookings', params: { booking: valid_params_public }.to_json,
                                 headers: auth_headers(admin)
-
         end.to(change { public.bookings.count }.by(1))
       end
 
@@ -195,7 +193,6 @@ RSpec.describe 'Bookings API', type: :request do
         expect do
           post '/api/bookings', params: { booking: valid_params_public }.to_json,
                                 headers: auth_headers(public)
-
         end.to(change { public.bookings.count }.by(1))
       end
 
@@ -203,7 +200,6 @@ RSpec.describe 'Bookings API', type: :request do
         expect do
           post '/api/bookings', params: { booking: valid_params_admin }.to_json,
                                 headers: auth_headers(public)
-
         end.to(change { public.bookings.count }.by(1))
       end
 
