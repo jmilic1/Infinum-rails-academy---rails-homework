@@ -11,7 +11,7 @@
 #  updated_at  :datetime         not null
 #
 RSpec.describe Booking do
-  subject { FactoryBot.create(:booking) }
+  subject { create(:booking) }
 
   it { is_expected.to validate_presence_of(:seat_price) }
   it { is_expected.to validate_numericality_of(:seat_price).is_greater_than(0) }
@@ -20,8 +20,8 @@ RSpec.describe Booking do
 
   describe '#departs_at_after_now' do
     it 'raises error if departs_at is before now' do
-      booking = FactoryBot.create(:booking)
-      flight = FactoryBot.create(:flight)
+      booking = create(:booking)
+      flight = create(:flight)
       flight.departs_at = 1.day.ago
       booking.flight = flight
 

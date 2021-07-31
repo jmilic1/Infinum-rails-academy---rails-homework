@@ -67,6 +67,7 @@ GEM
       rake (>= 10.4, < 14.0)
     ast (2.4.2)
     bindex (0.8.1)
+    blueprinter (0.25.3)
     builder (3.2.4)
     byebug (11.1.3)
     capybara (3.35.3)
@@ -109,6 +110,8 @@ GEM
     iniparse (1.5.0)
     jbuilder (2.11.2)
       activesupport (>= 5.0.0)
+    jsonapi-serializer (2.2.0)
+      activesupport (>= 4.2)
     listen (3.5.1)
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
@@ -290,11 +293,13 @@ PLATFORMS
 
 DEPENDENCIES
   annotate
+  blueprinter
   byebug
   capybara (>= 3.26)
   factory_bot_rails
   http
   jbuilder (~> 2.7)
+  jsonapi-serializer
   listen (~> 3.3)
   overcommit
   pg

@@ -15,7 +15,7 @@ RSpec.describe User do
   it { is_expected.to validate_presence_of(:email) }
 
   describe 'uniqueness' do
-    subject { FactoryBot.create(:user) }
+    subject { create(:user) }
 
     it { is_expected.to validate_uniqueness_of(:email).case_insensitive }
   end
