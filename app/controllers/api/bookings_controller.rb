@@ -17,10 +17,8 @@ module Api
     end
 
     def create
-      user = current_user
-
       booking = Booking.new(role_params)
-      booking.user = user if booking.user.nil?
+      booking.user = current_user if booking.user.nil?
 
       if booking.save
         render json: BookingSerializer.render(booking, view: :extended, root: :booking),
