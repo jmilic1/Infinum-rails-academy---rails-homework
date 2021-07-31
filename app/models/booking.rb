@@ -20,11 +20,17 @@ class Booking < ApplicationRecord
   validates :no_of_seats, presence: true,
                           numericality: { greater_than: 0 }
 
-  validate :departs_at_after_now
+  validate :departs_at_after_now, :overbook
 
   def departs_at_after_now
     return if flight.nil? || flight.departs_at > DateTime.current
 
     errors.add(:flight, 'departure time must be after current time')
+  end
+
+  def overbook
+    return if no_of_seats <= flight.no_of_seats
+
+    errors.add(:no_of_seats, 'this booking has overbooked the flight')
   end
 end

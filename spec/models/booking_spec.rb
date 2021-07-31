@@ -30,4 +30,16 @@ RSpec.describe Booking do
       expect(booking.errors[:flight]).to include('departure time must be after current time')
     end
   end
+
+  describe '#overbook' do
+    it 'raises error if no_of_seats is larger than flight seats' do
+      flight = create(:flight, no_of_seats: 9)
+      booking = create(:booking, no_of_seats: 10)
+      booking.flight = flight
+
+      booking.overbook
+
+      expect(booking.errors[:no_of_seats]).to include('this booking has overbooked the flight')
+    end
+  end
 end
