@@ -40,5 +40,18 @@ RSpec.describe Flight do
     end
   end
 
+  describe '#overbook' do
+    it 'raises error if flight seats is smaller than sum of booked seats' do
+      first = create(:booking, no_of_seats: 10)
+      second = create(:booking, no_of_seats: 10)
+      flight = create(:flight, no_of_seats: 19)
+      flight.bookings = [first, second]
+
+      flight.overbook
+
+      expect(flight.errors[:no_of_seats]).to include('flight is overbooked')
+    end
+  end
+
   it { is_expected.to have_many(:bookings) }
 end
