@@ -1,12 +1,10 @@
 module Api
   class SessionController < ApplicationController
     def create
-      credentials = session_params
-
-      user = User.find_by(email: credentials['email'])
+      user = User.find_by(email: session_params['email'])
       return render_login_error if user.nil?
 
-      user = user.authenticate(credentials['password'])
+      user = user.authenticate(session_params['password'])
       return render_login_error unless user
 
       render json: { session: { user: UserSerializer.render_as_hash(user, view: :extended),
