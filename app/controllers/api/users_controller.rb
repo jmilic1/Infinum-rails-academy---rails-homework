@@ -3,9 +3,8 @@ module Api
     before_action :authenticate_current_user, only: [:index, :show, :update, :destroy]
 
     def index
-      @users = User.all
-      authorize @users
-      @users = policy_scope(@users)
+      authorize User
+      @users = policy_scope(User.all)
 
       if request.headers['X_API_SERIALIZER_ROOT'] == '0'
         render json: UserSerializer.render(@users, view: :extended), status: :ok
