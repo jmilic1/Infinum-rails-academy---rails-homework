@@ -14,6 +14,9 @@ class BookingSerializer < Blueprinter::Base
   identifier :id
 
   fields :no_of_seats, :seat_price, :created_at, :updated_at
+  field :total_price do |booking|
+    booking.no_of_seats * booking.seat_price
+  end
 
   view :extended do
     association :flight, blueprint: FlightSerializer
