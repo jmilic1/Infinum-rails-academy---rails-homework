@@ -2,18 +2,22 @@ module Api
   class BookingsController < ApplicationController
     before_action :authenticate_current_user, only: [:index, :create, :show, :update, :destroy]
 
+    # rubocop:disable Metrics/AbcSize
     def index
       authorize Booking
       @bookings = policy_scope(Booking.all)
 
+      @bookings = active_bookings(@bookings) if request.params['filter'] == 'active'
+      @bookings = sort_bookings(@bookings)
+
       if request.headers['X_API_SERIALIZER_ROOT'] == '0'
-        render json: BookingSerializer.render(@bookings, view: :extended),
-               status: :ok
+        render json: BookingSerializer.render(@bookings, view: :extended), status: :ok
       else
         render json: BookingSerializer.render(@bookings.all, view: :extended, root: :bookings),
                status: :ok
       end
     end
+    # rubocop:enable Metrics/AbcSize
 
     def create
       booking = Booking.new(booking_params)
@@ -71,6 +75,20 @@ module Api
         params.require(:booking).permit(:no_of_seats, :seat_price, :flight_id, :user_id)
       else
         params.require(:booking).permit(:no_of_seats, :seat_price, :flight_id)
+      end
+    end
+
+    def active_bookings(bookings)
+      bookings.select do |booking|
+        booking.flight.departs_at > DateTime.now
+      end
+    end
+
+    def sort_bookings(bookings)
+      bookings.sort_by do |booking|
+        [booking.flight.departs_at,
+         booking.flight.name,
+         booking.created_at]
       end
     end
   end
