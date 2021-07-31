@@ -11,15 +11,11 @@ class CompanySerializer < Blueprinter::Base
   identifier :id
 
   fields :name, :created_at, :updated_at
-
-  view :extended do
-    association :flights, blueprint: FlightSerializer
+  field :no_of_active_flights do |company|
+    company.flights.select{ |flight| flight.departs_at > DateTime.now }.length
   end
 
-  view :active do
-    field :no_of_active_flights do |company|
-      company.flights.length
-    end
+  view :extended do
     association :flights, blueprint: FlightSerializer
   end
 end
