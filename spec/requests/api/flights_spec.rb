@@ -1,6 +1,6 @@
 RSpec.describe 'Flights API', type: :request do
   include TestHelpers::JsonResponse
-  let(:admin) { create(:user, token: 'admin-token', role: 'admin') }
+  let!(:admin) { create(:user, token: 'admin-token', role: 'admin') }
   let!(:public) { create(:user, token: 'public-token') }
 
   describe 'GET /flights' do

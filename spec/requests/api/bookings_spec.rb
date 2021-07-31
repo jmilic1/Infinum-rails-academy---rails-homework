@@ -1,6 +1,6 @@
 RSpec.describe 'Bookings API', type: :request do
   include TestHelpers::JsonResponse
-  let(:admin) { create(:user, token: 'admin-token', role: 'admin') }
+  let!(:admin) { create(:user, token: 'admin-token', role: 'admin') }
   let!(:public) { create(:user, token: 'public-token') }
 
   describe 'GET /bookings' do
@@ -247,11 +247,21 @@ RSpec.describe 'Bookings API', type: :request do
 
   describe 'PUT /bookings' do
     let(:update_params) { { seat_price: 65, user_id: public.id } }
-    let!(:booking) { create(:booking, no_of_seats: 25, seat_price: 30, user: admin) }
+
+    context 'when user is not authenticated' do
+      it 'returns 401 unauthorized' do
+        put '/api/bookings/-1',
+            params: { booking: update_params }.to_json,
+            headers: api_headers
+
+        expect(response).to have_http_status(:unauthorized)
+        expect(json_body['errors']).to include('token')
+      end
+    end
 
     context 'when id does not exist' do
       it 'returns errors' do
-        put '/api/bookings/1',
+        put '/api/bookings/-1',
             params: { booking: update_params }.to_json,
             headers: auth_headers(admin)
 
@@ -261,6 +271,7 @@ RSpec.describe 'Bookings API', type: :request do
     end
 
     context 'when admin updates booking' do
+      let!(:booking) { create(:booking, no_of_seats: 25, seat_price: 30, user: admin) }
       it 'returns status 200 (ok)' do
         put "/api/bookings/#{booking.id}",
             params: { booking: update_params }.to_json,
@@ -290,6 +301,7 @@ RSpec.describe 'Bookings API', type: :request do
     end
 
     context 'when public user updates booking' do
+      let!(:booking) { create(:booking, no_of_seats: 25, seat_price: 30, user: admin) }
       let!(:booking_public) { create(:booking, no_of_seats: 25, seat_price: 30, user: public) }
 
       it 'returns status 200 (ok)' do

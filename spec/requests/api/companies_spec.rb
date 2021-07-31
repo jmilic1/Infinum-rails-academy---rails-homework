@@ -1,6 +1,6 @@
 RSpec.describe 'Companies API', type: :request do
   include TestHelpers::JsonResponse
-  let(:admin) { create(:user, token: 'admin-token', role: 'admin') }
+  let!(:admin) { create(:user, token: 'admin-token', role: 'admin') }
   let!(:public) { create(:user, token: 'public-token') }
 
   describe 'GET /companies' do
@@ -23,9 +23,9 @@ RSpec.describe 'Companies API', type: :request do
   end
 
   describe 'GET /companies/:id' do
-    let!(:company) { create(:company) }
-
     context 'when company id exists' do
+      let!(:company) { create(:company) }
+
       it 'returns a single company' do
         get "/api/companies/#{company.id}"
 
