@@ -18,9 +18,8 @@ RSpec.describe 'Session API', type: :request do
               headers: api_headers
 
         expect(response).to have_http_status(:created)
-        json = json_body
-        expect(json['session']).to include('user')
-        expect(json['session']).to include('token')
+        expect(json_body['session']).to include('user')
+        expect(json_body['session']).to include('token')
       end
     end
 
@@ -31,8 +30,7 @@ RSpec.describe 'Session API', type: :request do
               headers: api_headers
 
         expect(response).to have_http_status(:bad_request)
-        json = json_body
-        expect(json['errors']).to include('credentials')
+        expect(json_body['errors']).to include('credentials')
       end
 
       it 'returns 400 Bad Request if wrong email is given' do
