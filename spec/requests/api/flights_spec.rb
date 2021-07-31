@@ -87,7 +87,7 @@ RSpec.describe 'Flights API', type: :request do
         expect(Flight.count).to eq(1)
       end
 
-      it 'assigns correct values to created company if admin sends POST request' do
+      it 'assigns correct values to created flight if admin sends POST request' do
         post  '/api/flights',
               params: { flight: valid_params }.to_json,
               headers: auth_headers(admin)
@@ -189,7 +189,7 @@ RSpec.describe 'Flights API', type: :request do
 
       it 'returns status code 403 forbidden if public user sends PUT request' do
         put "/api/flights/#{flight.id}",
-            params: { company: update_params }.to_json,
+            params: { flight: update_params }.to_json,
             headers: auth_headers(public)
 
         expect(response).to have_http_status(:forbidden)
@@ -198,7 +198,7 @@ RSpec.describe 'Flights API', type: :request do
 
       it 'does not update the flight if public user sends PUT request' do
         put "/api/flights/#{flight.id}",
-            params: { company: update_params }.to_json,
+            params: { flight: update_params }.to_json,
             headers: auth_headers(public)
 
         expect(flight.reload.no_of_seats).to eq(flight.no_of_seats)
