@@ -3,8 +3,9 @@ module Api
     before_action :authenticate_current_user, only: [:index, :create, :show, :update, :destroy]
 
     def index
-      authorize Booking
+      # authorize Booking.includes(:flight, :user)
       @bookings = policy_scope(Booking.includes(:flight, :user))
+      authorize @bookings
 
       @bookings = active_bookings(@bookings) if request.params['filter'] == 'active'
       @bookings = sort_bookings(@bookings)
