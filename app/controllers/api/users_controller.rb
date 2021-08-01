@@ -71,6 +71,7 @@ module Api
       end
     end
 
+    # rubocop:disable Metrics/AbcSize
     def filter(users)
       return users if request.params['query'].nil?
 
@@ -80,5 +81,6 @@ module Api
           user.email[request.params['query']]
       end
     end
+    # rubocop:enable Metrics/AbcSize
   end
 end

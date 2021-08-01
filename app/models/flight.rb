@@ -49,16 +49,22 @@ class Flight < ApplicationRecord
   end
 
   def overlap?
-    return false if company.nil? || company.flights.nil?
+    return false if company.nil?
 
     company.flights.each do |flight|
       next if flight.id == id
-      if ((departs_at >= flight.departs_at) && (departs_at <= flight.arrives_at)) ||
-         ((arrives_at >= flight.departs_at) && (arrives_at <= flight.arrives_at))
+      if within_flight_range(departs_at, flight) ||
+         within_flight_range(arrives_at, flight)
         return true
       end
     end
 
     false
+  end
+
+  private
+
+  def within_flight_range(moment, flight)
+    (moment >= flight.departs_at) && (moment <= flight.arrives_at)
   end
 end
