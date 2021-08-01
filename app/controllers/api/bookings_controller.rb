@@ -4,7 +4,7 @@ module Api
 
     def index
       authorize Booking
-      @bookings = policy_scope(Booking.all)
+      @bookings = policy_scope(Booking.includes(:flight, :user))
 
       @bookings = active_bookings(@bookings) if request.params['filter'] == 'active'
       @bookings = sort_bookings(@bookings)
