@@ -28,7 +28,7 @@ class Flight < ApplicationRecord
   validates :departs_at, presence: true
   validates :arrives_at, presence: true
 
-  validate :departs_at_before_arrives_at
+  validate :departs_at_before_arrives_at, :overlap?
 
   def departs_at_before_arrives_at
     return if departs_at.nil? || arrives_at.nil? || departs_at < arrives_at
@@ -40,5 +40,23 @@ class Flight < ApplicationRecord
     return if bookings.inject(0) { |sum, booking| sum + booking.no_of_seats } <= no_of_seats
 
     errors.add(:no_of_seats, 'flight is overbooked')
+  end
+
+  def valid_time?
+    return unless overlap?
+
+    errors.add(:departs_at, 'overlaps with different flight')
+  end
+
+  def overlap?
+    company.flights.each do |flight|
+      next if flight.id == id
+      if ((departs_at >= flight.departs_at) && (departs_at <= flight.arrives_at)) ||
+         ((arrives_at >= flight.departs_at) && (arrives_at <= flight.arrives_at))
+        return true
+      end
+    end
+
+    false
   end
 end
