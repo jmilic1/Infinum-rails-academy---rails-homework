@@ -4,7 +4,9 @@ module Api
 
     def index
       authorize User
-      @users = policy_scope(User.all)
+      @users = filter(policy_scope(User.all))
+
+      @users = @users.sort_by(&:email)
 
       if request.headers['X_API_SERIALIZER_ROOT'] == '0'
         render json: UserSerializer.render(@users, view: :extended), status: :ok
@@ -25,8 +27,9 @@ module Api
 
     def show
       @user = User.find(params[:id])
-      authorize @user
+
       @user = policy_scope(@user)
+      authorize @user
 
       if request.headers['X_API_SERIALIZER'] == 'json_api'
         render json: { user: JsonApi::UserSerializer.new(@user).serializable_hash.to_json },
@@ -37,9 +40,8 @@ module Api
     end
 
     def update
-      @user = User.find(params[:id])
-      authorize @user
-      @user = policy_scope(@user)
+      authorize User
+      @user = policy_scope(User.find(params[:id]))
 
       if @user.update(user_params)
         render json: UserSerializer.render(@user, view: :extended, root: :user), status: :ok
@@ -49,9 +51,8 @@ module Api
     end
 
     def destroy
-      @user = User.find(params[:id])
-      authorize @user
-      @users = policy_scope(User)
+      authorize User
+      @users = policy_scope(User.find(params[:id]))
 
       if @user.destroy
         head :no_content
@@ -67,6 +68,16 @@ module Api
         params.require(:user).permit(:first_name, :last_name, :email, :password, :role)
       else
         params.require(:user).permit(:first_name, :last_name, :email, :password)
+      end
+    end
+
+    def filter(users)
+      return users if request.params['query'].nil?
+
+      users.select do |user|
+        user.first_name[request.params['query']] ||
+          user.last_name[request.params['query']] ||
+          user.email[request.params['query']]
       end
     end
   end
