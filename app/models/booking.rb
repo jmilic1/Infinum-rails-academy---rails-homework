@@ -29,7 +29,7 @@ class Booking < ApplicationRecord
   end
 
   def overbook
-    return if no_of_seats.nil? || flight.nil? || no_of_seats <= flight.no_of_seats
+    return if no_of_seats.nil? || flight.nil? || no_of_seats < flight.no_of_seats
 
     errors.add(:no_of_seats, 'this booking has overbooked the flight')
   end
