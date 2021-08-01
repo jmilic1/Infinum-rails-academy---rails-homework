@@ -2,6 +2,7 @@ module Api
   class BookingsController < ApplicationController
     before_action :authenticate_current_user, only: [:index, :create, :show, :update, :destroy]
 
+    # rubocop:disable Metrics
     def index
       # authorize Booking.includes(:flight, :user)
       @bookings = policy_scope(Booking.includes(:flight, :user, flight: [:company])
@@ -12,12 +13,19 @@ module Api
       # @bookings = sort_bookings(@bookings)
 
       if request.headers['X_API_SERIALIZER_ROOT'] == '0'
-        render json: BookingSerializer.render(@bookings, view: :extended), status: :ok
+        render json: BookingSerializer.render(@bookings.includes(:flight,
+                                                                 :user,
+                                                                 flight: [:company]),
+                                              view: :extended), status: :ok
       else
-        render json: BookingSerializer.render(@bookings, view: :extended, root: :bookings),
+        render json: BookingSerializer.render(@bookings.includes(:flight,
+                                                                 :user,
+                                                                 flight: [:company]),
+                                              view: :extended, root: :bookings),
                status: :ok
       end
     end
+    # rubocop:enable Metrics
 
     def create
       booking = Booking.new(booking_params)
