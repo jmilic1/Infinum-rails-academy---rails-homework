@@ -84,7 +84,7 @@ module Api
     end
 
     def sort_bookings(bookings)
-      bookings.sort_by do |booking|
+      bookings.includes([:flight, :user]).sort_by do |booking|
         [booking.flight.departs_at,
          booking.flight.name,
          booking.created_at]
