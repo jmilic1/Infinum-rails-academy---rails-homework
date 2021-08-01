@@ -49,6 +49,8 @@ class Flight < ApplicationRecord
   end
 
   def overlap?
+    return false if company.nil? || company.flights.nil?
+
     company.flights.each do |flight|
       next if flight.id == id
       if ((departs_at >= flight.departs_at) && (departs_at <= flight.arrives_at)) ||
