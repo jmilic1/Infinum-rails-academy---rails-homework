@@ -4,11 +4,12 @@ module Api
 
     def index
       # authorize Booking.includes(:flight, :user)
-      @bookings = policy_scope(Booking.includes(:flight, :user, flight: [:company]))
+      @bookings = policy_scope(Booking.includes(:flight, :user, flight: [:company])
+                                      .order('flight.departs_at', 'flight.name', 'created_at'))
       authorize @bookings
 
       @bookings = active_bookings(@bookings) if request.params['filter'] == 'active'
-      @bookings = sort_bookings(@bookings)
+      # @bookings = sort_bookings(@bookings)
 
       if request.headers['X_API_SERIALIZER_ROOT'] == '0'
         render json: BookingSerializer.render(@bookings, view: :extended), status: :ok
@@ -83,12 +84,12 @@ module Api
       end
     end
 
-    def sort_bookings(bookings)
-      bookings.includes(:flight).sort_by do |booking|
-        [booking.flight.departs_at,
-         booking.flight.name,
-         booking.created_at]
-      end
-    end
+    # def sort_bookings(bookings)
+    #   bookings.includes(:flight).sort_by do |booking|
+    #     [booking.flight.departs_at,
+    #      booking.flight.name,
+    #      booking.created_at]
+    #   end
+    # end
   end
 end
