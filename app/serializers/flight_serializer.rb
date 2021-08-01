@@ -22,7 +22,7 @@ class FlightSerializer < Blueprinter::Base
   end
 
   field :company_name do |flight|
-    flight..company.name
+    flight.company.name
   end
 
   field :current_price do |flight|
