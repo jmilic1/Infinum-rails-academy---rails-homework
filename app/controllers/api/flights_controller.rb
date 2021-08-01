@@ -93,7 +93,7 @@ module Api
       departs_at_eq = request.params['departs_at_eq']
       no_of_seats = request.params['no_of_available_seats_gteq']
 
-      flights = flights.select { |flight| flight.name.include? name_cont } if name_cont
+      flights = flights.select { |flight| flight.name[name_cont] } if name_cont
       flights = flights.select { |flight| flight.departs_at == departs_at_eq } if departs_at_eq
       flights = flights.select { |flight| flight.no_of_seats >= no_of_seats } if no_of_seats
 
