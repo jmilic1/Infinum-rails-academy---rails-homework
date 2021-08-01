@@ -17,23 +17,23 @@ class FlightSerializer < Blueprinter::Base
 
   fields :name, :no_of_seats, :base_price, :departs_at, :arrives_at, :created_at, :updated_at
 
-  field :no_of_booked_seats do |flight|
-    flight.bookings.inject(0) { |sum, booking| sum + booking.no_of_seats }
-  end
-
-  field :company_name do |flight|
-    flight.company.name
-  end
-
-  field :current_price do |flight|
-    if DateTime.now <= flight.departs_at - 15.days
-      flight.base_price
-    else
-      (15 - (flight.departs_at - DateTime.now)).to_i * flight.base_price + flight.base_price
-    end
-  end
-
   view :extended do
+    field :no_of_booked_seats do |flight|
+      flight.bookings.inject(0) { |sum, booking| sum + booking.no_of_seats }
+    end
+
+    field :company_name do |flight|
+      flight.company.name
+    end
+
+    field :current_price do |flight|
+      if DateTime.now <= flight.departs_at - 15.days
+        flight.base_price
+      else
+        (15 - (flight.departs_at - DateTime.now)).to_i * flight.base_price + flight.base_price
+      end
+    end
+
     association :bookings, blueprint: BookingSerializer
     association :company, blueprint: CompanySerializer
   end
