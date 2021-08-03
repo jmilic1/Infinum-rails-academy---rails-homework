@@ -52,7 +52,7 @@ module Api
 
     def destroy
       authorize User
-      @users = policy_scope(User.find(params[:id]))
+      @user = policy_scope(User.find(params[:id]))
 
       if @user.destroy
         head :no_content
