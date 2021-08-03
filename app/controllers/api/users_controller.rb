@@ -28,8 +28,8 @@ module Api
     def show
       @user = User.find(params[:id])
 
-      @user = policy_scope(@user)
       authorize @user
+      @user = policy_scope(@user)
 
       if request.headers['X_API_SERIALIZER'] == 'json_api'
         render json: { user: JsonApi::UserSerializer.new(@user).serializable_hash.to_json },
@@ -42,8 +42,8 @@ module Api
     def update
       @user = User.find(params[:id])
 
-      @user = policy_scope(@user)
       authorize @user
+      @user = policy_scope(@user)
 
       if @user.update(user_params)
         render json: UserSerializer.render(@user, view: :extended, root: :user), status: :ok
@@ -55,8 +55,8 @@ module Api
     def destroy
       @user = User.find(params[:id])
 
-      @user = policy_scope(@user)
       authorize @user
+      @user = policy_scope(@user)
 
       if @user.destroy
         head :no_content
