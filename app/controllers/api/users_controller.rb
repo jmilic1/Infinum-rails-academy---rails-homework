@@ -40,8 +40,10 @@ module Api
     end
 
     def update
-      authorize User
-      @user = policy_scope(User.find(params[:id]))
+      @user = User.find(params[:id])
+
+      @user = policy_scope(@user)
+      authorize @user
 
       if @user.update(user_params)
         render json: UserSerializer.render(@user, view: :extended, root: :user), status: :ok
@@ -51,8 +53,10 @@ module Api
     end
 
     def destroy
-      authorize User
-      @user = policy_scope(User.find(params[:id]))
+      @user = User.find(params[:id])
+
+      @user = policy_scope(@user)
+      authorize @user
 
       if @user.destroy
         head :no_content
