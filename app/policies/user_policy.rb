@@ -41,5 +41,6 @@ class UserPolicy
 
   def admin_or_owner?
     # user.admin? || record.id == user.id
+    true
   end
 end
