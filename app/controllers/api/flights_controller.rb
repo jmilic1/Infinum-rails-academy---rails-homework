@@ -95,7 +95,7 @@ module Api
 
       flights = flights.select { |flight| flight.name[name_cont] } if name_cont
       flights = flights.select { |flight| flight.departs_at == departs_at_eq } if departs_at_eq
-      flights = flights.select { |flight| flight.no_of_seats >= no_of_seats } if no_of_seats
+      flights = flights.select { |flight| flight.no_of_seats >= no_of_seats.to_i } if no_of_seats
 
       flights
     end
