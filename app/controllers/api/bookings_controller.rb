@@ -13,14 +13,9 @@ module Api
       @bookings = sort_bookings(@bookings)
 
       if request.headers['X_API_SERIALIZER_ROOT'] == '0'
-        render json: BookingSerializer.render(@bookings.includes(:flight,
-                                                                 :user,
-                                                                 flight: [:company]),
-                                              view: :extended), status: :ok
+        render json: BookingSerializer.render(@bookings), status: :ok
       else
-        render json: BookingSerializer.render(@bookings.includes(:flight,
-                                                                 :user,
-                                                                 flight: [:company]),
+        render json: BookingSerializer.render(@bookings,
                                               view: :extended, root: :bookings),
                status: :ok
       end
