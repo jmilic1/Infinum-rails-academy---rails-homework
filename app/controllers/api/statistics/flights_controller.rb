@@ -1,11 +1,13 @@
 module Api
   module Statistics
     class FlightsController < ApplicationController
+      before_action :authenticate_current_user, only: [:index]
+
       def index
         authorize Flight
         @flights = filter(policy_scope(Flight.all))
 
-        render json: Statistics.FlightSerializer.render(@flights, view: :extended, root: :users),
+        render json: Statistics.FlightSerializer.render(@flights, root: :flights),
                status: :ok
       end
     end
