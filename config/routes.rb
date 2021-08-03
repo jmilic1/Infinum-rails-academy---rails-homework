@@ -4,6 +4,10 @@ Rails.application.routes.draw do
     resources :session, only: [:create]
 
     delete '/session', to: 'session#destroy'
+
+    namespace :statistics do
+      resources :flights, only: [:index]
+    end
   end
 end
 
