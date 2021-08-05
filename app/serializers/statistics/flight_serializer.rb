@@ -1,6 +1,6 @@
 module Statistics
   class FlightSerializer < Blueprinter::Base
-    field :flight_id, &:id
+    identifier :id, name: :flight_id
 
     field :revenue do |flight|
       if flight.bookings.nil?
