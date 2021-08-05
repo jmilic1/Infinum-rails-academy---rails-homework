@@ -6,7 +6,7 @@ module Api
       def index
         @companies = authorize [:statistics, Company.all]
 
-        render json: CompanySerializer.render(@companies[1], root: :companies),
+        render json: ::Statistics::CompanySerializer.render(@companies[1], root: :companies),
                status: :ok
       end
     end

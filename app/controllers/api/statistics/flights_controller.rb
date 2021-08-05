@@ -6,7 +6,7 @@ module Api
       def index
         @flights = authorize [:statistics, Flight.all]
 
-        render json: FlightSerializer.render(@flights[1], root: :flights),
+        render json: ::Statistics::FlightSerializer.render(@flights[1], root: :flights),
                status: :ok
       end
     end
