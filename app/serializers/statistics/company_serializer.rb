@@ -12,7 +12,7 @@ module Statistics
 
     field :average_price_of_seat do |company|
       seats = total_no_of_booked_seats(company)
-      revenue = total_revenue(company)
+      revenue = total_revenue(company).to_f
       if seats.zero?
         revenue
       else
