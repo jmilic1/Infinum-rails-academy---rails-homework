@@ -11,21 +11,18 @@ module Statistics
     end
 
     field :no_of_booked_seats do |flight|
-      if flight.bookings.nil?
-        0
-      else
-        flight.bookings.inject(0) { |sum, booking| sum + booking.no_of_seats }
-      end
+      booked_seats(flight)
     end
 
     field :occupancy do |flight|
-      booked_seats = 0
-      unless flight.bookings.nil?
-        booked_seats = flight.bookings.inject(0) { |sum, booking| sum + booking.no_of_seats }
-      end
-
-      occupancy = booked_seats.to_f / flight.no_of_seats
+      occupancy = booked_seats(flight).to_f / flight.no_of_seats
       "#{occupancy * 100}%"
+    end
+
+    def self.booked_seats(flight)
+      return 0 if flight.bookings.nil?
+
+      flight.bookings.inject(0) { |sum, booking| sum + booking.no_of_seats }
     end
   end
 end
