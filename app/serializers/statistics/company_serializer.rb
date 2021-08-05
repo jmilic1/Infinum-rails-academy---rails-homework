@@ -1,6 +1,6 @@
 module Statistics
   class CompanySerializer < Blueprinter::Base
-    identifier :id
+    field :company_id, &:id
 
     field :total_revenue do |company|
       total_revenue(company)
