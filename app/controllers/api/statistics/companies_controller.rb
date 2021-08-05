@@ -4,7 +4,7 @@ module Api
       before_action :authenticate_current_user, only: [:index]
 
       def index
-        authorize Company
+        authorize [:statistics, Company]
         @companies = filter(policy_scope(Company.all))
 
         render json: Statistics.CompanySerializer.render(@companies, root: :companies),
