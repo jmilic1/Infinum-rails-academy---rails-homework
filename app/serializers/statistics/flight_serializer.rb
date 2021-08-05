@@ -24,8 +24,8 @@ module Statistics
         booked_seats = flight.bookings.inject(0) { |sum, booking| sum + booking.no_of_seats }
       end
 
-      occupancy = booked_seats / flight.no_of_seats
-      "#{occupancy.to_f}%"
+      occupancy = booked_seats.to_f / flight.no_of_seats
+      "#{occupancy * 100}%"
     end
   end
 end
