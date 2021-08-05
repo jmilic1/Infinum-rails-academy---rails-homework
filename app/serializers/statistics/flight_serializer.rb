@@ -3,7 +3,11 @@ module Statistics
     identifier :id
 
     field :revenue do |flight|
-      flight.bookings.inject(0) { |sum, booking| sum + booking.seat_price * booking.no_of_seats }
+      if flight.bookings.nil?
+        0
+      else
+        flight.bookings.inject(0) { |sum, booking| sum + booking.seat_price * booking.no_of_seats }
+      end
     end
 
     field :no_of_booked_seats do |flight|
@@ -15,6 +19,8 @@ module Statistics
     end
 
     def no_of_booked_seats(flight)
+      return 0 if flight.bookings.nil?
+
       flight.bookings.inject(0) { |sum, booking| sum + booking.no_of_seats }
     end
   end
