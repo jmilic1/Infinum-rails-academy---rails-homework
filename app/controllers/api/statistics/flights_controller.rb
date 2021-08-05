@@ -4,10 +4,9 @@ module Api
       before_action :authenticate_current_user, only: [:index]
 
       def index
-        authorize [:statistics, Flight]
-        @flights = filter(policy_scope(Flight.all))
+        @flights = authorize [:statistics, Flight.all]
 
-        render json: Statistics.FlightSerializer.render(@flights, root: :flights),
+        render json: FlightSerializer.render(@flights[1], root: :flights),
                status: :ok
       end
     end
