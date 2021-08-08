@@ -28,7 +28,7 @@ class Flight < ApplicationRecord
   validates :departs_at, presence: true
   validates :arrives_at, presence: true
 
-  validate :departs_at_before_arrives_at, :overlap?
+  validate :departs_at_before_arrives_at, :valid_time?
 
   def departs_at_before_arrives_at
     return if departs_at.nil? || arrives_at.nil? || departs_at < arrives_at
@@ -43,23 +43,19 @@ class Flight < ApplicationRecord
   end
 
   def valid_time?
-    return unless overlap?
-
-    errors.add(:departs_at, 'overlaps with different flight')
-  end
-
-  def overlap?
-    return false if company.nil?
+    return if company.nil?
 
     company.flights.each do |flight|
       next if flight.id == id
-      if within_flight_range(departs_at, flight) ||
-         within_flight_range(arrives_at, flight)
-        return true
+
+      if within_flight_range(departs_at, flight)
+        errors.add(:departs_at, 'departure time overlaps with another flight')
+      end
+
+      if within_flight_range(arrives_at, flight)
+        errors.add(:arrives_at, 'arrival time overlaps with another flight')
       end
     end
-
-    false
   end
 
   private
