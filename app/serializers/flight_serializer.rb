@@ -30,7 +30,7 @@ class FlightSerializer < Blueprinter::Base
       difference = (flight.departs_at - Time.zone.now).day
       if difference > 15
         flight.base_price
-      elsif difference.negative?
+      elsif difference <= 0
         2 * flight.base_price
       else
         (1 + difference.day.to_f / 15) * flight.base_price
