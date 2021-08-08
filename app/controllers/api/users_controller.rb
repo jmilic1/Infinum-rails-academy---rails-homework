@@ -24,8 +24,7 @@ module Api
     end
 
     def show
-      @user = User.find(params[:id])
-      authorize @user
+      @user = authorize User.find(params[:id])
       @user = policy_scope(@user)
 
       if request.headers['X_API_SERIALIZER'] == 'json_api'
@@ -37,8 +36,7 @@ module Api
     end
 
     def update
-      @user = User.find(params[:id])
-      authorize @user
+      @user = authorize User.find(params[:id])
       @user = policy_scope(@user)
 
       if @user.update(user_params)
@@ -49,8 +47,7 @@ module Api
     end
 
     def destroy
-      @user = User.find(params[:id])
-      authorize @user
+      @user = authorize User.find(params[:id])
       @users = policy_scope(User)
 
       if @user.destroy

@@ -13,8 +13,7 @@ module Api
     end
 
     def create
-      @flight = Flight.new(flight_params)
-      authorize @flight
+      @flight = authorize Flight.new(flight_params)
 
       if @flight.save
         render json: FlightSerializer.render(@flight, view: :extended, root: :flight),
@@ -25,8 +24,7 @@ module Api
     end
 
     def show
-      @flight = Flight.find(params[:id])
-      authorize @flight
+      @flight = authorize Flight.find(params[:id])
 
       if request.headers['X_API_SERIALIZER'] == 'json_api'
         render json: { flight: JsonApi::FlightSerializer.new(@flight).serializable_hash.to_json },
@@ -37,8 +35,7 @@ module Api
     end
 
     def update
-      @flight = Flight.find(params[:id])
-      authorize @flight
+      @flight = authorize Flight.find(params[:id])
 
       if @flight.update(flight_params)
         render json: FlightSerializer.render(@flight, view: :extended, root: :flight), status: :ok
@@ -48,8 +45,7 @@ module Api
     end
 
     def destroy
-      @flight = Flight.find(params[:id])
-      authorize @flight
+      @flight = authorize Flight.find(params[:id])
 
       if @flight.destroy
         head :no_content
