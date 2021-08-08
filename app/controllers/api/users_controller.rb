@@ -69,9 +69,9 @@ module Api
       return users if request.params['query'].nil?
 
       users.select do |user|
-        user.first_name.downcase == request.params['query'].downcase ||
-          user.last_name.downcase == request.params['query'].downcase ||
-          user.email.downcase == request.params['query'].downcase
+        user.first_name.downcase[request.params['query'].downcase] ||
+          (!user.last_name.nil? && user.last_name.downcase[request.params['query'].downcase]) ||
+          user.email.downcase[request.params['query'].downcase]
       end
     end
     # rubocop:enable Metrics/AbcSize
