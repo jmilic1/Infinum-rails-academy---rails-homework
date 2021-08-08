@@ -4,6 +4,7 @@ module Api
 
     def index
       @users = policy_scope(authorize(User.all)).sort_by(&:email)
+      @users = filter(@users)
 
       if request.headers['X_API_SERIALIZER_ROOT'] == '0'
         render json: UserSerializer.render(@users, view: :extended), status: :ok
@@ -68,9 +69,9 @@ module Api
       return users if request.params['query'].nil?
 
       users.select do |user|
-        user.first_name[request.params['query']] ||
-          user.last_name[request.params['query']] ||
-          user.email[request.params['query']]
+        user.first_name == request.params['query'] ||
+          user.last_name == request.params['query'] ||
+          user.email == request.params['query']
       end
     end
     # rubocop:enable Metrics/AbcSize
