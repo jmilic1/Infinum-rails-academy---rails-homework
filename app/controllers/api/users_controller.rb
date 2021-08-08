@@ -3,10 +3,7 @@ module Api
     before_action :authenticate_current_user, only: [:index, :show, :update, :destroy]
 
     def index
-      authorize User
-      @users = filter(policy_scope(User.all))
-
-      @users = @users.sort_by(&:email)
+      @users = policy_scope(authorize(User.all)).sort_by(&:email)
 
       if request.headers['X_API_SERIALIZER_ROOT'] == '0'
         render json: UserSerializer.render(@users, view: :extended), status: :ok
@@ -26,10 +23,7 @@ module Api
     end
 
     def show
-      @user = User.find(params[:id])
-
-      authorize @user
-      @user = policy_scope(@user)
+      @user = policy_scope(authorize(User.find(params[:id])))
 
       if request.headers['X_API_SERIALIZER'] == 'json_api'
         render json: { user: JsonApi::UserSerializer.new(@user).serializable_hash.to_json },
@@ -40,10 +34,7 @@ module Api
     end
 
     def update
-      @user = User.find(params[:id])
-
-      authorize @user
-      @user = policy_scope(@user)
+      @user = policy_scope(authorize(User.find(params[:id])))
 
       if @user.update(user_params)
         render json: UserSerializer.render(@user, view: :extended, root: :user), status: :ok
@@ -53,10 +44,7 @@ module Api
     end
 
     def destroy
-      @user = User.find(params[:id])
-
-      authorize @user
-      @user = policy_scope(@user)
+      @user = policy_scope(authorize(User.find(params[:id])))
 
       if @user.destroy
         head :no_content

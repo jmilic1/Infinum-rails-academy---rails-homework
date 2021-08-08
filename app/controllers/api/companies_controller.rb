@@ -16,8 +16,7 @@ module Api
     end
 
     def create
-      @company = Company.new(company_params)
-      authorize @company
+      @company = authorize Company.new(company_params)
 
       if @company.save
         render json: CompanySerializer.render(@company, view: :extended, root: :company),
@@ -28,8 +27,7 @@ module Api
     end
 
     def show
-      @company = Company.find(params[:id])
-      authorize @company
+      @company = authorize Company.find(params[:id])
 
       if request.headers['X_API_SERIALIZER'] == 'json_api'
         render json: { company: JsonApi::CompanySerializer.new(@company)
@@ -42,8 +40,7 @@ module Api
     end
 
     def update
-      @company = Company.find(params[:id])
-      authorize @company
+      @company = authorize Company.find(params[:id])
 
       if @company.update(company_params)
         render json: CompanySerializer.render(@company, view: :extended, root: :company),
@@ -54,8 +51,7 @@ module Api
     end
 
     def destroy
-      @company = Company.find(params[:id])
-      authorize @company
+      @company = authorize Company.find(params[:id])
 
       if @company.destroy
         head :no_content
