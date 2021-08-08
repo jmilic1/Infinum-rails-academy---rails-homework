@@ -86,12 +86,14 @@ module Api
     # rubocop:disable Metrics/AbcSize
     def custom_filter(flights)
       name_cont = request.params['name_cont']
-      departs_at_eq = request.params['departs_at_eq']
       no_of_seats = request.params['no_of_available_seats_gteq']
+      departs_at_eq = request.params['departs_at_eq']
 
-      flights = flights.select { |flight| flight.name[name_cont] } if name_cont
-      flights = flights.select { |flight| flight.departs_at == departs_at_eq } if departs_at_eq
+      flights = flights.select { |flight| flight.name.downcase[name_cont.downcase] } if name_cont
       flights = flights.select { |flight| flight.no_of_seats >= no_of_seats.to_i } if no_of_seats
+      if departs_at_eq
+        flights = flights.select { |flight| flight.departs_at == Time.zone.parse(departs_at_eq) }
+      end
 
       flights
     end
