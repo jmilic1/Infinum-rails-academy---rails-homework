@@ -71,7 +71,7 @@ module Api
 
     def active_flights(flights)
       flights.select do |flight|
-        flight.departs_at > DateTime.now
+        flight.departs_at > Time.zone.now
       end
     end
 

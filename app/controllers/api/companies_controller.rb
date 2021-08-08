@@ -64,7 +64,7 @@ module Api
 
     def active_companies(companies)
       companies.select do |company|
-        company.flights.any? { |flight| flight.departs_at > DateTime.now }
+        company.flights.any? { |flight| flight.departs_at > Time.zone.now }
       end
     end
 
