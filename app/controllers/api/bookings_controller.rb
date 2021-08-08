@@ -72,9 +72,9 @@ module Api
 
     def booking_params
       if current_user.admin?
-        params.require(:booking).permit(:no_of_seats, :seat_price, :flight_id, :user_id)
+        params.require(:booking).permit(:no_of_seats, :flight_id, :user_id)
       else
-        params.require(:booking).permit(:no_of_seats, :seat_price, :flight_id)
+        params.require(:booking).permit(:no_of_seats, :flight_id)
       end
     end
 
