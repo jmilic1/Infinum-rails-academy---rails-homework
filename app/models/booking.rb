@@ -33,7 +33,7 @@ class Booking < ApplicationRecord
 
     total_booked_seats = flight.bookings.inject(0) { |sum, booking| sum + booking.no_of_seats }
 
-    errors.add(flight.no_of_seats)
+    # flight.no_of_seats = 10
     errors.add(total_booked_seats)
     # return if total_booked_seats <= flight.no_of_seats
 
