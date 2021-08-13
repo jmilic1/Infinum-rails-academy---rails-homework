@@ -37,7 +37,7 @@ class Booking < ApplicationRecord
     end
 
     # flight.no_of_seats = 10
-    errors.add(total_booked_seats)
+    errors.add(no_of_seats)
     # return if total_booked_seats <= flight.no_of_seats
 
     # errors.add(:no_of_seats, 'this booking has overbooked the flight')
