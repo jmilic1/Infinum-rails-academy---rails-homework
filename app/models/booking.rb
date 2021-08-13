@@ -20,7 +20,7 @@ class Booking < ApplicationRecord
   validates :no_of_seats, presence: true,
                           numericality: { greater_than: 0 }
 
-  validate :departs_at_after_now, :overbook
+  validate :departs_at_after_now, :booking_overbook
 
   def departs_at_after_now
     return if flight.nil? || flight.departs_at > Time.zone.now
@@ -28,7 +28,7 @@ class Booking < ApplicationRecord
     errors.add(:flight, 'departure time must be after current time')
   end
 
-  def overbook
+  def booking_overbook
     return if no_of_seats.nil? || flight.nil?
 
     total_booked_seats = flight.bookings.inject(0) { |sum, booking| sum + booking.no_of_seats }
