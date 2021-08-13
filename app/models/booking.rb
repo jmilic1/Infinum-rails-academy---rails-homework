@@ -31,6 +31,8 @@ class Booking < ApplicationRecord
   def booking_overbook
     return if no_of_seats.nil? || flight.nil?
 
+    return unless flight.overbooked?
+
     total_booked_seats = 0
     flight.bookings.each do |booking|
       total_booked_seats += booking.no_of_seats
