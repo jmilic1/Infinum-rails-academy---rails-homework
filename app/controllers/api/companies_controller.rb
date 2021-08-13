@@ -71,9 +71,5 @@ module Api
     def company_params
       params.require(:company).permit(:name)
     end
-
-    def index_params
-      params.require(:company).permit(:name)
-    end
   end
 end

@@ -2,13 +2,8 @@ module Api
   class BookingsController < ApplicationController
     before_action :authenticate_current_user, only: [:index, :create, :show, :update, :destroy]
 
-    # rubocop:disable Metrics
     def index
-      # authorize Booking.includes(:flight, :user)
-      @bookings = policy_scope(Booking.includes(:flight, :user, flight: [:company]))
-      # .order('flight.departs_at, flight.name, flight.created_at', 'flight.name', 'created_at'))
-      authorize @bookings
-
+      @bookings = authorize policy_scope(Booking.includes(:flight, :user, flight: [:company]))
       @bookings = active_bookings(@bookings) if request.params['filter'] == 'active'
       @bookings = sort_bookings(@bookings)
 
@@ -20,7 +15,6 @@ module Api
                status: :ok
       end
     end
-    # rubocop:enable Metrics
 
     def create
       booking = Booking.new(booking_params)

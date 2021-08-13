@@ -31,14 +31,12 @@ class Booking < ApplicationRecord
   def overbook
     return if no_of_seats.nil? || flight.nil?
 
-    booked_seats = 0
+    total_booked_seats = 0
     flight.bookings.each do |booking|
-      next if booking.id == id
-
-      booked_seats += booking.no_of_seats
+      total_booked_seats += booking.no_of_seats
     end
 
-    return if flight.no_of_seats > booked_seats
+    return if no_of_seats > total_booked_seats
 
     errors.add(:no_of_seats, 'this booking has overbooked the flight')
   end
