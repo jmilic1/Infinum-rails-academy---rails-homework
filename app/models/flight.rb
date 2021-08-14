@@ -37,7 +37,7 @@ class Flight < ApplicationRecord
   end
 
   def overbooked?
-    bookings.inject(0) { |sum, booking| sum + booking.no_of_seats } > no_of_seats
+    bookings.inject(0) { |sum, booking| booking.invalid? sum + booking.no_of_seats }
   end
 
   def valid_time?
