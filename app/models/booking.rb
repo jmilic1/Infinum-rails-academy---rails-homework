@@ -51,7 +51,7 @@ class Booking < ApplicationRecord
       total_num_of_seats = bookings.inject(0) { |sum, booking| sum + booking.no_of_seats }
     else
       total_num_of_seats = flight.bookings.inject(0) { |sum, booking| sum + booking.no_of_seats }
-      errors.add(total_num_of_seats)
+      # errors.add(total_num_of_seats)
     end
     # flight.no_of_seats = 10
     # no_of_seats = 4
