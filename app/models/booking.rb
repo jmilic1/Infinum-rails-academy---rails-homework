@@ -40,8 +40,8 @@ class Booking < ApplicationRecord
       #
       # bookings = Booking.where(flight_id: flight_id)
       # total_num_of_seats = bookings.inject(0) { |sum, booking| sum + booking.no_of_seats }
-      total_num_of_seats = flight.bookings.inject(0) { |sum, booking| sum + booking.no_of_seats }
-      errors.add(total_num_of_seats)
+      # total_num_of_seats = flight.bookings.inject(0) { |sum, booking| sum + booking.no_of_seats }
+      # errors.add(total_num_of_seats)
     end
 
     # total_num_of_seats = 0
