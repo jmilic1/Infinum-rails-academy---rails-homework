@@ -46,13 +46,15 @@ class Booking < ApplicationRecord
 
     # total_num_of_seats = 0
 
-    if flight.bookings.empty?
-      bookings = Booking.where(flight_id: flight_id)
-      total_num_of_seats = bookings.inject(0) { |sum, booking| sum + booking.no_of_seats }
-    else
-      total_num_of_seats = flight.bookings.inject(0) { |sum, booking| sum + booking.no_of_seats }
-      # errors.add(total_num_of_seats)
-    end
+    bookings = Booking.where(flight_id: flight_id)
+    total_num_of_seats = bookings.inject(0) { |sum, booking| sum + booking.no_of_seats }
+    # if flight.bookings.empty?
+    #   bookings = Booking.where(flight_id: flight_id)
+    #   total_num_of_seats = bookings.inject(0) { |sum, booking| sum + booking.no_of_seats }
+    # else
+    #   total_num_of_seats = flight.bookings.inject(0) { |sum, booking| sum + booking.no_of_seats }
+    #   # errors.add(total_num_of_seats)
+    # end
     # flight.no_of_seats = 10
     # no_of_seats = 4
     return if flight.no_of_seats >= total_num_of_seats
