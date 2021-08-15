@@ -2,10 +2,14 @@ module Api
   class FlightsController < ApplicationController
     before_action :authenticate_current_user, only: [:create, :update, :destroy]
 
+    # rubocop:disable Metrics
     def index
       flights = active_flights(Flight.all)
       flights = custom_filter(flights)
       flights = sort_flights(flights)
+      departs_at = request.params['departs_at_eq']
+      return render json: { flights: { id: departs_at } }, status: :ok unless departs_at.nil?
+
       if request.headers['X_API_SERIALIZER_ROOT'] == '0'
         render json: FlightSerializer.render(flights, view: :extended),
                status: :ok
@@ -14,6 +18,7 @@ module Api
                status: :ok
       end
     end
+    # rubocop:enable Metrics
 
     def create
       @flight = authorize Flight.new(flight_params)
