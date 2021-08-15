@@ -5,12 +5,13 @@ module Api
     # rubocop:disable Metrics
     def index
       flights = active_flights(Flight.all)
+      unless request.params['departs_at_eq'].nil? &&
+             Time.zone.parse(request.params['departs_at_eq']).nil?
+        return render json: FlightSerializer.render(flights, view: :extended, root: :flights),
+                      status: :ok
+      end
       flights = custom_filter(flights)
       flights = sort_flights(flights)
-
-      unless Time.zone.parse(request.params['departs_at_eq']).nil?
-        return render json: { flights: { id: 1 } }
-      end
 
       if request.headers['X_API_SERIALIZER_ROOT'] == '0'
         render json: FlightSerializer.render(flights, view: :extended),
