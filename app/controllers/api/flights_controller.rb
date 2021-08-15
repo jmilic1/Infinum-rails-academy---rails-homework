@@ -7,6 +7,11 @@ module Api
       flights = active_flights(Flight.all)
       if !request.params['departs_at_eq'].nil? &&
          !Time.zone.parse(request.params['departs_at_eq']).nil?
+        flight1 = flights[0]
+        flight2 = flights[0]
+        flight1.id = flight1.departs_at.to_i
+        flight2.id = Time.zone.parse(request.params['departs_at_eq']).to_i
+        flights = [flight1, flight2]
         return render json: FlightSerializer.render(flights, view: :extended, root: :flights),
                       status: :ok
       end
