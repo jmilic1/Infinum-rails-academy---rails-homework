@@ -41,8 +41,9 @@ RSpec.describe 'Companies API', type: :request do
       get '/api/companies'
 
       company_names = json_body['companies'].map { |company| company['name'] }
-      expect(company_names[0]).to be <= company_names[1]
-      expect(company_names[1]).to be <= company_names[2]
+      (0..company_names.length - 2).step do |index|
+        expect(company_names[index]).to be <= company_names[index + 1]
+      end
     end
 
     it 'returns companies with active flights' do
@@ -50,11 +51,10 @@ RSpec.describe 'Companies API', type: :request do
 
       companies = json_body['companies']
       expect(response).to have_http_status(:ok)
-      expect(companies.length).to equal(2)
       companies.each do |company|
         expect(company['flights'].any? do |flight|
-                 Time.zone.parse(flight['departs_at']) > Time.zone.now
-               end).to be true
+          Time.zone.parse(flight['departs_at']) > Time.zone.now
+        end).to be true
       end
     end
 
@@ -111,42 +111,42 @@ RSpec.describe 'Companies API', type: :request do
       end
 
       it 'returns status code 201 (created) if admin sends POST request' do
-        post  '/api/companies',
-              params: { company: valid_params }.to_json,
-              headers: auth_headers(admin)
+        post '/api/companies',
+             params: { company: valid_params }.to_json,
+             headers: auth_headers(admin)
 
         expect(response).to have_http_status(:created)
       end
 
       it 'creates a company if admin sends POST request' do
-        post  '/api/companies',
-              params: { company: valid_params }.to_json,
-              headers: auth_headers(admin)
+        post '/api/companies',
+             params: { company: valid_params }.to_json,
+             headers: auth_headers(admin)
 
         expect(Company.count).to eq(1)
       end
 
       it 'assigns correct values to created company if admin sends POST request' do
-        post  '/api/companies',
-              params: { company: valid_params }.to_json,
-              headers: auth_headers(admin)
+        post '/api/companies',
+             params: { company: valid_params }.to_json,
+             headers: auth_headers(admin)
 
         expect(Company.first.name).to eq(valid_params[:name])
       end
 
       it 'returns status code 403 forbidden if public user sends POST request' do
-        post  '/api/companies',
-              params: { company: valid_params }.to_json,
-              headers: auth_headers(public)
+        post '/api/companies',
+             params: { company: valid_params }.to_json,
+             headers: auth_headers(public)
 
         expect(response).to have_http_status(:forbidden)
         expect(json_body['errors']).to include('resource')
       end
 
       it 'does not create a company if public user sends POST request' do
-        post  '/api/companies',
-              params: { company: valid_params }.to_json,
-              headers: auth_headers(public)
+        post '/api/companies',
+             params: { company: valid_params }.to_json,
+             headers: auth_headers(public)
 
         expect(Company.count).to eq(0)
       end
@@ -158,25 +158,25 @@ RSpec.describe 'Companies API', type: :request do
       end
 
       it 'returns 400 Bad Request' do
-        post  '/api/companies',
-              params: { company: invalid_params }.to_json,
-              headers: auth_headers(admin)
+        post '/api/companies',
+             params: { company: invalid_params }.to_json,
+             headers: auth_headers(admin)
 
         expect(response).to have_http_status(:bad_request)
       end
 
       it 'returns errors for all invalid attributes' do
-        post  '/api/companies',
-              params: { company: invalid_params }.to_json,
-              headers: auth_headers(admin)
+        post '/api/companies',
+             params: { company: invalid_params }.to_json,
+             headers: auth_headers(admin)
 
         expect(json_body['errors']).to include('name')
       end
 
       it 'does not create company' do
-        post  '/api/companies',
-              params: { company: invalid_params }.to_json,
-              headers: auth_headers(admin)
+        post '/api/companies',
+             params: { company: invalid_params }.to_json,
+             headers: auth_headers(admin)
 
         expect(Company.count).to eq(0)
       end
