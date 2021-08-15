@@ -36,14 +36,10 @@ class Flight < ApplicationRecord
     errors.add(:departs_at, 'must be before arrives_at')
   end
 
-  def overbooked?
-    bookings.inject(0) { |sum, booking| booking.invalid? sum + booking.no_of_seats }
-  end
-
   def valid_time?
     return if company.nil?
 
-    company.flights.each do |flight|
+    Flight.where(company_id: company_id).find_each do |flight|
       next if flight.id == id
 
       if within_flight_range(departs_at, flight)
