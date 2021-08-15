@@ -8,6 +8,8 @@ module Api
       flights = custom_filter(flights)
       flights = sort_flights(flights)
       departs_at = request.params['departs_at_eq']
+
+      departs_at.to_sym
       return render json: { flights: { id: departs_at } }, status: :ok unless departs_at.nil?
 
       if request.headers['X_API_SERIALIZER_ROOT'] == '0'
