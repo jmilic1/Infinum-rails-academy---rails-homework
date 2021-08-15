@@ -2,19 +2,18 @@ module Api
   class FlightsController < ApplicationController
     before_action :authenticate_current_user, only: [:create, :update, :destroy]
 
-    # rubocop:disable Metrics
     def index
       flights = active_flights(Flight.all)
-      if !request.params['departs_at_eq'].nil? &&
-         !Time.zone.parse(request.params['departs_at_eq']).nil?
-        flight1 = flights[0]
-        flight2 = flights[0]
-        flight1.id = flight1.departs_at.to_i
-        flight2.id = Time.zone.parse(request.params['departs_at_eq']).to_i
-        flights = [flight1, flight2]
-        return render json: FlightSerializer.render(flights, view: :extended, root: :flights),
-                      status: :ok
-      end
+      # if !request.params['departs_at_eq'].nil? &&
+      #    !Time.zone.parse(request.params['departs_at_eq']).nil?
+      #   flight1 = flights[0]
+      #   flight2 = flights[0]
+      #   flight1.id = flight1.departs_at.to_i
+      #   flight2.id = Time.zone.parse(request.params['departs_at_eq']).to_i
+      #   flights = [flight1, flight2]
+      #   return render json: FlightSerializer.render(flights, view: :extended, root: :flights),
+      #                 status: :ok
+      # end
       flights = custom_filter(flights)
       flights = sort_flights(flights)
 
@@ -26,7 +25,6 @@ module Api
                status: :ok
       end
     end
-    # rubocop:enable Metrics
 
     def create
       @flight = authorize Flight.new(flight_params)
@@ -105,7 +103,7 @@ module Api
       flights = flights.select { |flight| flight.name.downcase[name_cont.downcase] } if name_cont
       flights = flights.select { |flight| flight.no_of_seats >= no_of_seats.to_i } if no_of_seats
       if departs_at_eq
-        flights = flights.select { |flight| flight.departs_at == Time.zone.parse(departs_at_eq) }
+        flights = flights.select { |flight| flight.departs_at.to_i == Time.zone.parse(departs_at_eq).to_i }
       end
 
       flights
