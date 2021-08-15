@@ -6,6 +6,7 @@ module Api
       companies = Company.includes(:flights)
       companies = active_companies(companies) if request.params['filter'] == 'active'
       companies = companies.sort_by(&:name)
+
       if request.headers['X_API_SERIALIZER_ROOT'] == '0'
         render json: CompanySerializer.render(companies, view: :extended),
                status: :ok

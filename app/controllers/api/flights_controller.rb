@@ -4,16 +4,6 @@ module Api
 
     def index
       flights = active_flights(Flight.all)
-      # if !request.params['departs_at_eq'].nil? &&
-      #    !Time.zone.parse(request.params['departs_at_eq']).nil?
-      #   flight1 = flights[0]
-      #   flight2 = flights[0]
-      #   flight1.id = flight1.departs_at.to_i
-      #   flight2.id = Time.zone.parse(request.params['departs_at_eq']).to_i
-      #   flights = [flight1, flight2]
-      #   return render json: FlightSerializer.render(flights, view: :extended, root: :flights),
-      #                 status: :ok
-      # end
       flights = custom_filter(flights)
       flights = sort_flights(flights)
 
@@ -94,22 +84,30 @@ module Api
       end
     end
 
-    # rubocop:disable Metrics
+    def apply_name_cont(flights, name_cont)
+      flights.select { |flight| flight.name.downcase[name_cont.downcase] }
+    end
+
+    def apply_no_of_seats(flights, no_of_seats)
+      flights.select { |flight| flight.no_of_seats >= no_of_seats.to_i }
+    end
+
+    def apply_departs_at_eq(flights, departs_at_eq)
+      flights.select do |flight|
+        flight.departs_at.to_i == Time.zone.parse(departs_at_eq).to_i
+      end
+    end
+
     def custom_filter(flights)
       name_cont = request.params['name_cont']
       no_of_seats = request.params['no_of_available_seats_gteq']
       departs_at_eq = request.params['departs_at_eq']
 
-      flights = flights.select { |flight| flight.name.downcase[name_cont.downcase] } if name_cont
-      flights = flights.select { |flight| flight.no_of_seats >= no_of_seats.to_i } if no_of_seats
-      if departs_at_eq
-        flights = flights.select do |flight|
-          flight.departs_at.to_i == Time.zone.parse(departs_at_eq).to_i
-        end
-      end
+      flights = apply_name_cont(flights, name_cont) if name_cont
+      flights = apply_no_of_seats(flights, no_of_seats) if no_of_seats
+      flights = apply_departs_at_eq(flights, departs_at_eq) if departs_at_eq
 
       flights
     end
-    # rubocop:enable Metrics
   end
 end
