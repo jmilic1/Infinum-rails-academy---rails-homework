@@ -10,6 +10,10 @@ class BookingPolicy
     user.admin? || user.public?
   end
 
+  def create?
+    user.admin? || user.public?
+  end
+
   def show?
     admin_or_owner?
   end

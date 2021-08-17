@@ -10,6 +10,10 @@ class UserPolicy
     user.admin?
   end
 
+  def create?
+    true
+  end
+
   def show?
     admin_or_owner?
   end
@@ -22,22 +26,7 @@ class UserPolicy
     admin_or_owner?
   end
 
-  class Scope
-    attr_reader :user, :scope
-
-    def initialize(user, scope)
-      @user = user
-      @scope = scope
-    end
-
-    def resolve
-      if user.admin?
-        scope
-      else
-        user
-      end
-    end
-  end
+  private
 
   def admin_or_owner?
     user.admin? || record.id == user.id
