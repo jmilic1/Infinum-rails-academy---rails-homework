@@ -6,6 +6,10 @@ class ReadablePolicy
     @record = record
   end
 
+  def index?
+    true
+  end
+
   def create?
     user.admin?
   end

@@ -16,6 +16,7 @@ module Api
     end
 
     def create
+      authorize Booking
       booking = Booking.new(booking_params)
       booking.user = current_user if booking.user.nil?
 
