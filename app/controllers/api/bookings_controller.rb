@@ -74,9 +74,7 @@ module Api
     end
 
     def active_bookings(bookings)
-      bookings.select do |booking|
-        booking.flight.departs_at > Time.zone.now
-      end
+      bookings.where('departs_at > ?', Time.zone.now)
     end
 
     def sort_bookings(bookings)
