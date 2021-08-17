@@ -1,5 +1,7 @@
 RSpec.describe 'Companies API', type: :request do
   include TestHelpers::JsonResponse
+  let!(:admin) { create(:user, token: 'admin-token', role: 'admin') }
+  let!(:public) { create(:user, token: 'public-token') }
 
   describe 'GET /companies' do
     before { create_list(:company, 3) }
@@ -21,9 +23,9 @@ RSpec.describe 'Companies API', type: :request do
   end
 
   describe 'GET /companies/:id' do
-    let!(:company) { create(:company) }
-
     context 'when company id exists' do
+      let!(:company) { create(:company) }
+
       it 'returns a single company' do
         get "/api/companies/#{company.id}"
 
@@ -56,28 +58,45 @@ RSpec.describe 'Companies API', type: :request do
         { name: 'Eagle Express' }
       end
 
-      it 'returns status code 201 (created)' do
+      it 'returns status code 201 (created) if admin sends POST request' do
         post  '/api/companies',
               params: { company: valid_params }.to_json,
-              headers: api_headers
+              headers: auth_headers(admin)
 
         expect(response).to have_http_status(:created)
       end
 
-      it 'creates a company' do
+      it 'creates a company if admin sends POST request' do
         post  '/api/companies',
               params: { company: valid_params }.to_json,
-              headers: api_headers
+              headers: auth_headers(admin)
 
         expect(Company.count).to eq(1)
       end
 
-      it 'assigns correct values to created company' do
+      it 'assigns correct values to created company if admin sends POST request' do
         post  '/api/companies',
               params: { company: valid_params }.to_json,
-              headers: api_headers
+              headers: auth_headers(admin)
 
         expect(Company.first.name).to eq(valid_params[:name])
+      end
+
+      it 'returns status code 403 forbidden if public user sends POST request' do
+        post  '/api/companies',
+              params: { company: valid_params }.to_json,
+              headers: auth_headers(public)
+
+        expect(response).to have_http_status(:forbidden)
+        expect(json_body['errors']).to include('resource')
+      end
+
+      it 'does not create a company if public user sends POST request' do
+        post  '/api/companies',
+              params: { company: valid_params }.to_json,
+              headers: auth_headers(public)
+
+        expect(Company.count).to eq(0)
       end
     end
 
@@ -89,7 +108,7 @@ RSpec.describe 'Companies API', type: :request do
       it 'returns 400 Bad Request' do
         post  '/api/companies',
               params: { company: invalid_params }.to_json,
-              headers: api_headers
+              headers: auth_headers(admin)
 
         expect(response).to have_http_status(:bad_request)
       end
@@ -97,7 +116,7 @@ RSpec.describe 'Companies API', type: :request do
       it 'returns errors for all invalid attributes' do
         post  '/api/companies',
               params: { company: invalid_params }.to_json,
-              headers: api_headers
+              headers: auth_headers(admin)
 
         expect(json_body['errors']).to include('name')
       end
@@ -105,21 +124,21 @@ RSpec.describe 'Companies API', type: :request do
       it 'does not create company' do
         post  '/api/companies',
               params: { company: invalid_params }.to_json,
-              headers: api_headers
+              headers: auth_headers(admin)
 
         expect(Company.count).to eq(0)
       end
     end
   end
 
-  describe 'updating companies' do
+  describe 'PUT /companies' do
     let(:update_params) { { name: 'Elves' } }
 
     context 'when id does not exist' do
       it 'returns errors' do
         put '/api/companies/1',
             params: { company: update_params }.to_json,
-            headers: api_headers
+            headers: auth_headers(admin)
 
         expect(response).to have_http_status(:not_found)
         expect(json_body).to include('errors')
@@ -129,20 +148,37 @@ RSpec.describe 'Companies API', type: :request do
     context 'when id exists' do
       let!(:company) { create(:company, name: 'Dunedain') }
 
-      it 'updates specified values' do
+      it 'returns status code 200 ok if admin sends PUT request' do
         put "/api/companies/#{company.id}",
             params: { company: update_params }.to_json,
-            headers: api_headers
+            headers: auth_headers(admin)
+
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'updates specified values if admin sends PUT request' do
+        put "/api/companies/#{company.id}",
+            params: { company: update_params }.to_json,
+            headers: auth_headers(admin)
 
         expect(company.reload.name).to eq('Elves')
       end
 
-      it 'returns status 200 (ok)' do
+      it 'returns status code 403 forbidden if public user sends PUT request' do
         put "/api/companies/#{company.id}",
             params: { company: update_params }.to_json,
-            headers: api_headers
+            headers: auth_headers(public)
 
-        expect(response).to have_http_status(:ok)
+        expect(response).to have_http_status(:forbidden)
+        expect(json_body['errors']).to include('resource')
+      end
+
+      it 'does not update the company if public user sends PUT request' do
+        put "/api/companies/#{company.id}",
+            params: { company: update_params }.to_json,
+            headers: auth_headers(public)
+
+        expect(company.reload.name).to eq(company.name)
       end
     end
   end
@@ -150,20 +186,41 @@ RSpec.describe 'Companies API', type: :request do
   describe 'DELETE /companies/:id' do
     context 'when id does not exist' do
       it 'returns status not found' do
-        delete '/api/companies/1'
+        delete '/api/companies/1',
+               headers: auth_headers(admin)
 
         expect(response).to have_http_status(:not_found)
       end
     end
 
-    context 'when id exists' do
-      it 'deletes a company' do
-        company = create(:company)
+    context 'when admin deletes a company' do
+      let!(:company) { create(:company) }
 
-        delete "/api/companies/#{company.id}"
+      it 'deletes a company' do
+        delete "/api/companies/#{company.id}",
+               headers: auth_headers(admin)
 
         expect(response).to have_http_status(:no_content)
         expect(Company.all.length).to eq(0)
+      end
+    end
+
+    context 'when public user deletes a company' do
+      let!(:company) { create(:company) }
+
+      it 'returns 403 forbidden' do
+        delete "/api/companies/#{company.id}",
+               headers: auth_headers(public)
+
+        expect(response).to have_http_status(:forbidden)
+        expect(json_body['errors']).to include('resource')
+      end
+
+      it 'does not delete the company' do
+        delete "/api/companies/#{company.id}",
+               headers: auth_headers(public)
+
+        expect(Company.all.length).to eq(1)
       end
     end
   end

@@ -1,5 +1,7 @@
 RSpec.describe 'Flights API', type: :request do
   include TestHelpers::JsonResponse
+  let!(:admin) { create(:user, token: 'admin-token', role: 'admin') }
+  let!(:public) { create(:user, token: 'public-token') }
 
   describe 'GET /flights' do
     before { create_list(:flight, 3) }
@@ -69,31 +71,48 @@ RSpec.describe 'Flights API', type: :request do
           company_id: create(:company).id }
       end
 
-      it 'returns status code 201 (created)' do
+      it 'returns status code 201 (created) if admin sends POST request' do
         post  '/api/flights',
               params: { flight: valid_params }.to_json,
-              headers: api_headers
+              headers: auth_headers(admin)
 
         expect(response).to have_http_status(:created)
       end
 
-      it 'creates a flight' do
+      it 'creates a flight if admin sends POST request' do
         post  '/api/flights',
               params: { flight: valid_params }.to_json,
-              headers: api_headers
+              headers: auth_headers(admin)
 
         expect(Flight.count).to eq(1)
       end
 
-      it 'assigns correct values to created flight' do
+      it 'assigns correct values to created flight if admin sends POST request' do
         post  '/api/flights',
               params: { flight: valid_params }.to_json,
-              headers: api_headers
+              headers: auth_headers(admin)
 
         flight = Flight.first
         expect(flight.name).to eq(valid_params[:name])
         expect(flight.no_of_seats).to eq(valid_params[:no_of_seats])
         expect(flight.base_price).to eq(valid_params[:base_price])
+      end
+
+      it 'returns status code 403 forbidden if public user sends POST request' do
+        post  '/api/flights',
+              params: { flight: valid_params }.to_json,
+              headers: auth_headers(public)
+
+        expect(response).to have_http_status(:forbidden)
+        expect(json_body['errors']).to include('resource')
+      end
+
+      it 'does not create a flight if public user sends POST request' do
+        post  '/api/flights',
+              params: { flight: valid_params }.to_json,
+              headers: auth_headers(public)
+
+        expect(Flight.count).to eq(0)
       end
     end
 
@@ -105,7 +124,7 @@ RSpec.describe 'Flights API', type: :request do
       it 'returns 400 Bad Request' do
         post  '/api/flights',
               params: { flight: invalid_params }.to_json,
-              headers: api_headers
+              headers: auth_headers(admin)
 
         expect(response).to have_http_status(:bad_request)
       end
@@ -113,7 +132,7 @@ RSpec.describe 'Flights API', type: :request do
       it 'returns errors for all invalid attributes' do
         post  '/api/flights',
               params: { flight: invalid_params }.to_json,
-              headers: api_headers
+              headers: auth_headers(admin)
 
         expect(json_body['errors']).to include('name',
                                                'no_of_seats',
@@ -126,21 +145,21 @@ RSpec.describe 'Flights API', type: :request do
       it 'does not create flight' do
         post  '/api/flights',
               params: { flight: invalid_params }.to_json,
-              headers: api_headers
+              headers: auth_headers(admin)
 
         expect(Flight.count).to eq(0)
       end
     end
   end
 
-  describe 'updating flights' do
+  describe 'PUT /flights' do
     let(:update_params) { { no_of_seats: 32 } }
 
     context 'when id does not exist' do
       it 'returns errors' do
         put '/api/flights/1',
             params: { flight: update_params }.to_json,
-            headers: api_headers
+            headers: auth_headers(admin)
 
         expect(response).to have_http_status(:not_found)
         expect(json_body).to include('errors')
@@ -150,22 +169,39 @@ RSpec.describe 'Flights API', type: :request do
     context 'when id exists' do
       let!(:flight) { create(:flight, name: 'Zagreb - Split', no_of_seats: 10) }
 
-      it 'updates specified values' do
+      it 'returns status code 200 ok if admin sends PUT request' do
         put "/api/flights/#{flight.id}",
             params: { flight: update_params }.to_json,
-            headers: api_headers
+            headers: auth_headers(admin)
+
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'updates specified values if admin sends PUT request' do
+        put "/api/flights/#{flight.id}",
+            params: { flight: update_params }.to_json,
+            headers: auth_headers(admin)
 
         updated_flight = flight.reload
         expect(updated_flight.name).to eq('Zagreb - Split')
         expect(updated_flight.no_of_seats).to eq(32)
       end
 
-      it 'returns status 200 (ok)' do
+      it 'returns status code 403 forbidden if public user sends PUT request' do
         put "/api/flights/#{flight.id}",
             params: { flight: update_params }.to_json,
-            headers: api_headers
+            headers: auth_headers(public)
 
-        expect(response).to have_http_status(:ok)
+        expect(response).to have_http_status(:forbidden)
+        expect(json_body['errors']).to include('resource')
+      end
+
+      it 'does not update the flight if public user sends PUT request' do
+        put "/api/flights/#{flight.id}",
+            params: { flight: update_params }.to_json,
+            headers: auth_headers(public)
+
+        expect(flight.reload.no_of_seats).to eq(flight.no_of_seats)
       end
     end
   end
@@ -173,20 +209,41 @@ RSpec.describe 'Flights API', type: :request do
   describe 'DELETE /flights/:id' do
     context 'when id does not exist' do
       it 'returns status not found' do
-        delete '/api/flights/1'
+        delete '/api/flights/1',
+               headers: auth_headers(admin)
 
         expect(response).to have_http_status(:not_found)
       end
     end
 
-    context 'when id exists' do
-      it 'deletes a flight' do
-        flight = create(:flight)
+    context 'when admin deletes a flight' do
+      let!(:flight) { create(:flight) }
 
-        delete "/api/flights/#{flight.id}"
+      it 'deletes a flight' do
+        delete "/api/flights/#{flight.id}",
+               headers: auth_headers(admin)
 
         expect(response).to have_http_status(:no_content)
         expect(Flight.all.length).to eq(0)
+      end
+    end
+
+    context 'when public user deletes a flight' do
+      let!(:flight) { create(:flight) }
+
+      it 'returns 403 forbidden' do
+        delete "/api/flights/#{flight.id}",
+               headers: auth_headers(public)
+
+        expect(response).to have_http_status(:forbidden)
+        expect(json_body['errors']).to include('resource')
+      end
+
+      it 'does not delete the flight' do
+        delete "/api/flights/#{flight.id}",
+               headers: auth_headers(public)
+
+        expect(Flight.all.length).to eq(1)
       end
     end
   end
