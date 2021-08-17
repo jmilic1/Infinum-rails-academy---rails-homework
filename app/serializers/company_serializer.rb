@@ -12,7 +12,7 @@ class CompanySerializer < Blueprinter::Base
 
   fields :name, :created_at, :updated_at
   field :no_of_active_flights do |company|
-    company.flights.select { |flight| flight.departs_at > Time.zone.now }.length
+    company.flights.where('departs_at > ?', Time.zone.now).length
   end
 
   view :extended do
