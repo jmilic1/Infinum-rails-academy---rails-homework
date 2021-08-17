@@ -17,7 +17,6 @@ RSpec.describe 'Flights Statistics API', type: :request do
       get '/api/statistics/flights',
           headers: auth_headers(admin)
 
-      puts json_body
       expect(json_body['flights']).to all include('flight_id', 'revenue', 'no_of_booked_seats',
                                                   'occupancy')
     end

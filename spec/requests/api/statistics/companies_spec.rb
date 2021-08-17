@@ -17,7 +17,6 @@ RSpec.describe 'Companies Statistics API', type: :request do
       get '/api/statistics/companies',
           headers: auth_headers(admin)
 
-      puts json_body
       expect(json_body['companies']).to all include('company_id', 'total_revenue',
                                                     'total_no_of_booked_seats',
                                                     'average_price_of_seats')
