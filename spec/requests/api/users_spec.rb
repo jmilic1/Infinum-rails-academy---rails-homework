@@ -22,7 +22,7 @@ RSpec.describe 'Users API', type: :request do
             headers: auth_headers(admin)
 
         expect(response).to have_http_status(:ok)
-        expect(json_body['users'].length).to equal(5)
+        expect(json_body['users'].length).to equal(6)
       end
 
       it 'returns a list of users without root' do
@@ -30,7 +30,7 @@ RSpec.describe 'Users API', type: :request do
             headers: root_headers('0').merge(auth_headers(admin))
 
         expect(response).to have_http_status(:ok)
-        expect(json_body.length).to equal(5)
+        expect(json_body.length).to equal(6)
       end
 
       it 'returns sorted users' do
