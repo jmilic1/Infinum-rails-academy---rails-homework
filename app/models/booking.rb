@@ -28,14 +28,17 @@ class Booking < ApplicationRecord
     errors.add(:flight, 'departure time must be after current time')
   end
 
+  # rubocop:disable Metrics/AbcSize
   def overbook
     return if no_of_seats.nil? || flight.nil?
 
     bookings = Booking.where(flight_id: flight_id)
-    total_num_of_seats = bookings.inject(0) { |sum, booking| sum + booking.no_of_seats }
+    total_num_of_seats = bookings.sum(&:no_of_seats)
+    total_num_of_seats += no_of_seats unless bookings.any? { |booking| booking.id == id }
 
     return if flight.no_of_seats >= total_num_of_seats
 
     errors.add(:no_of_seats, 'this booking has overbooked the flight')
   end
+  # rubocop:enable Metrics/AbcSize
 end
