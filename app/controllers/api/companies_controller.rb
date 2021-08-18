@@ -64,13 +64,7 @@ module Api
     def filter_companies
       return Company.all if request.params['filter'] != 'active'
 
-      Company.joins(:flights).where('departs_at > ?', Time.zone.now)
-    end
-
-    def active_companies(companies)
-      companies.select do |company|
-        company.flights.any? { |flight| flight.departs_at > Time.zone.now }
-      end
+      Company.joins(:flights).uniq.where('departs_at > ?', Time.zone.now)
     end
 
     def company_params
