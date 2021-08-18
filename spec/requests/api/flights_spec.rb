@@ -50,8 +50,8 @@ RSpec.describe 'Flights API', type: :request do
 
       flights = json_body['flights']
       booked_seats = flights.map do |flight|
-        flight['bookings'].inject(0) do |sum, booking|
-          sum + booking['no_of_seats'].to_i
+        flight['bookings'].sum do |booking|
+          booking['no_of_seats'].to_i
         end
       end
 
