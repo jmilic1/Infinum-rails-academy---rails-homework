@@ -3,9 +3,7 @@ module Api
     before_action :authenticate_current_user, only: [:create, :update, :destroy]
 
     def index
-      flights = active_flights(Flight.all)
-      flights = custom_filter(flights)
-      flights = sort_flights(flights)
+      flights = filter_flights.order(:departs_at, :name, :created_at)
 
       if request.headers['X_API_SERIALIZER_ROOT'] == '0'
         render json: FlightSerializer.render(flights, view: :extended),
@@ -70,44 +68,19 @@ module Api
                                      :company_id)
     end
 
-    def active_flights(flights)
-      flights.select do |flight|
-        flight.departs_at > Time.zone.now
-      end
-    end
+    # rubocop:disable Metrics/AbcSize
+    def filter_flights
+      flights = Flight.where('departs_at > ?', Time.zone.now)
 
-    def sort_flights(flights)
-      flights.sort_by do |flight|
-        [flight.departs_at,
-         flight.name,
-         flight.created_at]
-      end
-    end
-
-    def apply_name_cont(flights, name_cont)
-      flights.select { |flight| flight.name.downcase[name_cont.downcase] }
-    end
-
-    def apply_no_of_seats(flights, no_of_seats)
-      flights.select { |flight| flight.no_of_seats >= no_of_seats.to_i }
-    end
-
-    def apply_departs_at_eq(flights, departs_at_eq)
-      flights.select do |flight|
-        flight.departs_at.to_i == Time.zone.parse(departs_at_eq).to_i
-      end
-    end
-
-    def custom_filter(flights)
       name_cont = request.params['name_cont']
       no_of_seats = request.params['no_of_available_seats_gteq']
       departs_at_eq = request.params['departs_at_eq']
 
-      flights = apply_name_cont(flights, name_cont) if name_cont
-      flights = apply_no_of_seats(flights, no_of_seats) if no_of_seats
-      flights = apply_departs_at_eq(flights, departs_at_eq) if departs_at_eq
-
+      flights = flights.where('LOWER(name) LIKE ?', "%#{name_cont.downcase}%") if name_cont
+      flights = flights.where('no_of_seats >= ?', no_of_seats) if no_of_seats
+      flights = flights.where('departs_at = ?', departs_at_eq) if departs_at_eq
       flights
     end
+    # rubocop:enable Metrics/AbcSize
   end
 end
