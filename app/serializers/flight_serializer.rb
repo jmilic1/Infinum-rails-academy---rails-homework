@@ -19,7 +19,7 @@ class FlightSerializer < Blueprinter::Base
 
   view :extended do
     field :no_of_booked_seats do |flight|
-      flight.bookings.inject(0) { |sum, booking| sum + booking.no_of_seats }
+      flight.bookings.sum(&:no_of_seats)
     end
 
     field :company_name do |flight|
