@@ -19,7 +19,7 @@ class FlightSerializer < Blueprinter::Base
 
   view :extended do
     field :no_of_booked_seats do |flight|
-      flight.bookings.sum(&:no_of_seats)
+      Flight.booked_seats(flight)
     end
 
     field :company_name do |flight|
@@ -27,14 +27,7 @@ class FlightSerializer < Blueprinter::Base
     end
 
     field :current_price do |flight|
-      difference = (flight.departs_at - Time.zone.now).to_i / 1.day
-      if difference >= 15
-        flight.base_price
-      elsif difference <= 0
-        2 * flight.base_price
-      else
-        ((2 - difference.to_f / 15) * flight.base_price).round
-      end
+      Flight.current_price(flight)
     end
 
     association :bookings, blueprint: BookingSerializer

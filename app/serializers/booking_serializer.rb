@@ -17,7 +17,7 @@ class BookingSerializer < Blueprinter::Base
 
   view :extended do
     field :total_price do |booking|
-      booking.no_of_seats * booking.seat_price
+      Booking.total_price(booking)
     end
 
     association :flight, blueprint: FlightSerializer
