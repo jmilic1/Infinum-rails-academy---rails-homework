@@ -162,14 +162,14 @@ RSpec.describe 'Bookings API', type: :request do
     let(:valid_params_public) do
       { no_of_seats: 20,
         seat_price: 30,
-        flight_id: create(:flight).id,
+        flight_id: create(:flight, no_of_seats: 30).id,
         user_id: public.id }
     end
 
     let(:valid_params_admin) do
       { no_of_seats: 20,
         seat_price: 30,
-        flight_id: create(:flight).id,
+        flight_id: create(:flight, no_of_seats: 30).id,
         user_id: admin.id }
     end
 
