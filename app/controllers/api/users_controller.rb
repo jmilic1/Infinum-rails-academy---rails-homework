@@ -4,7 +4,7 @@ module Api
 
     def index
       authorize User
-      @users = filter(User.all).sort_by(&:email)
+      @users = filter.sort_by(&:email)
 
       if request.headers['X_API_SERIALIZER_ROOT'] == '0'
         render json: UserSerializer.render(@users, view: :extended), status: :ok
@@ -64,17 +64,14 @@ module Api
       end
     end
 
-    # rubocop:disable Metrics/AbcSize
-    def filter(users)
+    def filter
       query = request.params['query']
-      return users if query.nil?
+      return User.all if query.nil?
 
-      users.select do |user|
-        user.first_name.downcase.include?(query.downcase) ||
-          (!user.last_name.nil? && user.last_name.downcase.include?(query.downcase)) ||
-          user.email.downcase.include?(query.downcase)
-      end
+      User.where(
+        'LOWER(first_name) = :query OR LOWER(last_name) = :query OR LOWER(email) = :query',
+        { query: query.downcase }
+      )
     end
-    # rubocop:enable Metrics/AbcSize
   end
 end
