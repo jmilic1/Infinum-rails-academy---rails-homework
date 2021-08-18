@@ -42,11 +42,8 @@ class Flight < ApplicationRecord
     Flight.where(company_id: company_id).find_each do |flight|
       next if flight.id == id
 
-      if within_flight_range(departs_at, flight)
+      if within_flight_range(departs_at, flight) || within_flight_range(arrives_at, flight)
         errors.add(:departs_at, 'departure time overlaps with another flight')
-      end
-
-      if within_flight_range(arrives_at, flight)
         errors.add(:arrives_at, 'arrival time overlaps with another flight')
       end
     end
