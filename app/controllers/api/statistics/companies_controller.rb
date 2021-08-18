@@ -4,9 +4,9 @@ module Api
       before_action :authenticate_current_user, only: [:index]
 
       def index
-        @companies = authorize [:statistics, Company.all]
+        @companies = authorize([:statistics, Company.all])[1]
 
-        render json: ::Statistics::CompanySerializer.render(@companies[1], root: :companies),
+        render json: ::Statistics::CompanySerializer.render(@companies, root: :companies),
                status: :ok
       end
     end
