@@ -3,76 +3,85 @@ RSpec.describe 'Companies API', type: :request do
   let!(:admin) { create(:user, token: 'admin-token', role: 'admin') }
   let!(:public) { create(:user, token: 'public-token') }
 
+  # rubocop:disable RSpec/MultipleMemoizedHelpers, RSpec/ExampleLength
   describe 'GET /companies' do
-    before do
-      company1 = create(:company)
-      company2 = create(:company)
-      company3 = create(:company)
-      inactive_flight1 = create(:flight, departs_at: 1.day.before, company: company1)
-      inactive_flight2 = create(:flight, departs_at: 1.day.before, arrives_at: Time.zone.now,
-                                         company: company3)
-      active_flight1 = create(:flight, departs_at: 1.day.after, company: company2)
-      active_flight2 = create(:flight, departs_at: 1.day.after, arrives_at: 2.days.after,
-                                       company: company3)
-      active_flight3 = create(:flight, departs_at: 3.days.after, arrives_at: 4.days.after,
-                                       company: company3)
+    context 'when executing a basic index' do
+      before { create_list(:company, 3) }
 
-      company1.flights = [inactive_flight1]
-      company2.flights = [active_flight1]
-      company3.flights = [inactive_flight2, active_flight2, active_flight3]
-    end
+      it 'successfully returns a list of companies' do
+        get '/api/companies'
 
-    it 'successfully returns a list of companies' do
-      get '/api/companies'
+        expect(response).to have_http_status(:ok)
+        expect(json_body['companies'].length).to equal(3)
+      end
 
-      expect(response).to have_http_status(:ok)
-      expect(json_body['companies'].length).to equal(3)
-    end
+      it 'returns a list of companies without root' do
+        get '/api/companies',
+            headers: root_headers('0')
 
-    it 'returns a list of companies without root' do
-      get '/api/companies',
-          headers: root_headers('0')
+        expect(response).to have_http_status(:ok)
+        expect(json_body.length).to equal(3)
+      end
 
-      expect(response).to have_http_status(:ok)
-      expect(json_body.length).to equal(3)
-    end
+      it 'returns sorted companies' do
+        get '/api/companies'
 
-    it 'returns sorted companies' do
-      get '/api/companies'
-
-      company_names = json_body['companies'].map { |company| company['name'] }
-      (0..company_names.length - 2).step do |index|
-        expect(company_names[index]).to be <= company_names[index + 1]
+        company_names = json_body['companies'].map { |company| company['name'] }
+        (0..company_names.length - 2).step do |index|
+          expect(company_names[index]).to be <= company_names[index + 1]
+        end
       end
     end
 
-    it 'returns companies with active flights' do
-      get '/api/companies?filter=active'
+    context 'when checking fields' do
+      let(:expected_no_of_active_flights) { [0, 1, 2] }
+      let(:names) { ['first company name', 'second company name', 'third company name'] }
+      let!(:first_company) { create(:company, name: names[0]) }
+      let!(:second_company) { create(:company, name: names[1]) }
+      let!(:third_company) { create(:company, name: names[2]) }
 
-      companies = json_body['companies']
-      expect(response).to have_http_status(:ok)
-      companies.each do |company|
-        expect(company['flights'].any? do |flight|
-          Time.zone.parse(flight['departs_at']) > Time.zone.now
-        end).to be true
+      before do
+        inactive_flight1 = create(:flight, departs_at: 1.day.before, company: first_company)
+        inactive_flight2 = create(:flight, departs_at: 1.day.before, arrives_at: Time.zone.now,
+                                           company: third_company)
+        active_flight1 = create(:flight, departs_at: 1.day.after, company: second_company)
+        active_flight2 = create(:flight, departs_at: 1.day.after, arrives_at: 2.days.after,
+                                         company: third_company)
+        active_flight3 = create(:flight, departs_at: 3.days.after, arrives_at: 4.days.after,
+                                         company: third_company)
+
+        first_company.flights = [inactive_flight1]
+        second_company.flights = [active_flight1]
+        third_company.flights = [inactive_flight2, active_flight2, active_flight3]
       end
-    end
 
-    it 'returns number of active flights' do
-      get '/api/companies'
+      it 'returns companies with active flights' do
+        get '/api/companies?filter=active'
 
-      companies = json_body['companies']
-      active_flights = companies.map do |company|
-        company['flights'].select do |flight|
-          Time.zone.parse(flight['departs_at']) > Time.zone.now
-        end.size
+        expect(response).to have_http_status(:ok)
+
+        expect(json_body['companies'].map do |company|
+          company['id']
+        end).to include(second_company.id, third_company.id)
       end
 
-      (0..companies.length - 1).step do |index|
-        expect(companies[index]['no_of_active_flights'].to_i).to eq(active_flights[index])
+      it 'returns number of active flights' do
+        get '/api/companies'
+
+        json_body['companies'].each do |company|
+          case company['id']
+          when first_company.id
+            expect(company['no_of_active_flights'].to_i).to eq(expected_no_of_active_flights[0])
+          when second_company.id
+            expect(company['no_of_active_flights'].to_i).to eq(expected_no_of_active_flights[1])
+          else
+            expect(company['no_of_active_flights'].to_i).to eq(expected_no_of_active_flights[2])
+          end
+        end
       end
     end
   end
+  # rubocop:enable RSpec/MultipleMemoizedHelpers, RSpec/ExampleLength
 
   describe 'GET /companies/:id' do
     context 'when company id exists' do
