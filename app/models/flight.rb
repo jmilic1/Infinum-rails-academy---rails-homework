@@ -28,7 +28,8 @@ class Flight < ApplicationRecord
   validates :departs_at, presence: true
   validates :arrives_at, presence: true
 
-  validate :departs_at_before_arrives_at, :valid_time?
+  validate :departs_at_before_arrives_at
+  validate :overlap?
 
   def departs_at_before_arrives_at
     return if departs_at.nil? || arrives_at.nil? || departs_at < arrives_at
@@ -36,7 +37,7 @@ class Flight < ApplicationRecord
     errors.add(:departs_at, 'must be before arrives_at')
   end
 
-  def valid_time?
+  def overlap?
     return if company.nil?
 
     Flight.where(company_id: company_id).find_each do |flight|

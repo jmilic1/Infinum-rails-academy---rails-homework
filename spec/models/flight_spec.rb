@@ -46,7 +46,7 @@ RSpec.describe Flight do
       flight = create(:flight, departs_at: 2.days.after, arrives_at: 3.days.after, company: company)
       create(:flight, departs_at: 1.day.after, arrives_at: 3.days.after, company: company)
 
-      flight.valid_time?
+      flight.overlap?
 
       expect(flight.errors[:arrives_at]).to include('arrival time overlaps with another flight')
     end
