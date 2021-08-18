@@ -3,9 +3,9 @@ module Api
     before_action :authenticate_current_user, only: [:index, :create, :show, :update, :destroy]
 
     def index
-      @bookings = authorize policy_scope(Booking.includes(:flight, :user, flight: [:company]))
-      @bookings = active_bookings(@bookings) if request.params['filter'] == 'active'
-      @bookings = sort_bookings(@bookings)
+      authorize Booking
+      @bookings = policy_scope(filter_bookings.order(:created_at).merge(Flight.order(:departs_at,
+                                                                                     :name)))
 
       if request.headers['X_API_SERIALIZER_ROOT'] == '0'
         render json: BookingSerializer.render(@bookings, view: :extended), status: :ok
@@ -73,15 +73,11 @@ module Api
       end
     end
 
-    def active_bookings(bookings)
-      bookings.joins(:flight).where('departs_at > ?', Time.zone.now)
-    end
-
-    def sort_bookings(bookings)
-      bookings.sort_by do |booking|
-        [booking.flight.departs_at,
-         booking.flight.name,
-         booking.created_at]
+    def filter_bookings
+      if request.params['filter'] != 'active'
+        Booking.joins(:flight, :user)
+      else
+        Booking.joins(:flight, :user).where('departs_at > ?', Time.zone.now)
       end
     end
   end

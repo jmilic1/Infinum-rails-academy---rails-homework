@@ -4,7 +4,7 @@ module Api
 
     def index
       authorize User
-      @users = filter.sort_by(&:email)
+      @users = filter.order(:email)
 
       if request.headers['X_API_SERIALIZER_ROOT'] == '0'
         render json: UserSerializer.render(@users, view: :extended), status: :ok

@@ -3,7 +3,7 @@ module Api
     before_action :authenticate_current_user, only: [:create, :update, :destroy]
 
     def index
-      companies = filter.sort_by(&:name)
+      companies = filter_companies.order(:name)
 
       if request.headers['X_API_SERIALIZER_ROOT'] == '0'
         render json: CompanySerializer.render(companies, view: :extended),
@@ -61,7 +61,7 @@ module Api
 
     private
 
-    def filter
+    def filter_companies
       return Company.all if request.params['filter'] != 'active'
 
       Company.joins(:flights).where('departs_at > ?', Time.zone.now)
