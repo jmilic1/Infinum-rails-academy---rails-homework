@@ -34,7 +34,7 @@ RSpec.describe Booking do
   describe '#overbook' do
     it 'fails validation if no_of_seats is larger than flight seats' do
       flight = create(:flight, no_of_seats: 1)
-      booking = create(:booking, no_of_seats: 2, flight: flight)
+      booking = build(:booking, no_of_seats: 2, flight: flight)
 
       booking.overbook
 
