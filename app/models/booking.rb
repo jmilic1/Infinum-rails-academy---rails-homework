@@ -32,7 +32,7 @@ class Booking < ApplicationRecord
   def overbook
     return if no_of_seats.nil? || flight.nil?
 
-    bookings = flight.bookings
+    bookings = Booking.where(flight_id: flight_id)
     total_num_of_seats = bookings.sum(&:no_of_seats)
     total_num_of_seats += no_of_seats unless bookings.any? { |booking| booking.id == id }
 
