@@ -69,8 +69,8 @@ module Api
       return User.all if query.nil?
 
       User.where(
-        'LOWER(first_name) = :query OR LOWER(last_name) = :query OR LOWER(email) = :query',
-        { query: query.downcase }
+        'first_name LIKE :query OR last_name LIKE :query OR email LIKE :query',
+        { query: "%#{query.downcase}%" }
       )
     end
   end
