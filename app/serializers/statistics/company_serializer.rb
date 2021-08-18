@@ -2,13 +2,17 @@ module Statistics
   class CompanySerializer < Blueprinter::Base
     identifier :id, name: :company_id
 
-    field :total_revenue, &:total_revenue
+    field :total_revenue do |company|
+      Company.total_revenue(company)
+    end
 
-    field :total_no_of_booked_seats, &:total_no_of_booked_seats
+    field :total_no_of_booked_seats do |company|
+      Company.total_no_of_booked_seats(company)
+    end
 
     field :average_price_of_seats do |company|
-      seats = company.total_no_of_booked_seats
-      revenue = company.total_revenue.to_f
+      seats = Company.total_no_of_booked_seats(company)
+      revenue = Company.total_revenue(company).to_f
       if seats.zero?
         revenue
       else
