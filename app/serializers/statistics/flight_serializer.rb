@@ -6,7 +6,7 @@ module Statistics
       if flight.bookings.nil?
         0
       else
-        flight.bookings.inject(0) { |sum, booking| sum + booking.seat_price * booking.no_of_seats }
+        flight.bookings.sum { |booking| booking.seat_price * booking.no_of_seats }
       end
     end
 
@@ -22,7 +22,7 @@ module Statistics
     def self.booked_seats(flight)
       return 0 if flight.bookings.nil?
 
-      flight.bookings.inject(0) { |sum, booking| sum + booking.no_of_seats }
+      flight.bookings.sum(&:no_of_seats)
     end
   end
 end
