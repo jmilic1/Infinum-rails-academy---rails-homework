@@ -3,11 +3,7 @@ module Statistics
     identifier :id, name: :flight_id
 
     field :revenue do |flight|
-      if flight.bookings.nil?
-        0
-      else
-        flight.bookings.sum { |booking| booking.seat_price * booking.no_of_seats }
-      end
+      flight.bookings&.sum { |booking| booking.seat_price * booking.no_of_seats }
     end
 
     field :no_of_booked_seats do |flight|
