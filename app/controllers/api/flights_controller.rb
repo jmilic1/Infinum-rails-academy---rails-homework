@@ -76,7 +76,7 @@ module Api
       no_of_seats = request.params['no_of_available_seats_gteq']
       departs_at_eq = request.params['departs_at_eq']
 
-      flights = flights.where('LOWER(name) LIKE ?', "%#{name_cont.downcase}%") if name_cont
+      flights = flights.where('name ILIKE ?', "%#{name_cont.downcase}%") if name_cont
       flights = flights.where('no_of_seats >= ?', no_of_seats) if no_of_seats
       flights = flights.where('departs_at = ?', departs_at_eq) if departs_at_eq
       flights
