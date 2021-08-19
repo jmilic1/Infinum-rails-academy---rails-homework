@@ -78,7 +78,7 @@ module Api
 
       flights = flights.where('name ILIKE ?', "%#{name_cont.downcase}%") if name_cont
       flights = flights.where('no_of_seats >= ?', no_of_seats) if no_of_seats
-      flights = flights.where('departs_at = ?', departs_at_eq) if departs_at_eq
+      flights = flights.where('departs_at = DATE(?)', departs_at_eq) if departs_at_eq
       flights
     end
     # rubocop:enable Metrics/AbcSize
