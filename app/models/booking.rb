@@ -22,8 +22,8 @@ class Booking < ApplicationRecord
 
   validate :departs_at_after_now, :overbook
 
-  def self.total_price(booking)
-    booking.no_of_seats * booking.seat_price
+  def total_price
+    no_of_seats * seat_price
   end
 
   def departs_at_after_now

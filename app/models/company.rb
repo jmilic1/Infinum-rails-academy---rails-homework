@@ -12,20 +12,16 @@ class Company < ApplicationRecord
 
   validates :name, uniqueness: { case_sensitive: false }, presence: true
 
-  def self.no_of_active_flights(company)
-    company.flights.where('departs_at > ?', Time.zone.now).length
+  def no_of_active_flights
+    flights.where('departs_at > ?', Time.zone.now).length
   end
 
-  def self.total_revenue(company)
-    company.flights.sum do |flight|
-      flight.bookings.sum do |booking|
-        booking.seat_price * booking.no_of_seats
-      end
-    end
+  def total_revenue
+    flights.sum(&:revenue)
   end
 
-  def self.total_no_of_booked_seats(company)
-    company.flights.sum do |flight|
+  def total_no_of_booked_seats
+    flights.sum do |flight|
       flight.bookings.sum(&:no_of_seats)
     end
   end

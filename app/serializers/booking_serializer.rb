@@ -15,10 +15,12 @@ class BookingSerializer < Blueprinter::Base
 
   fields :no_of_seats, :seat_price, :created_at, :updated_at
 
+  # rubocop:disable Style/SymbolProc
   view :extended do
     field :total_price do |booking|
-      Booking.total_price(booking)
+      booking.total_price
     end
+    # rubocop:enable Style/SymbolProc
 
     association :flight, blueprint: FlightSerializer
     association :user, blueprint: UserSerializer

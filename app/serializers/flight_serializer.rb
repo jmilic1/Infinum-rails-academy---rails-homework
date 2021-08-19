@@ -18,16 +18,18 @@ class FlightSerializer < Blueprinter::Base
   fields :name, :no_of_seats, :base_price, :departs_at, :arrives_at, :created_at, :updated_at
 
   view :extended do
+    # rubocop:disable Style/SymbolProc
     field :no_of_booked_seats do |flight|
-      Flight.booked_seats(flight)
-    end
-
-    field :company_name do |flight|
-      flight.company.name
+      flight.booked_seats
     end
 
     field :current_price do |flight|
-      Flight.current_price(flight)
+      flight.current_price
+    end
+    # rubocop:enable Style/SymbolProc
+
+    field :company_name do |flight|
+      flight.company.name
     end
 
     association :bookings, blueprint: BookingSerializer

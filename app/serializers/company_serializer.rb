@@ -11,9 +11,11 @@ class CompanySerializer < Blueprinter::Base
   identifier :id
 
   fields :name, :created_at, :updated_at
+  # rubocop:disable Style/SymbolProc
   field :no_of_active_flights do |company|
-    Company.no_of_active_flights(company)
+    company.no_of_active_flights
   end
+  # rubocop:enable Style/SymbolProc
 
   view :extended do
     association :flights, blueprint: FlightSerializer

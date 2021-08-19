@@ -50,29 +50,29 @@ class Flight < ApplicationRecord
     end
   end
 
-  def self.current_price(flight)
-    difference = (flight.departs_at - Time.zone.now).to_i / 1.day
+  def current_price
+    difference = (departs_at - Time.zone.now).to_i / 1.day
     if difference >= 15
-      flight.base_price
+      base_price
     elsif difference <= 0
-      2 * flight.base_price
+      2 * base_price
     else
-      ((2 - difference.to_f / 15) * flight.base_price).round
+      ((2 - difference.to_f / 15) * base_price).round
     end
   end
 
-  def self.revenue(flight)
-    flight.bookings&.sum { |booking| booking.seat_price * booking.no_of_seats }
+  def revenue
+    bookings&.sum { |booking| booking.seat_price * booking.no_of_seats }
   end
 
-  def self.booked_seats(flight)
-    return 0 if flight.bookings.nil?
+  def booked_seats
+    return 0 if bookings.nil?
 
-    flight.bookings.sum(&:no_of_seats)
+    bookings.sum(&:no_of_seats)
   end
 
-  def self.occupancy(flight)
-    Flight.booked_seats(flight).to_f / flight.no_of_seats
+  def occupancy
+    booked_seats.to_f / no_of_seats
   end
 
   private
