@@ -32,6 +32,41 @@ RSpec.describe 'Bookings API', type: :request do
         expect(response).to have_http_status(:ok)
         expect(json_body.length).to equal(6)
       end
+
+      it 'returns sorted bookings' do
+        get '/api/bookings',
+            headers: auth_headers(admin)
+
+        bookings = json_body['bookings']
+        (0..bookings.length - 2).step do |index|
+          expect(less_than_or_equal(bookings[index], bookings[index + 1])).to be true
+        end
+      end
+
+      it 'returns bookings with active flights' do
+        get '/api/bookings?filter=active',
+            headers: auth_headers(admin)
+
+        bookings = json_body['bookings']
+        expect(response).to have_http_status(:ok)
+        bookings.each do |booking|
+          expect(Time.zone.parse(booking['flight']['departs_at']) > Time.zone.now).to be true
+        end
+      end
+
+      it 'returns total price for each booking' do
+        get '/api/bookings?filter=active',
+            headers: auth_headers(admin)
+
+        bookings = json_body['bookings']
+        total_prices = bookings.map do |booking|
+          booking['no_of_seats'].to_i * booking['seat_price'].to_i
+        end
+
+        (0..bookings.length - 1).step do |index|
+          expect(bookings[index]['total_price'].to_i).to eq(total_prices[index])
+        end
+      end
     end
 
     context 'when public user requests index' do
@@ -127,30 +162,30 @@ RSpec.describe 'Bookings API', type: :request do
     let(:valid_params_public) do
       { no_of_seats: 20,
         seat_price: 30,
-        flight_id: create(:flight).id,
+        flight_id: create(:flight, no_of_seats: 30).id,
         user_id: public.id }
     end
 
     let(:valid_params_admin) do
       { no_of_seats: 20,
         seat_price: 30,
-        flight_id: create(:flight).id,
+        flight_id: create(:flight, no_of_seats: 30).id,
         user_id: admin.id }
     end
 
     it 'returns 401 unauthorized if user is not authenticated' do
-      post  '/api/bookings',
-            params: { booking: valid_params_public }.to_json,
-            headers: api_headers
+      post '/api/bookings',
+           params: { booking: valid_params_public }.to_json,
+           headers: api_headers
 
       expect(response).to have_http_status(:unauthorized)
     end
 
     context 'when admin posts new booking' do
       it 'returns status code 201 (created)' do
-        post  '/api/bookings',
-              params: { booking: valid_params_admin }.to_json,
-              headers: auth_headers(admin)
+        post '/api/bookings',
+             params: { booking: valid_params_admin }.to_json,
+             headers: auth_headers(admin)
 
         expect(response).to have_http_status(:created)
       end
@@ -170,9 +205,9 @@ RSpec.describe 'Bookings API', type: :request do
       end
 
       it 'assigns correct values to created booking' do
-        post  '/api/bookings',
-              params: { booking: valid_params_admin }.to_json,
-              headers: auth_headers(admin)
+        post '/api/bookings',
+             params: { booking: valid_params_admin }.to_json,
+             headers: auth_headers(admin)
 
         booking = Booking.first
         expect(booking.no_of_seats).to eq(valid_params_admin[:no_of_seats])
@@ -182,9 +217,9 @@ RSpec.describe 'Bookings API', type: :request do
 
     context 'when public user posts new booking' do
       it 'returns status code 201 (created)' do
-        post  '/api/bookings',
-              params: { booking: valid_params_public }.to_json,
-              headers: auth_headers(public)
+        post '/api/bookings',
+             params: { booking: valid_params_public }.to_json,
+             headers: auth_headers(public)
 
         expect(response).to have_http_status(:created)
       end
@@ -204,9 +239,9 @@ RSpec.describe 'Bookings API', type: :request do
       end
 
       it 'assigns correct values to created booking' do
-        post  '/api/bookings',
-              params: { booking: valid_params_public }.to_json,
-              headers: auth_headers(public)
+        post '/api/bookings',
+             params: { booking: valid_params_public }.to_json,
+             headers: auth_headers(public)
 
         booking = Booking.first
         expect(booking.no_of_seats).to eq(valid_params_public[:no_of_seats])
@@ -220,25 +255,25 @@ RSpec.describe 'Bookings API', type: :request do
       end
 
       it 'returns 400 Bad Request' do
-        post  '/api/bookings',
-              params: { booking: invalid_params }.to_json,
-              headers: auth_headers(admin)
+        post '/api/bookings',
+             params: { booking: invalid_params }.to_json,
+             headers: auth_headers(admin)
 
         expect(response).to have_http_status(:bad_request)
       end
 
       it 'returns errors for all invalid attributes' do
-        post  '/api/bookings',
-              params: { booking: invalid_params }.to_json,
-              headers: auth_headers(admin)
+        post '/api/bookings',
+             params: { booking: invalid_params }.to_json,
+             headers: auth_headers(admin)
 
         expect(json_body['errors']).to include('no_of_seats', 'seat_price', 'flight')
       end
 
       it 'does not create booking' do
-        post  '/api/bookings',
-              params: { booking: invalid_params }.to_json,
-              headers: auth_headers(admin)
+        post '/api/bookings',
+             params: { booking: invalid_params }.to_json,
+             headers: auth_headers(admin)
 
         expect(Booking.count).to eq(0)
       end
@@ -271,7 +306,10 @@ RSpec.describe 'Bookings API', type: :request do
     end
 
     context 'when admin updates booking' do
-      let!(:booking) { create(:booking, no_of_seats: 25, seat_price: 30, user: admin) }
+      let!(:booking) do
+        create(:booking, no_of_seats: 25, seat_price: 30, user: admin,
+                         flight: create(:flight, no_of_seats: 25))
+      end
 
       it 'returns status 200 (ok)' do
         put "/api/bookings/#{booking.id}",
@@ -302,8 +340,14 @@ RSpec.describe 'Bookings API', type: :request do
     end
 
     context 'when public user updates booking' do
-      let!(:booking) { create(:booking, no_of_seats: 25, seat_price: 30, user: admin) }
-      let!(:booking_public) { create(:booking, no_of_seats: 25, seat_price: 30, user: public) }
+      let!(:booking) do
+        create(:booking, no_of_seats: 25, seat_price: 30, user: admin,
+                         flight: create(:flight, no_of_seats: 25))
+      end
+      let!(:booking_public) do
+        create(:booking, no_of_seats: 25, seat_price: 30, user: public,
+                         flight: create(:flight, no_of_seats: 25))
+      end
 
       it 'returns status 200 (ok)' do
         put "/api/bookings/#{booking_public.id}",
@@ -394,5 +438,29 @@ RSpec.describe 'Bookings API', type: :request do
         expect(Booking.all.length).to eq(1)
       end
     end
+  end
+
+  private
+
+  def created_at_greater?(first, second)
+    Time.zone.parse(first['created_at']) > Time.zone.parse(second['created_at'])
+  end
+
+  def flight_name_greater?(first, second)
+    first['flight']['name'] > second['flight']['name']
+  end
+
+  def less_than_or_equal(first, second)
+    first_departs_at = Time.zone.parse(first['flight']['departs_at'])
+    second_departs_at = Time.zone.parse(second['flight']['departs_at'])
+    return false if first_departs_at > second_departs_at
+
+    if first_departs_at == second_departs_at &&
+       (flight_name_greater?(first, second) ||
+         (first['name'] == second['name'] && created_at_greater?(first, second)))
+      return false
+    end
+
+    true
   end
 end

@@ -1,10 +1,13 @@
 RSpec.describe 'Users API', type: :request do
   include TestHelpers::JsonResponse
-  let!(:admin) { create(:user, token: 'admin-token', role: 'admin') }
-  let!(:public) { create(:user, token: 'public-token') }
+  let!(:admin) { create(:user, first_name: 'aragorn', token: 'admin-token', role: 'admin') }
+  let!(:public) { create(:user, last_name: 'ARAGORN', token: 'public-token') }
 
   describe 'GET /users' do
-    before { create_list(:user, 3) }
+    before do
+      create(:user, email: 'aragorn.dunedain@middle.earth')
+      create_list(:user, 3)
+    end
 
     it 'returns 401 unauthorized if unauthenticated user indexes users' do
       get '/api/users'
@@ -19,7 +22,7 @@ RSpec.describe 'Users API', type: :request do
             headers: auth_headers(admin)
 
         expect(response).to have_http_status(:ok)
-        expect(json_body['users'].length).to equal(5)
+        expect(json_body['users'].length).to equal(6)
       end
 
       it 'returns a list of users without root' do
@@ -27,7 +30,27 @@ RSpec.describe 'Users API', type: :request do
             headers: root_headers('0').merge(auth_headers(admin))
 
         expect(response).to have_http_status(:ok)
-        expect(json_body.length).to equal(5)
+        expect(json_body.length).to equal(6)
+      end
+
+      it 'returns sorted users' do
+        get '/api/users',
+            headers: auth_headers(admin)
+
+        users = json_body['users']
+        (0..users.length - 2).step do |index|
+          expect(users[index]['email']).to be <= users[index + 1]['email']
+        end
+      end
+
+      it 'returns filtered users' do
+        get '/api/users?query=aragorn',
+            headers: auth_headers(admin)
+
+        users = json_body['users']
+        users.each do |user|
+          expect(user_contains_string(user, 'aragorn')).to be true
+        end
       end
     end
 
@@ -341,5 +364,13 @@ RSpec.describe 'Users API', type: :request do
         expect(User.all.length).to eq(1)
       end
     end
+  end
+
+  private
+
+  def user_contains_string(user, str)
+    user['first_name'].downcase.include?(str.downcase) ||
+      (!user['last_name'].nil? && user['last_name'].downcase.include?(str.downcase)) ||
+      user['email'].downcase.include?(str.downcase)
   end
 end

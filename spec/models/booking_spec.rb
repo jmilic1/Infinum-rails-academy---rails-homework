@@ -19,7 +19,7 @@ RSpec.describe Booking do
   it { is_expected.to validate_numericality_of(:no_of_seats).is_greater_than(0) }
 
   describe '#departs_at_after_now' do
-    it 'raises error if departs_at is before now' do
+    it 'fails validation if departs_at is before now' do
       booking = create(:booking)
       flight = create(:flight)
       flight.departs_at = 1.day.ago
@@ -28,6 +28,17 @@ RSpec.describe Booking do
       booking.departs_at_after_now
 
       expect(booking.errors[:flight]).to include('departure time must be after current time')
+    end
+  end
+
+  describe '#overbook' do
+    it 'fails validation if no_of_seats is larger than flight seats' do
+      flight = create(:flight, no_of_seats: 1)
+      booking = build(:booking, no_of_seats: 2, flight: flight)
+
+      booking.overbook
+
+      expect(booking.errors[:no_of_seats]).to include('this booking has overbooked the flight')
     end
   end
 end

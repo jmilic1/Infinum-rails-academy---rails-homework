@@ -4,7 +4,7 @@ module Api
 
     def index
       authorize User
-      @users = User.all
+      @users = filter.order(:email)
 
       if request.headers['X_API_SERIALIZER_ROOT'] == '0'
         render json: UserSerializer.render(@users, view: :extended), status: :ok
@@ -62,6 +62,16 @@ module Api
       else
         params.require(:user).permit(:first_name, :last_name, :email, :password)
       end
+    end
+
+    def filter
+      query = request.params['query']
+      return User.all if query.nil?
+
+      User.where(
+        'first_name ILIKE :query OR last_name ILIKE :query OR email ILIKE :query',
+        { query: "%#{query.downcase}%" }
+      )
     end
   end
 end

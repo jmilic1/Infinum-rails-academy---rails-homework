@@ -4,13 +4,14 @@ module Api
 
     def index
       authorize Booking
-      @bookings = policy_scope(Booking.all)
+      @bookings = policy_scope(filter_bookings.order(:created_at).merge(Flight.order(:departs_at,
+                                                                                     :name)))
 
       if request.headers['X_API_SERIALIZER_ROOT'] == '0'
-        render json: BookingSerializer.render(@bookings, view: :extended),
-               status: :ok
+        render json: BookingSerializer.render(@bookings, view: :extended), status: :ok
       else
-        render json: BookingSerializer.render(@bookings.all, view: :extended, root: :bookings),
+        render json: BookingSerializer.render(@bookings,
+                                              view: :extended, root: :bookings),
                status: :ok
       end
     end
@@ -69,6 +70,14 @@ module Api
         params.require(:booking).permit(:no_of_seats, :seat_price, :flight_id, :user_id)
       else
         params.require(:booking).permit(:no_of_seats, :seat_price, :flight_id)
+      end
+    end
+
+    def filter_bookings
+      if request.params['filter'] != 'active'
+        Booking.joins(:flight, :user)
+      else
+        Booking.joins(:flight, :user).where('departs_at > ?', Time.zone.now)
       end
     end
   end

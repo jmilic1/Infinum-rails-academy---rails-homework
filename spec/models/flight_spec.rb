@@ -30,13 +30,25 @@ RSpec.describe Flight do
   it { is_expected.to validate_presence_of(:arrives_at) }
 
   describe '#departs_at_before_arrives_at' do
-    it 'raises error if departs_at is after arrives_at' do
+    it 'fails validation if departs_at is after arrives_at' do
       flight.departs_at = Time.zone.now.getutc
       flight.arrives_at = 1.day.ago
 
       flight.departs_at_before_arrives_at
 
       expect(flight.errors[:departs_at]).to include('must be before arrives_at')
+    end
+  end
+
+  describe '#overlap' do
+    it 'fails validation if flight company holds another flight which overlaps with this one' do
+      company = create(:company)
+      flight = create(:flight, departs_at: 2.days.after, arrives_at: 3.days.after, company: company)
+      create(:flight, departs_at: 1.day.after, arrives_at: 3.days.after, company: company)
+
+      flight.overlap?
+
+      expect(flight.errors[:arrives_at]).to include('arrival time overlaps with another flight')
     end
   end
 

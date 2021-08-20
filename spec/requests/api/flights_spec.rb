@@ -20,6 +20,173 @@ RSpec.describe 'Flights API', type: :request do
       expect(response).to have_http_status(:ok)
       expect(json_body.length).to equal(3)
     end
+
+    it 'returns sorted flights' do
+      get '/api/flights'
+
+      flights = json_body['flights']
+      (0..flights.length - 2).step do |index|
+        expect(less_than_or_equal(flights[index], flights[index + 1])).to be true
+      end
+    end
+
+    context 'when inactive flights exist' do
+      before { create_list(:flight, 3, departs_at: 1.day.ago) }
+
+      it 'returns only active flights' do
+        get '/api/flights'
+
+        expect(response).to have_http_status(:ok)
+        expect(json_body['flights'].length).to equal(3)
+
+        json_body['flights'].each do |flight|
+          expect(Time.zone.parse(flight['departs_at'])).to be > Time.zone.now
+        end
+      end
+    end
+
+    it 'returns number of booked seats for each flight' do
+      get '/api/flights'
+
+      flights = json_body['flights']
+      booked_seats = flights.map do |flight|
+        flight['bookings'].sum do |booking|
+          booking['no_of_seats'].to_i
+        end
+      end
+
+      (0..flights.length - 1).step do |index|
+        expect(flights[index]['no_of_booked_seats'].to_i).to eq(booked_seats[index])
+      end
+    end
+
+    it 'returns company name for each flight' do
+      get '/api/flights'
+
+      flights = json_body['flights']
+      company_names = flights.map do |flight|
+        flight['company']['name']
+      end
+
+      (0..flights.length - 1).step do |index|
+        expect(flights[index]['company_name']).to eq(company_names[index])
+      end
+    end
+
+    context 'when using filter' do
+      let(:departure) { 42.days.after }
+
+      before do
+        create(:flight, name: 'great eagles')
+        create(:flight, name: 'great EAGLES')
+        create(:flight, departs_at: departure, arrives_at: 43.days.after)
+        booking = create(:booking, no_of_seats: 5)
+        create(:flight, bookings: [booking], no_of_seats: 10)
+      end
+
+      it 'filters by name' do
+        get '/api/flights?name_cont=eagles'
+
+        json_body['flights'].each do |flight|
+          expect(flight['name'].downcase).to include('eagles')
+        end
+      end
+
+      it 'filters by departure' do
+        get "/api/flights?departs_at_eq=#{departure}"
+
+        json_body['flights'].each do |flight|
+          expect(Time.zone.parse(flight['departs_at']).to_i).to eq(departure.to_i)
+        end
+      end
+
+      it 'filters by available seats' do
+        get '/api/flights?no_of_available_seats_gteq=5'
+
+        json_body['flights'].each do |flight|
+          available_seats = flight['no_of_seats'] - flight['no_of_booked_seats']
+          expect(available_seats).to be >= 5
+        end
+      end
+
+      it 'filters by name and departure' do
+        get "/api/flights?name_cont=eagles&departs_at_eq=#{departure}"
+
+        json_body['flights'].each do |flight|
+          expect(flight['name'].downcase).to include('eagles')
+          expect(Time.zone.parse(flight['departs_at']).to_i).to eq(departure.to_i)
+        end
+      end
+
+      it 'filters by name and available seats' do
+        get '/api/flights?name_cont=eagles&no_of_available_seats_gteq=5'
+
+        json_body['flights'].each do |flight|
+          expect(flight['name'].downcase).to include('eagles')
+
+          available_seats = flight['no_of_seats'] - flight['no_of_booked_seats']
+          expect(available_seats).to be >= 5
+        end
+      end
+
+      it 'filters by departure and available seats' do
+        get "/api/flights?departs_at_eq=#{departure}&no_of_available_seats_gteq=5"
+
+        json_body['flights'].each do |flight|
+          expect(Time.zone.parse(flight['departs_at']).to_i).to eq(departure.to_i)
+
+          available_seats = flight['no_of_seats'] - flight['no_of_booked_seats']
+          expect(available_seats).to be >= 5
+        end
+      end
+
+      it 'filters by name, departure and available seats' do
+        get "/api/flights?name_cont=eagles&departs_at_eq=#{departure}&no_of_available_seats_gteq=5"
+
+        json_body['flights'].each do |flight|
+          expect(flight['name'].downcase).to include('eagles')
+          expect(Time.zone.parse(flight['departs_at']).to_i).to eq(departure.to_i)
+
+          available_seats = flight['no_of_seats'] - flight['no_of_booked_seats']
+          expect(available_seats).to be >= 5
+        end
+      end
+    end
+  end
+
+  describe 'current price of flight' do
+    let!(:price_helper) do
+      { older16: create(:flight, departs_at: 16.days.ago, base_price: 10),
+        older12: create(:flight, departs_at: 12.days.ago, base_price: 10),
+        older5: create(:flight, departs_at: 5.days.ago, base_price: 10),
+        older0: create(:flight, departs_at: 5.minutes.ago, base_price: 10) }
+    end
+
+    # rubocop:disable RSpec/ExampleLength
+    it 'returns correct current prices' do
+      get '/api/flights'
+
+      flights = json_body['flights']
+      flights.each do |flight|
+        case flight['id'].to_i
+        when price_helper[:older16].id
+          expect(flight['current_price'].to_i).to eq(price_helper[:older16].base_price)
+        when price_helper[:older12].id
+          difference = (flight.departs_at - Time.zone.now).to_i / 1.day
+          expected = ((2 - difference.to_f / 15) * flight.base_price).round
+          expect(flight['current_price'].to_i).to eq(expected)
+        when price_helper[:older5].id
+          difference = (flight.departs_at - Time.zone.now).to_i / 1.day
+          expected = ((2 - difference.to_f / 15) * flight.base_price).round
+          expect(flight['current_price'].to_i).to eq(expected)
+        when price_helper[:older0].id
+          expect(flight['current_price'].to_i).to eq(price_helper[:older16].base_price * 2)
+        else
+          pass
+        end
+      end
+    end
+    # rubocop:enable RSpec/ExampleLength
   end
 
   describe 'GET /flights/:id' do
@@ -246,5 +413,29 @@ RSpec.describe 'Flights API', type: :request do
         expect(Flight.all.length).to eq(1)
       end
     end
+  end
+
+  private
+
+  def created_at_greater?(first, second)
+    Time.zone.parse(first['created_at']) > Time.zone.parse(second['created_at'])
+  end
+
+  def name_greater?(first, second)
+    first['name'] > second['name']
+  end
+
+  def less_than_or_equal(first, second)
+    first_departs_at = Time.zone.parse(first['departs_at'])
+    second_departs_at = Time.zone.parse(second['departs_at'])
+    return false if first_departs_at > second_departs_at
+
+    if first_departs_at == second_departs_at &&
+       (name_greater?(first, second) ||
+         (first['name'] == second['name'] && created_at_greater?(first, second)))
+      return false
+    end
+
+    true
   end
 end

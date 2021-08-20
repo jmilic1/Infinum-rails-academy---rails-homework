@@ -3,11 +3,13 @@ module Api
     before_action :authenticate_current_user, only: [:create, :update, :destroy]
 
     def index
+      flights = filter_flights.order(:departs_at, :name, :created_at)
+
       if request.headers['X_API_SERIALIZER_ROOT'] == '0'
-        render json: FlightSerializer.render(Flight.all, view: :extended),
+        render json: FlightSerializer.render(flights, view: :extended),
                status: :ok
       else
-        render json: FlightSerializer.render(Flight.all, view: :extended, root: :flights),
+        render json: FlightSerializer.render(flights, view: :extended, root: :flights),
                status: :ok
       end
     end
@@ -65,5 +67,22 @@ module Api
                                      :name,
                                      :company_id)
     end
+
+    # rubocop:disable Metrics/AbcSize
+    def filter_flights
+      flights = Flight.where('departs_at > ?', Time.zone.now)
+
+      name_cont = request.params['name_cont']
+      no_of_seats = request.params['no_of_available_seats_gteq']
+      departs_at_eq = request.params['departs_at_eq']
+
+      flights = flights.where('name ILIKE ?', "%#{name_cont.downcase}%") if name_cont
+      flights = flights.where('no_of_seats >= ?', no_of_seats) if no_of_seats
+      if departs_at_eq
+        flights = flights.where('DATE(departs_at) = ?', Time.zone.parse(departs_at_eq))
+      end
+      flights
+    end
+    # rubocop:enable Metrics/AbcSize
   end
 end

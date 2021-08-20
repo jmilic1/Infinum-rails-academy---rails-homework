@@ -20,11 +20,29 @@ class Booking < ApplicationRecord
   validates :no_of_seats, presence: true,
                           numericality: { greater_than: 0 }
 
-  validate :departs_at_after_now
+  validate :departs_at_after_now, :overbook
+
+  def total_price
+    no_of_seats * seat_price
+  end
 
   def departs_at_after_now
-    return if flight.nil? || flight.departs_at > DateTime.current
+    return if flight.nil? || flight.departs_at > Time.zone.now
 
     errors.add(:flight, 'departure time must be after current time')
   end
+
+  # rubocop:disable Metrics/AbcSize
+  def overbook
+    return if no_of_seats.nil? || flight.nil?
+
+    bookings = Booking.where(flight_id: flight_id)
+    total_num_of_seats = bookings.sum(&:no_of_seats)
+    total_num_of_seats += no_of_seats unless bookings.any? { |booking| booking.id == id }
+
+    return if flight.no_of_seats >= total_num_of_seats
+
+    errors.add(:no_of_seats, 'this booking has overbooked the flight')
+  end
+  # rubocop:enable Metrics/AbcSize
 end
